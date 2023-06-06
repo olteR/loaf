@@ -1,0 +1,21 @@
+---
+version: "3.7"
+services:
+
+  # DATABASES
+  loaf-sql:
+    image: mariadb:10.8.3
+    restart: always
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - loaf-sql-data:/var/lib/mysql
+    ports:
+      - "33060:3306"
+    container_name: loaf-sql
+    environment:
+      MYSQL_ROOT_PASSWORD: "Maxwell123"
+      MYSQL_DATABASE: "loaf_db"
+      
+volumes:
+  loaf-sql-data:
+    name: loaf-sql-data
