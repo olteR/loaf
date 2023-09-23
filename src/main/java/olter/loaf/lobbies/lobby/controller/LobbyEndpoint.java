@@ -2,6 +2,8 @@ package olter.loaf.lobbies.lobby.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import olter.loaf.lobbies.lobby.dto.LobbyCreationRequest;
+import olter.loaf.lobbies.lobby.dto.LobbyDetailsResponse;
 import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,5 +17,10 @@ public class LobbyEndpoint {
   @GetMapping("/lobbies")
   public ResponseEntity<List<LobbyListResponse>> getLobbies() {
     return ResponseEntity.ok().body(lobbyService.getLobbies());
+  }
+
+  @PostMapping("/lobby")
+  public ResponseEntity<LobbyDetailsResponse> createLobby(@RequestBody LobbyCreationRequest request) {
+    return ResponseEntity.ok().body(lobbyService.createLobby(request));
   }
 }

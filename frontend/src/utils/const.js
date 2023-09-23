@@ -7,6 +7,7 @@ export const BREADCRUMB = {
     name: "statisztikák",
     icon: "fa fa-list-ol",
   },
+
   RULES: {
     name: "szabályok",
     icon: "fa fa-circle-info",

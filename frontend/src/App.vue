@@ -20,7 +20,7 @@ import axios from "axios";
 import { useToast } from "primevue/usetoast";
 import { useStateStore } from "@/stores/state";
 import Toast from "primevue/toast";
-import SiteMenu from "@/components/general/SiteMenu.vue";
+import SiteMenu from "@/components/common/SiteMenu.vue";
 import ProgressSpinner from "primevue/progressspinner";
 
 const router = useRouter();

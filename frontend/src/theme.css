@@ -5746,16 +5746,7 @@
 }
 @keyframes p-progress-spinner-color {
     100%, 0% {
-        stroke: #B71C1C;
-    }
-    40% {
-        stroke: #01579B;
-    }
-    66% {
-        stroke: #1B5E20;
-    }
-    80%, 90% {
-        stroke: #7f6003;
+        stroke: #9FA8DA;
     }
 }
 .p-scrolltop {
@@ -7412,4 +7403,8 @@ ul {
 
 a.p-link {
     text-decoration-line: underline;
+}
+
+.p-tooltip {
+    z-index: 2000;
 }

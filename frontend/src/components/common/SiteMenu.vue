@@ -32,7 +32,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStateStore } from "@/stores/state";
-import SiteBreadcrumb from "@/components/general/SiteBreadcrumb.vue";
+import SiteBreadcrumb from "@/components/common/SiteBreadcrumb.vue";
 import Menubar from "primevue/menubar";
 import Button from "primevue/button";
 

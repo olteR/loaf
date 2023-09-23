@@ -20,7 +20,9 @@ public class LobbyEntity extends BaseEntity {
   @Column(unique = true)
   private String code;
 
-  private boolean hidden;
+  private Boolean hidden;
+  private Boolean secured;
+  private Integer maxMembers;
 
   private Long owner;
   private String password;
