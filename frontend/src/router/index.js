@@ -5,7 +5,7 @@ import { BREADCRUMB } from "@/utils/const";
 import LoginView from "../views/LoginView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import PageNotFound from "@/views/PageNotFound.vue";
-import CampaignsView from "../views/campaigns/CampaignsView.vue";
+import LobbiesView from "../views/campaigns/LobbiesView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,16 +23,16 @@ const router = createRouter({
       props: { breadcrumbs: [{ name: "profile" }] },
     },
     {
-      path: "/campaigns",
-      name: "campaigns",
-      component: CampaignsView,
-      props: { breadcrumbs: [BREADCRUMB.CAMPAIGNS] },
+      path: "/lobbies",
+      name: "lobbies",
+      component: LobbiesView,
+      props: { breadcrumbs: [BREADCRUMB.LOBBIES] },
     },
 
     {
       path: "/",
       redirect: () => {
-        return "campaigns";
+        return "lobbies";
       },
     },
     {

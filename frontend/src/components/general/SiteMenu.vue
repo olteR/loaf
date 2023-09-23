@@ -33,7 +33,7 @@
     </template>
     <template #end>
       <div class="tab-menu-profile">
-        logged in as
+        bejelentkezett felhasználó:
         <router-link to="/profile">
           {{ stateStore.getUser ? stateStore.getUser.name : "" }}.
           <i class="fa fa-user"></i
@@ -56,51 +56,19 @@ const router = useRouter();
 const stateStore = useStateStore();
 const menuItems = ref([
   {
-    label: "campaigns",
-    to: "/campaigns",
-    icon: "fa fa-flag",
+    label: "lobbik",
+    to: "/lobbies",
+    icon: "fa fa-people-group",
   },
   {
-    label: "characters",
-    to: "/characters",
+    label: "statisztikák",
+    to: "/statistics",
     icon: "fa fa-user-group",
   },
   {
-    label: "database",
-    to: "/database",
+    label: "szabályok",
+    to: "/rules",
     icon: "fa fa-database",
-    subpages: [
-      {
-        label: "ancestries",
-        command: () => {
-          router.push({ name: "ancestries" });
-        },
-      },
-      {
-        label: "languages",
-        command: () => {
-          router.push({ name: "languages" });
-        },
-      },
-      {
-        label: "skills",
-        command: () => {
-          router.push({ name: "skills" });
-        },
-      },
-      {
-        label: "sources",
-        command: () => {
-          router.push({ name: "sources" });
-        },
-      },
-      {
-        label: "traits",
-        command: () => {
-          router.push({ name: "traits" });
-        },
-      },
-    ],
   },
 ]);
 </script>

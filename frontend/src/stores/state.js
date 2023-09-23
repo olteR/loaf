@@ -14,7 +14,7 @@ export const useStateStore = defineStore("state", () => {
 
   const user = ref();
   const jwt = ref(
-    localStorage.getItem("balls_jwt") ? localStorage.getItem("balls_jwt") : null
+    localStorage.getItem("loaf_jwt") ? localStorage.getItem("balls_jwt") : null
   );
   const breadcrumbs = ref([]);
   const loading = ref(false);
@@ -59,11 +59,11 @@ export const useStateStore = defineStore("state", () => {
   function logoutUser() {
     delete axios.defaults.headers.common["Authorization"];
     user.value = null;
-    localStorage.removeItem("balls_jwt");
+    localStorage.removeItem("loaf_jwt");
   }
 
   async function handleLoginResponse(response) {
-    localStorage.setItem("balls_jwt", response.data.token);
+    localStorage.setItem("loaf_jwt", response.data.token);
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + response.data.token;
     user.value = response.data;

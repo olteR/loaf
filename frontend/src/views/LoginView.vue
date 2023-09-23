@@ -1,10 +1,10 @@
 <template>
   <div class="flex h-screen">
     <div class="m-auto justify-items-center">
-      <h1 class="text-9xl text-center select-none">balls.</h1>
+      <h1 class="text-9xl text-center select-none">loaf.</h1>
       <span class="p-float-label m-8">
         <InputText id="name" type="text" v-model="name" class="w-full" />
-        <label for="name">username</label>
+        <label for="name">felhasználónév</label>
       </span>
       <span class="p-float-label m-8">
         <Password
@@ -14,7 +14,7 @@
           toggleMask
           class="w-full"
         />
-        <label for="password">password</label>
+        <label for="password">jelszó</label>
       </span>
       <Button
         label="login"

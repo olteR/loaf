@@ -20,7 +20,7 @@ import Breadcrumb from "primevue/breadcrumb";
 
 const router = useRouter();
 const stateStore = useStateStore();
-const home = ref({ icon: "pi pi-home", to: "/campaigns" });
+const home = ref({ icon: "pi pi-home", to: "/lobbies" });
 </script>
 
 <style scoped></style>
