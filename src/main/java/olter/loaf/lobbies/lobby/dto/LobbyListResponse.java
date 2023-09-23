@@ -10,7 +10,7 @@ import olter.loaf.users.dto.UserResponse;
 @Setter
 @RequiredArgsConstructor
 public class LobbyListResponse {
-    private String code;
-    private Long owner;
-    private List<UserResponse> members;
+  private String code;
+  private Long owner;
+  private List<UserResponse> members;
 }

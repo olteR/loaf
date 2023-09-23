@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class LobbyEndpoint {
-	private final LobbyService lobbyService;
+  private final LobbyService lobbyService;
 
-	@GetMapping("/lobbies")
-	public ResponseEntity<List<LobbyListResponse>> getLobbies() {
-		return ResponseEntity.ok().body(lobbyService.getLobbies());
-	}
+  @GetMapping("/lobbies")
+  public ResponseEntity<List<LobbyListResponse>> getLobbies() {
+    return ResponseEntity.ok().body(lobbyService.getLobbies());
+  }
 }

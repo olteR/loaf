@@ -131,13 +131,13 @@
                             <endWithNewline/>
                             <indent>
                                 <tabs>true</tabs>
-                                <spacesPerTab>4</spacesPerTab>
+                                <spacesPerTab>8</spacesPerTab>
                             </indent>
                         </format>
                     </formats>
                     <java>
                         <googleJavaFormat>
-                            <version>1.15.0</version>
+                            <version>1.8</version>
                             <style>GOOGLE</style>
                             <reflowLongStrings>true</reflowLongStrings>
                         </googleJavaFormat>

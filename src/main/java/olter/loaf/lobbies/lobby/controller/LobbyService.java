@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class LobbyService {
-	private final LobbyRepository lobbyRepository;
-	private final LobbyMapper lobbyMapper;
+  private final LobbyRepository lobbyRepository;
+  private final LobbyMapper lobbyMapper;
 
-	public List<LobbyListResponse> getLobbies() {
-		return lobbyRepository.findAll().stream().map(lobbyMapper::lobbyEntityToListResponse).toList();
-	}
+  public List<LobbyListResponse> getLobbies() {
+    return lobbyRepository.findAll().stream().map(lobbyMapper::lobbyEntityToListResponse).toList();
+  }
 }

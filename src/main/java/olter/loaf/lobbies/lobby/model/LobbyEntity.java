@@ -14,16 +14,16 @@ import olter.loaf.users.model.UserEntity;
 @RequiredArgsConstructor
 @Table(name = "lobbies")
 public class LobbyEntity extends BaseEntity {
-    @Column(unique = true)
-    private String code;
+  @Column(unique = true)
+  private String code;
 
-    private Long owner;
-    private String password;
+  private Long owner;
+  private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "lobby_users",
-            joinColumns = {@JoinColumn(name = "lobby_id")},
-            inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    private List<UserEntity> members;
+  @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "lobby_users",
+      joinColumns = {@JoinColumn(name = "lobby_id")},
+      inverseJoinColumns = {@JoinColumn(name = "user_id")})
+  private List<UserEntity> members;
 }
