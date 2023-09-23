@@ -14,7 +14,7 @@ export const useStateStore = defineStore("state", () => {
 
   const user = ref();
   const jwt = ref(
-    localStorage.getItem("loaf_jwt") ? localStorage.getItem("balls_jwt") : null
+    localStorage.getItem("loaf_jwt") ? localStorage.getItem("loaf_jwt") : null
   );
   const breadcrumbs = ref([]);
   const loading = ref(false);

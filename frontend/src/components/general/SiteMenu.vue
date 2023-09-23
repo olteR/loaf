@@ -2,31 +2,16 @@
   <Menubar :model="menuItems">
     <template #start>
       <div>
-        <SiteBreadcrumb></SiteBreadcrumb>
+        <SiteBreadcrumb/>
       </div>
     </template>
     <template #item="{ item }">
-      <SplitButton
-        v-if="item.subpages"
-        class="menubutton"
-        :model="item.subpages"
-      >
-        <Button @click="router.push(item.to)"
-          ><div
-            class="menulabel"
-            :class="{
-              active: router.currentRoute.value.path.startsWith(item.to),
-            }"
-          >
-            {{ item.label }}
-          </div></Button
-        >
-      </SplitButton>
-      <Button v-else class="menubutton" @click="router.push(item.to)"
+      <Button class="menubutton" @click="router.push(item.to)"
         ><div
           class="menulabel"
           :class="{ active: router.currentRoute.value.name === item.label }"
         >
+          <i :class="item.icon"></i>
           {{ item.label }}
         </div></Button
       >
@@ -50,7 +35,6 @@ import { useStateStore } from "@/stores/state";
 import SiteBreadcrumb from "@/components/general/SiteBreadcrumb.vue";
 import Menubar from "primevue/menubar";
 import Button from "primevue/button";
-import SplitButton from "primevue/splitbutton";
 
 const router = useRouter();
 const stateStore = useStateStore();
@@ -63,12 +47,12 @@ const menuItems = ref([
   {
     label: "statisztikák",
     to: "/statistics",
-    icon: "fa fa-user-group",
+    icon: "fa fa-list-ol",
   },
   {
     label: "szabályok",
     to: "/rules",
-    icon: "fa fa-database",
+    icon: "fa fa-circle-info",
   },
 ]);
 </script>

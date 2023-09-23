@@ -5,7 +5,7 @@ import { BREADCRUMB } from "@/utils/const";
 import LoginView from "../views/LoginView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import PageNotFound from "@/views/PageNotFound.vue";
-import LobbiesView from "../views/campaigns/LobbiesView.vue";
+import LobbiesView from "../views/lobbies/LobbiesView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

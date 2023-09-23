@@ -15,7 +15,12 @@ import olter.loaf.users.model.UserEntity;
 @Table(name = "lobbies")
 public class LobbyEntity extends BaseEntity {
   @Column(unique = true)
+  private String name;
+
+  @Column(unique = true)
   private String code;
+
+  private boolean hidden;
 
   private Long owner;
   private String password;
