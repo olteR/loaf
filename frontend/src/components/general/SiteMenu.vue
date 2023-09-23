@@ -2,7 +2,7 @@
   <Menubar :model="menuItems">
     <template #start>
       <div>
-        <SiteBreadcrumb/>
+        <SiteBreadcrumb />
       </div>
     </template>
     <template #item="{ item }">

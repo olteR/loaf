@@ -42,14 +42,14 @@ export const useStateStore = defineStore("state", () => {
       await handleLoginResponse(response);
       toast.add({
         severity: "success",
-        summary: "success.",
-        detail: "successful login.",
+        summary: "siker.",
+        detail: "sikeres bejelentkezés.",
         life: 3000,
       });
     } catch (error) {
       toast.add({
         severity: "error",
-        summary: "Hiba!",
+        summary: "hiba.",
         detail: error,
         life: 3000,
       });

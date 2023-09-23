@@ -21,7 +21,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     } catch (error) {
       toast.add({
         severity: "error",
-        summary: "error.",
+        summary: "hiba.",
         detail: error,
         life: 3000,
       });

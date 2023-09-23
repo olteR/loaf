@@ -17,8 +17,13 @@
         <label for="password">jelszó</label>
       </span>
       <Button
-        label="login"
-        class="float-right p-button-primary mr-8"
+        label="bejelentkezés"
+        class="p-button-primary mr-8"
+        @click="loginUser()"
+      />
+      <Button
+        label="regisztráció"
+        class="float-right p-button-secondary mr-8"
         @click="loginUser()"
       />
     </div>
@@ -27,11 +32,11 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import { useStateStore } from "@/stores/state";
+import { useRouter } from "vue-router";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import { useStateStore } from "@/stores/state";
-import { useRouter } from "vue-router";
 
 const router = useRouter();
 const stateStore = useStateStore();

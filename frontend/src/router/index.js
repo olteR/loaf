@@ -6,6 +6,8 @@ import LoginView from "../views/LoginView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import PageNotFound from "@/views/PageNotFound.vue";
 import LobbiesView from "../views/lobbies/LobbiesView.vue";
+import StatisticsView from "@/views/statistics/StatisticsView.vue";
+import RulesView from "@/views/rules/RulesView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,7 +30,18 @@ const router = createRouter({
       component: LobbiesView,
       props: { breadcrumbs: [BREADCRUMB.LOBBIES] },
     },
-
+    {
+      path: "/statistics",
+      name: "statistics",
+      component: StatisticsView,
+      props: { breadcrumbs: [BREADCRUMB.STATISTICS] },
+    },
+    {
+      path: "/rules",
+      name: "rules",
+      component: RulesView,
+      props: { breadcrumbs: [BREADCRUMB.RULES] },
+    },
     {
       path: "/",
       redirect: () => {
