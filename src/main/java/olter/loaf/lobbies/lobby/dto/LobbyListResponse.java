@@ -11,6 +11,7 @@ import olter.loaf.users.dto.UserResponse;
 @RequiredArgsConstructor
 public class LobbyListResponse {
   private String name;
+  private String code;
   private Long owner;
   private Boolean secured;
   private Integer maxMembers;

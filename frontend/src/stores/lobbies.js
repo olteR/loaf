@@ -13,6 +13,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   const getLobbies = computed(() => lobbies.value);
 
   const urls = {
+    join: "http://localhost:3000/api/join/",
     myGames: "http://localhost:3000/api/my-games",
     lobby: "http://localhost:3000/api/lobby",
     lobbies: "http://localhost:3000/api/lobbies",
@@ -49,7 +50,20 @@ export const useLobbyStore = defineStore("lobby", () => {
   async function createLobby(request) {
     try {
       const response = await axios.post(urls.lobby, request);
-      console.log(response);
+      lobby.value = response.data;
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
+  async function joinLobby(code) {
+    try {
+      const response = await axios.patch(urls.join.concat(code));
       lobby.value = response.data;
     } catch (error) {
       toast.add({
@@ -67,5 +81,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchLobbies,
     fetchMyGames,
     createLobby,
+    joinLobby,
   };
 });

@@ -45,7 +45,7 @@ const password = ref();
 
 onMounted(() => {
   if (stateStore.isLoggedIn) {
-    router.push("/campaigns");
+    router.push("/lobbies");
   }
 });
 

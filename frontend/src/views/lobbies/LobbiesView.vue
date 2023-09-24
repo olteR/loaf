@@ -36,33 +36,7 @@
           </div>
         </template>
       </Card>
-      <Panel v-for="lobby in lobbyStore.getLobbies" :key="lobby.name">
-        <template #header>
-          <span>
-            <i v-if="lobby.secured" class="fa fa-lock"></i>
-            {{ lobby.name }}
-          </span>
-          <div class="ml-auto">
-            {{ lobby.members.length }}/{{ lobby.maxMembers }}
-          </div>
-        </template>
-        <div class="grid grid-cols-2">
-          <div>
-            játékosok:
-            <span v-for="player in lobby.members" :key="player.id">
-              <i v-if="player.id === lobby.owner" class="fa fa-crown" />
-              {{ player.displayName }}
-            </span>
-          </div>
-          <div class="ml-auto">
-            <Button
-              label="csatlakozás"
-              class="w-full"
-              icon="pi pi-user-plus"
-            ></Button>
-          </div>
-        </div>
-      </Panel>
+      <LobbyList :lobbies="lobbyStore.getLobbies" :type="'search'" />
     </div>
     <DynamicDialog />
   </div>
@@ -77,8 +51,8 @@ import CreateLobbyModal from "@/components/lobbies/CreateLobbyModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DynamicDialog from "primevue/dynamicdialog";
-import Panel from "primevue/panel";
 import ProgressSpinner from "primevue/progressspinner";
+import LobbyList from "@/components/lobbies/LobbyList.vue";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
@@ -121,17 +95,7 @@ function openDialog() {
   margin-bottom: 1rem !important;
 }
 
-.p-panel {
-  margin-bottom: 0.5rem !important;
-}
-
 .p-button {
   margin-right: 1rem;
-}
-
-::v-deep(.p-panel) {
-  .p-panel-header {
-    font-size: 2rem;
-  }
 }
 </style>

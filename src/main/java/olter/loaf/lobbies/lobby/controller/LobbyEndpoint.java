@@ -17,12 +17,14 @@ public class LobbyEndpoint {
   private final LobbyService lobbyService;
 
   @GetMapping("/my-games")
-  public ResponseEntity<List<LobbyListResponse>> getMyGames(@SecurityAnnotations.GetLoggedInUser UserEntity user) {
+  public ResponseEntity<List<LobbyListResponse>> getMyGames(
+      @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.getMyGames(user));
   }
 
   @GetMapping("/lobbies")
-  public ResponseEntity<List<LobbyListResponse>> getLobbies(@SecurityAnnotations.GetLoggedInUser UserEntity user) {
+  public ResponseEntity<List<LobbyListResponse>> getLobbies(
+      @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.getLobbies(user));
   }
 
@@ -31,5 +33,11 @@ public class LobbyEndpoint {
       @RequestBody LobbyCreationRequest request,
       @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.createLobby(request, user));
+  }
+
+  @PatchMapping("/join/{code}")
+  public ResponseEntity<LobbyDetailsResponse> joinLobby(
+      @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+    return ResponseEntity.ok().body(lobbyService.joinLobby(code, user));
   }
 }
