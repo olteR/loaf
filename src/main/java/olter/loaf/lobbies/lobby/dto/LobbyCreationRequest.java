@@ -9,7 +9,7 @@ import lombok.*;
 public class LobbyCreationRequest {
   private String name;
   private String password;
-  private boolean hidden;
-  private boolean secured;
-  private int maxMembers;
+  private Boolean hidden;
+  private Boolean secured;
+  private Integer maxMembers;
 }

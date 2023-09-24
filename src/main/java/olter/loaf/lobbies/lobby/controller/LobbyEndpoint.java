@@ -17,8 +17,8 @@ public class LobbyEndpoint {
   private final LobbyService lobbyService;
 
   @GetMapping("/lobbies")
-  public ResponseEntity<List<LobbyListResponse>> getLobbies() {
-    return ResponseEntity.ok().body(lobbyService.getLobbies());
+  public ResponseEntity<List<LobbyListResponse>> getLobbies(@SecurityAnnotations.GetLoggedInUser UserEntity user) {
+    return ResponseEntity.ok().body(lobbyService.getLobbies(user));
   }
 
   @PostMapping("/lobby")

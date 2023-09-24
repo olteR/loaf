@@ -13,6 +13,7 @@ import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
 import olter.loaf.lobbies.lobby.model.LobbyEntity;
 import olter.loaf.lobbies.lobby.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
+import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +26,9 @@ public class LobbyService {
 
   private final PasswordEncoder passwordEncoder;
 
-  public List<LobbyListResponse> getLobbies() {
+  public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
     return lobbyRepository.findAll().stream()
-        .filter(not(LobbyEntity::getHidden))
+        .filter(l -> !l.getHidden() && !l.getMembers().contains(loggedInUser))
         .map(lobbyMapper::entityToListResponse)
         .toList();
   }
@@ -39,7 +40,7 @@ public class LobbyService {
     lobby.setCode(generateLobbyCode());
     lobby.setOwner(creator.getId());
     lobby.setMembers(List.of(creator));
-    if (request.isSecured()) {
+    if (request.getSecured() != null && request.getSecured()) {
       lobby.setPassword(passwordEncoder.encode(request.getPassword()));
     }
     lobbyRepository.save(lobby);

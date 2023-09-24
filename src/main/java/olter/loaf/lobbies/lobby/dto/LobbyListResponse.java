@@ -12,5 +12,7 @@ import olter.loaf.users.dto.UserResponse;
 public class LobbyListResponse {
   private String name;
   private Long owner;
+  private Boolean secured;
+  private Integer maxMembers;
   private List<UserResponse> members;
 }
