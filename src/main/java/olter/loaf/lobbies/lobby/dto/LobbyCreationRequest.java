@@ -1,16 +1,15 @@
 package olter.loaf.lobbies.lobby.dto;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class LobbyCreationRequest {
-    private String name;
-    private String password;
-    private Boolean hidden;
-    private Boolean secured;
-    private Integer maxMembers;
+  private String name;
+  private String password;
+  private boolean hidden;
+  private boolean secured;
+  private int maxMembers;
 }

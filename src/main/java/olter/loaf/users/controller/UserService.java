@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.security.JwtHandler;
 import olter.loaf.security.dto.LoginRequest;
 import olter.loaf.security.dto.LoginResponse;
@@ -44,6 +45,12 @@ public class UserService implements UserDetailsService {
         jwtHandler.generateJwt(user.getName(), Map.of("uid", user.getId())));
   }
 
+  public UserEntity getLoggedInUser(String name) {
+    return userRepository
+        .findByName(name)
+        .orElseThrow(() -> new ResourceNotFoundException(UserEntity.class.getName(), name));
+  }
+
   @Override
   public UserDetails loadUserByUsername(String name) {
     return userEntityToUserDetails(
@@ -52,7 +59,7 @@ public class UserService implements UserDetailsService {
             .orElseThrow(
                 () ->
                     new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "User not found with this email")));
+                        HttpStatus.UNAUTHORIZED, "User not found with this username")));
   }
 
   private UserDetails userEntityToUserDetails(UserEntity userEntity) {

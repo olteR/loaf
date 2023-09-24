@@ -54,7 +54,8 @@
       <InputNumber
         v-model="lobbyForm.maxMembers"
         id="maxMembers"
-        :min="3" :max="9"
+        :min="3"
+        :max="9"
         showButtons
         buttonLayout="horizontal"
         decrementButtonClass="primary"
@@ -66,18 +67,27 @@
     <div></div>
     <div></div>
     <div>
-      <Button class="float-right" label="létrehozás"></Button>
+      <Button
+        class="float-right"
+        label="létrehozás"
+        @click="createLobby()"
+      ></Button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import { useStateStore } from "@/stores/state";
+import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import SelectButton from "primevue/selectbutton";
+
+const stateStore = useStateStore();
+const lobbyStore = useLobbyStore();
 
 const lobbyForm = ref({
   name: null,
@@ -108,18 +118,23 @@ const securedOptions = ref([
     value: true,
   },
 ]);
+
+async function createLobby() {
+  stateStore.setLoading(true);
+  await lobbyStore.createLobby(lobbyForm.value);
+  stateStore.setLoading(false);
+}
 </script>
 
 <style scoped>
 ::v-deep(.p-inputnumber) {
-
-.p-inputtext {
-  text-align: center;
-}
+  .p-inputtext {
+    text-align: center;
+  }
 }
 ::v-deep(.p-password) {
-.p-inputtext {
-  width: inherit;
-}
+  .p-inputtext {
+    width: inherit;
+  }
 }
 </style>
