@@ -49,8 +49,8 @@
       ></Password>
       <label for="password">jelszó</label>
     </div>
-    <div class="grid grid-cols-1">
-      <label for="maxMembers" class="text-center">maximum játékos</label>
+    <div class="grid grid-cols-1 col-span-2 mb-2">
+      <label for="maxMembers" class="text-center">maximum játékosok</label>
       <InputNumber
         v-model="lobbyForm.maxMembers"
         id="maxMembers"
@@ -64,12 +64,21 @@
         decrementButtonIcon="pi pi-minus"
       />
     </div>
-    <div></div>
-    <div></div>
     <div>
       <Button
-        class="float-right"
+        class="p-button-danger"
+        label="mégsem"
+        icon="pi pi-times"
+        :disabled="loading"
+        @click="dialogRef.close()"
+      ></Button>
+    </div>
+    <div>
+      <Button
+        class="float-right p-button-success"
         label="létrehozás"
+        icon="pi pi-check"
+        :loading="loading"
         @click="createLobby()"
       ></Button>
     </div>
@@ -77,8 +86,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useStateStore } from "@/stores/state";
+import { inject, ref } from "vue";
 import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
@@ -86,8 +94,9 @@ import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import SelectButton from "primevue/selectbutton";
 
-const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
+const dialogRef = inject("dialogRef");
+const loading = ref(false);
 
 const lobbyForm = ref({
   name: null,
@@ -120,9 +129,10 @@ const securedOptions = ref([
 ]);
 
 async function createLobby() {
-  stateStore.setLoading(true);
+  loading.value = true;
   await lobbyStore.createLobby(lobbyForm.value);
-  stateStore.setLoading(false);
+  loading.value = false;
+  dialogRef.value.close();
 }
 </script>
 

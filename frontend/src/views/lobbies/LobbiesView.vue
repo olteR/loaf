@@ -5,7 +5,7 @@
         <div class="grid grid-cols-6">
           <div class="col-span-5">
             <Button
-              icon="pi pi-refresh"
+              icon="pi pi-sync"
               :disabled="!canRefresh"
               @click="getLobbies()"
             />
@@ -21,32 +21,49 @@
         </div>
       </template>
     </Card>
-    <Card v-if="lobbyStore.getLobbies.length === 0">
-      <template #content>
-        <div class="text-center select-none">
-          Úgy tűnik jelenleg nincs aktív lobbi. Hozz létre sajátot az "Új lobbi"
-          gomb megnyomásával!
+    <div v-if="loading">
+      <ProgressSpinner
+        aria-label="loading"
+        class="fixed top-1/2 left-1/2"
+      ></ProgressSpinner>
+    </div>
+    <div v-else>
+      <Card v-if="lobbyStore.getLobbies.length === 0">
+        <template #content>
+          <div class="text-center select-none">
+            Úgy tűnik jelenleg nincs lobbi amihez csatlakozhatnál. Hozz létre
+            sajátot az "Új lobbi" gomb megnyomásával!
+          </div>
+        </template>
+      </Card>
+      <Panel v-for="lobby in lobbyStore.getLobbies" :key="lobby.name">
+        <template #header>
+          <span>
+            <i v-if="lobby.secured" class="fa fa-lock"></i>
+            {{ lobby.name }}
+          </span>
+          <div class="ml-auto">
+            {{ lobby.members.length }}/{{ lobby.maxMembers }}
+          </div>
+        </template>
+        <div class="grid grid-cols-2">
+          <div>
+            játékosok:
+            <span v-for="player in lobby.members" :key="player.id">
+              <i v-if="player.id === lobby.owner" class="fa fa-crown" />
+              {{ player.displayName }}
+            </span>
+          </div>
+          <div class="ml-auto">
+            <Button
+              label="csatlakozás"
+              class="w-full"
+              icon="pi pi-user-plus"
+            ></Button>
+          </div>
         </div>
-      </template>
-    </Card>
-    <Panel v-for="lobby in lobbyStore.getLobbies" :key="lobby.name">
-      <template #header>
-        <span>
-          <i v-if="lobby.secured" class="fa fa-lock"></i>
-          {{ lobby.name }}
-        </span>
-        <div class="ml-auto">{{ lobby.members.length }}/{{ lobby.maxMembers }}</div>
-      </template>
-      <div class="grid grid-cols-2">
-        <div>
-          tulajdonos: {{ lobby.members.find((m) => m.id === lobby.owner).displayName }}
-        </div>
-        <div class="ml-auto">
-          <Button label="csatlakozás" class="w-full"></Button>
-        </div>
-      </div>
-
-    </Panel>
+      </Panel>
+    </div>
     <DynamicDialog />
   </div>
 </template>
@@ -61,21 +78,28 @@ import Button from "primevue/button";
 import Card from "primevue/card";
 import DynamicDialog from "primevue/dynamicdialog";
 import Panel from "primevue/panel";
+import ProgressSpinner from "primevue/progressspinner";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
 const dialog = useDialog();
 const canRefresh = ref(false);
+const loading = ref(false);
 
 onMounted(async () => {
-  await getLobbies();
+  stateStore.setLoading(true);
+  await lobbyStore.fetchLobbies();
+  stateStore.setLoading(false);
+  setTimeout(() => {
+    canRefresh.value = true;
+  }, 3000);
 });
 
 async function getLobbies() {
   canRefresh.value = false;
-  stateStore.setLoading(true);
+  loading.value = true;
   await lobbyStore.fetchLobbies();
-  stateStore.setLoading(false);
+  loading.value = false;
   setTimeout(() => {
     canRefresh.value = true;
   }, 3000);
@@ -86,6 +110,7 @@ function openDialog() {
     props: {
       header: "Új lobbi létrehozása",
       modal: true,
+      closable: false,
     },
   });
 }

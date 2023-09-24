@@ -26,6 +26,13 @@ public class LobbyService {
 
   private final PasswordEncoder passwordEncoder;
 
+  public List<LobbyListResponse> getMyGames(UserEntity loggedInUser) {
+    return lobbyRepository.findAll().stream()
+            .filter(l -> l.getMembers().contains(loggedInUser))
+            .map(lobbyMapper::entityToListResponse)
+            .toList();
+  }
+
   public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
     return lobbyRepository.findAll().stream()
         .filter(l -> !l.getHidden() && !l.getMembers().contains(loggedInUser))

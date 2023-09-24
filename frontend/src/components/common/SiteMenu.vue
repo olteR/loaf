@@ -40,6 +40,11 @@ const router = useRouter();
 const stateStore = useStateStore();
 const menuItems = ref([
   {
+    label: "játékaim",
+    to: "/my-games",
+    icon: "fa fa-dice",
+  },
+  {
     label: "lobbik",
     to: "/lobbies",
     icon: "fa fa-people-group",
@@ -47,7 +52,7 @@ const menuItems = ref([
   {
     label: "statisztikák",
     to: "/statistics",
-    icon: "fa fa-list-ol",
+    icon: "fa fa-chart-line",
   },
   {
     label: "szabályok",

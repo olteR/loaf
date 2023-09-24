@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.*;
 public class LobbyEndpoint {
   private final LobbyService lobbyService;
 
+  @GetMapping("/my-games")
+  public ResponseEntity<List<LobbyListResponse>> getMyGames(@SecurityAnnotations.GetLoggedInUser UserEntity user) {
+    return ResponseEntity.ok().body(lobbyService.getMyGames(user));
+  }
+
   @GetMapping("/lobbies")
   public ResponseEntity<List<LobbyListResponse>> getLobbies(@SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.getLobbies(user));

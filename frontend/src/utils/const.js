@@ -1,11 +1,15 @@
 export const BREADCRUMB = {
+  MY_GAMES: {
+    name: "játékaim",
+    icon: "fa fa-dice",
+  },
   LOBBIES: {
     name: "lobbik",
     icon: "fa fa-people-group",
   },
   STATISTICS: {
     name: "statisztikák",
-    icon: "fa fa-list-ol",
+    icon: "fa fa-chart-line",
   },
 
   RULES: {
