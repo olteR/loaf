@@ -11,6 +11,7 @@ import olter.loaf.lobbies.lobby.dto.LobbyDetailsResponse;
 import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
 import olter.loaf.lobbies.lobby.exception.AlreadyJoinedException;
 import olter.loaf.lobbies.lobby.exception.LobbyFullException;
+import olter.loaf.lobbies.lobby.exception.NotInLobbyException;
 import olter.loaf.lobbies.lobby.model.LobbyEntity;
 import olter.loaf.lobbies.lobby.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
@@ -31,6 +32,17 @@ public class LobbyService {
         .filter(l -> l.getMembers().contains(loggedInUser))
         .map(lobbyMapper::entityToListResponse)
         .toList();
+  }
+
+  public LobbyDetailsResponse getLobby(String code, UserEntity loggedInUser) {
+    LobbyEntity lobby =
+        lobbyRepository
+            .findFirstByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+    if (!lobby.getMembers().contains(loggedInUser)) {
+      throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
+    }
+    return lobbyMapper.entityToDetailsResponse(lobby);
   }
 
   public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {

@@ -22,6 +22,12 @@ public class LobbyEndpoint {
     return ResponseEntity.ok().body(lobbyService.getMyGames(user));
   }
 
+  @GetMapping("/lobby/{code}")
+  public ResponseEntity<LobbyDetailsResponse> getLobbies(
+      @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+    return ResponseEntity.ok().body(lobbyService.getLobby(code, user));
+  }
+
   @GetMapping("/lobbies")
   public ResponseEntity<List<LobbyListResponse>> getLobbies(
       @SecurityAnnotations.GetLoggedInUser UserEntity user) {
