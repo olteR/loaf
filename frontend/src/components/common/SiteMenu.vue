@@ -1,23 +1,25 @@
 <template>
   <Menubar :model="menuItems">
     <template #start>
-      <div>
+      <div class="w-0 lg:w-fit invisible lg:visible">
         <SiteBreadcrumb />
       </div>
     </template>
     <template #item="{ item }">
-      <Button class="menubutton" @click="router.push(item.to)"
-        ><div
-          class="menulabel"
-          :class="{ active: router.currentRoute.value.name === item.label }"
-        >
-          <i :class="item.icon"></i>
-          {{ item.label }}
-        </div></Button
-      >
+      <span :class="{ 'lg:invisible': item.phone }">
+        <Button class="menubutton" @click="router.push(item.to)">
+          <div
+            class="menulabel"
+            :class="{ active: router.currentRoute.value.name === item.label }"
+          >
+            <i :class="item.icon"></i>
+            {{ item.label }}
+          </div>
+        </Button>
+      </span>
     </template>
     <template #end>
-      <div class="tab-menu-profile">
+      <div class="invisible lg:visible">
         bejelentkezett felhasználó:
         <router-link to="/profile">
           {{ stateStore.getUser ? stateStore.getUser.name : "" }}.
@@ -59,6 +61,12 @@ const menuItems = ref([
     to: "/rules",
     icon: "fa fa-circle-info",
   },
+  {
+    label: "profil",
+    to: "/profile",
+    icon: "fa fa-user",
+    phone: true,
+  },
 ]);
 </script>
 
@@ -86,12 +94,14 @@ const menuItems = ref([
 .p-menubar .p-menubar-root-list {
   margin: auto;
 }
-.p-menubar-start {
-  width: 30vw;
-}
-.p-menubar-end {
-  width: 30vw;
-  text-align: right;
-  margin-left: 0 !important;
+@media (min-width: 1024px) {
+  .p-menubar-start {
+    width: 30vw;
+  }
+  .p-menubar-end {
+    width: 30vw;
+    text-align: right;
+    margin-left: 0 !important;
+  }
 }
 </style>

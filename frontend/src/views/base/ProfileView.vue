@@ -13,12 +13,10 @@
 
 <script setup>
 import { useStateStore } from "@/stores/state";
-import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Card from "primevue/card";
 
 const stateStore = useStateStore();
-const router = useRouter();
 
 async function logoutUser() {
   await stateStore.logoutUser();

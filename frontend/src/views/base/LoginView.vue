@@ -18,7 +18,7 @@
       </span>
       <Button
         label="bejelentkezés"
-        class="p-button-primary mr-8"
+        class="p-button-primary ml-8"
         @click="loginUser()"
       />
       <Button

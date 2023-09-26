@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useStateStore } from "@/stores/state";
 import { BREADCRUMB } from "@/utils/const";
 
-import LoginView from "../views/LoginView.vue";
-import ProfileView from "../views/ProfileView.vue";
-import PageNotFound from "@/views/PageNotFound.vue";
+import LoginView from "../views/base/LoginView.vue";
+import RegisterView from "@/views/base/RegisterView.vue";
+import ProfileView from "../views/base/ProfileView.vue";
+import PageNotFound from "@/views/base/PageNotFound.vue";
 import MyGamesView from "@/views/lobbies/MyGamesView.vue";
 import LobbiesView from "../views/lobbies/LobbiesView.vue";
 import LobbyView from "@/views/lobbies/LobbyView.vue";
@@ -18,6 +19,12 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: LoginView,
+      props: { breadcrumbs: [] },
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: RegisterView,
       props: { breadcrumbs: [] },
     },
     {

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserEndpoint {
   private final UserService userService;
 
-  @PostMapping("/users/login")
+  @PostMapping("/auth/login")
   public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest loginRequest) {
     return ResponseEntity.ok().body(userService.loginUser(loginRequest));
   }

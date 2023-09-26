@@ -9,7 +9,7 @@ export const useStateStore = defineStore("state", () => {
   const toast = useToast();
 
   const urls = {
-    login: "http://localhost:3000/api/users/login",
+    login: "http://localhost:3000/api/auth/login",
   };
 
   const user = ref();
@@ -61,7 +61,7 @@ export const useStateStore = defineStore("state", () => {
     user.value = null;
     jwt.value = null;
     localStorage.removeItem("loaf_jwt");
-    await router.push("/login")
+    await router.push("/login");
   }
 
   async function handleLoginResponse(response) {

@@ -19,7 +19,6 @@ const socket = new SockJS("http://localhost:3000/ws");
 const stompClient = Stomp.over(socket);
 
 const received = ref([]);
-const send = ref();
 const connected = ref(false);
 
 onMounted(async () => {
@@ -39,21 +38,21 @@ onMounted(async () => {
 
 function connect() {
   stompClient.connect(
-      {
-        Authorization: 'Bearer '.concat(stateStore.getJwt),
-      },
-      frame => {
-        connected.value = true;
-        console.log(frame);
-        stompClient.subscribe("/topic/greetings", tick => {
-          console.log(tick);
-          received.value.push(JSON.parse(tick.body).content);
-        });
-      },
-      error => {
-        console.log(error);
-        connected.value = false;
-      }
+    {
+      Authorization: "Bearer ".concat(stateStore.getJwt),
+    },
+    (frame) => {
+      connected.value = true;
+      console.log(frame);
+      stompClient.subscribe("/topic/greetings", (tick) => {
+        console.log(tick);
+        received.value.push(JSON.parse(tick.body).content);
+      });
+    },
+    (error) => {
+      console.log(error);
+      connected.value = false;
+    }
   );
 }
 </script>

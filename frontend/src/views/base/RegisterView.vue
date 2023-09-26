@@ -1,0 +1,85 @@
+<template>
+  <div class="flex h-screen">
+    <div class="m-auto justify-items-center">
+      <h1 class="text-4xl text-center select-none">
+        új felhasználó létrehozása.
+      </h1>
+      <span class="p-float-label m-8">
+        <InputText
+          id="name"
+          type="text"
+          v-model="userForm.name"
+          class="w-full"
+        />
+        <label for="name">felhasználónév</label>
+      </span>
+      <span class="p-float-label m-8">
+        <InputText
+          id="name"
+          type="text"
+          v-model="userForm.email"
+          class="w-full"
+        />
+        <label for="name">e-mail</label>
+      </span>
+      <span class="p-float-label m-8">
+        <Password
+          id="password"
+          v-model="userForm.password"
+          :feedback="false"
+          toggleMask
+          class="w-full"
+        />
+        <label for="password">jelszó</label>
+      </span>
+      <div class="grid grid-cols-1 sm:grid-cols-2">
+        <div class="mx-8 mb-4">
+          <Button
+            label="vissza a bejelentkezéshez"
+            class="p-button-danger w-full sm:w-auto"
+            icon="pi pi-chevron-left"
+            @click="router.push('/login')"
+          />
+        </div>
+        <div class="mx-8">
+          <Button
+            label="regisztráció"
+            class="float-right p-button-success w-full sm:w-auto"
+            @click="console.log('pog')"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { onMounted, ref } from "vue";
+import { useStateStore } from "@/stores/state";
+import { useRouter } from "vue-router";
+import InputText from "primevue/inputtext";
+import Password from "primevue/password";
+import Button from "primevue/button";
+
+const router = useRouter();
+const stateStore = useStateStore();
+const userForm = ref({
+  name: null,
+  email: null,
+  password: null,
+});
+
+onMounted(() => {
+  if (stateStore.isLoggedIn) {
+    router.push("/lobbies");
+  }
+});
+</script>
+
+<style scoped>
+::v-deep(.p-password) {
+  .p-inputtext {
+    width: inherit;
+  }
+}
+</style>
