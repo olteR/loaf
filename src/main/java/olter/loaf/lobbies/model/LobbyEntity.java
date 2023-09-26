@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.lobby.model;
+package olter.loaf.lobbies.model;
 
 import jakarta.persistence.*;
 import java.util.List;

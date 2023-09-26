@@ -1,9 +1,9 @@
-package olter.loaf.lobbies.lobby;
+package olter.loaf.lobbies;
 
-import olter.loaf.lobbies.lobby.dto.LobbyCreationRequest;
-import olter.loaf.lobbies.lobby.dto.LobbyDetailsResponse;
-import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
-import olter.loaf.lobbies.lobby.model.LobbyEntity;
+import olter.loaf.lobbies.dto.LobbyCreationRequest;
+import olter.loaf.lobbies.dto.LobbyDetailsResponse;
+import olter.loaf.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobbies.model.LobbyEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

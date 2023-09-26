@@ -1,19 +1,19 @@
-package olter.loaf.lobbies.lobby.controller;
+package olter.loaf.lobbies.controller;
 
 import java.util.List;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
-import olter.loaf.lobbies.lobby.LobbyMapper;
-import olter.loaf.lobbies.lobby.dto.LobbyCreationRequest;
-import olter.loaf.lobbies.lobby.dto.LobbyDetailsResponse;
-import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
-import olter.loaf.lobbies.lobby.exception.AlreadyJoinedException;
-import olter.loaf.lobbies.lobby.exception.LobbyFullException;
-import olter.loaf.lobbies.lobby.exception.NotInLobbyException;
-import olter.loaf.lobbies.lobby.model.LobbyEntity;
-import olter.loaf.lobbies.lobby.model.LobbyRepository;
+import olter.loaf.lobbies.LobbyMapper;
+import olter.loaf.lobbies.dto.LobbyCreationRequest;
+import olter.loaf.lobbies.dto.LobbyDetailsResponse;
+import olter.loaf.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobbies.exception.AlreadyJoinedException;
+import olter.loaf.lobbies.exception.NotInLobbyException;
+import olter.loaf.lobbies.exception.LobbyFullException;
+import olter.loaf.lobbies.model.LobbyEntity;
+import olter.loaf.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,7 @@ public class LobbyService {
   private final PasswordEncoder passwordEncoder;
 
   public List<LobbyListResponse> getMyGames(UserEntity loggedInUser) {
+    log.info("Getting games for " + loggedInUser.getName());
     return lobbyRepository.findAll().stream()
         .filter(l -> l.getMembers().contains(loggedInUser))
         .map(lobbyMapper::entityToListResponse)
@@ -39,6 +40,7 @@ public class LobbyService {
         lobbyRepository
             .findFirstByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+    log.info("Getting lobby" + lobby.getName() + " for " + loggedInUser.getName());
     if (!lobby.getMembers().contains(loggedInUser)) {
       throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
     }
@@ -46,6 +48,7 @@ public class LobbyService {
   }
 
   public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
+    log.info("Getting lobbies for " + loggedInUser.getName());
     return lobbyRepository.findAll().stream()
         .filter(l -> !l.getHidden() && !l.getMembers().contains(loggedInUser))
         .map(lobbyMapper::entityToListResponse)
@@ -53,7 +56,7 @@ public class LobbyService {
   }
 
   public LobbyDetailsResponse createLobby(LobbyCreationRequest request, UserEntity creator) {
-    log.info(request.getName());
+    log.info(request.getName() + " creating lobby...");
     LobbyEntity lobby = new LobbyEntity();
     lobbyMapper.map(request, lobby);
     lobby.setOwner(creator.getId());
@@ -61,6 +64,7 @@ public class LobbyService {
 
     while (lobby.getCode() == null || lobbyRepository.existsByCode(lobby.getCode())) {
       lobby.setCode(generateLobbyCode());
+      log.info(request.getName() + "Lobby code generated: " + lobby.getCode());
     }
 
     if (request.getSecured() != null && request.getSecured()) {
@@ -76,6 +80,7 @@ public class LobbyService {
             .findFirstByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
     List<UserEntity> members = lobby.getMembers();
+    log.info(user.getName() + " joining lobby " + lobby.getName() + "...");
 
     if (members.contains(user)) {
       throw new AlreadyJoinedException(lobby.getId(), user.getId());

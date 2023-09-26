@@ -1,15 +1,16 @@
-package olter.loaf.lobbies.lobby.controller;
+package olter.loaf.lobbies.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class LobbyWebsocketController {
-  @MessageMapping("/ws")
-  @SendTo("topic/greetings")
-  ResponseEntity<String> greet() {
+  @MessageMapping("/ws/lobby/{code}")
+  @SendTo("topic/update")
+  ResponseEntity<String> sendSettingUpdate(@DestinationVariable String code) {
     return ResponseEntity.ok("hello");
   }
 }

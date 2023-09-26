@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.lobby.dto;
+package olter.loaf.lobbies.dto;
 
 import lombok.*;
 

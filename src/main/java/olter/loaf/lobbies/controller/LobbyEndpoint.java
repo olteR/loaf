@@ -1,10 +1,10 @@
-package olter.loaf.lobbies.lobby.controller;
+package olter.loaf.lobbies.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import olter.loaf.lobbies.lobby.dto.LobbyCreationRequest;
-import olter.loaf.lobbies.lobby.dto.LobbyDetailsResponse;
-import olter.loaf.lobbies.lobby.dto.LobbyListResponse;
+import olter.loaf.lobbies.dto.LobbyCreationRequest;
+import olter.loaf.lobbies.dto.LobbyDetailsResponse;
+import olter.loaf.lobbies.dto.LobbyListResponse;
 import olter.loaf.security.SecurityAnnotations;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;

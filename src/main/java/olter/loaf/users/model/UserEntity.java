@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
-import olter.loaf.lobbies.lobby.model.LobbyEntity;
+import olter.loaf.lobbies.model.LobbyEntity;
 
 @Entity
 @Getter

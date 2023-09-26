@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.lobby.dto;
+package olter.loaf.lobbies.dto;
 
 import java.util.List;
 import lombok.Getter;
@@ -9,11 +9,13 @@ import olter.loaf.users.dto.UserResponse;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class LobbyListResponse {
+public class LobbyDetailsResponse {
+  private Long id;
   private String name;
   private String code;
-  private Long owner;
+  private Boolean hidden;
   private Boolean secured;
   private Integer maxMembers;
+  private Long owner;
   private List<UserResponse> members;
 }
