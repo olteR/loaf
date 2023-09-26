@@ -22,6 +22,5 @@ const router = useRouter();
 
 async function logoutUser() {
   await stateStore.logoutUser();
-  await router.push("/login");
 }
 </script>

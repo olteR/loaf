@@ -56,14 +56,17 @@ export const useStateStore = defineStore("state", () => {
     }
   }
 
-  function logoutUser() {
+  async function logoutUser() {
     delete axios.defaults.headers.common["Authorization"];
     user.value = null;
+    jwt.value = null;
     localStorage.removeItem("loaf_jwt");
+    await router.push("/login")
   }
 
   async function handleLoginResponse(response) {
     localStorage.setItem("loaf_jwt", response.data.token);
+    jwt.value = response.data.token;
     axios.defaults.headers.common["Authorization"] =
       "Bearer " + response.data.token;
     user.value = response.data;

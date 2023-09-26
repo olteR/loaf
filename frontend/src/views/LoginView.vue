@@ -24,7 +24,7 @@
       <Button
         label="regisztráció"
         class="float-right p-button-secondary mr-8"
-        @click="loginUser()"
+        @click="router.push('/register')"
       />
     </div>
   </div>
