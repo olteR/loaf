@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 public class LobbyWebsocketController {
   @MessageMapping("/ws/lobby/{code}")
   @SendTo("topic/update")
-  ResponseEntity<String> sendSettingUpdate(@DestinationVariable String code) {
+  ResponseEntity<String> sendLobbyUpdate(@DestinationVariable String code) {
     return ResponseEntity.ok("hello");
   }
 }

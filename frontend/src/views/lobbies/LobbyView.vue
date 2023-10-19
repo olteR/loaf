@@ -1,25 +1,46 @@
 <template>
-  <div class="container mx-auto my-4" v-if="lobbyStore.getLobby">
-    <Card>
-      <template #title>{{ lobbyStore.getLobby.name }}</template>
-      <template #content>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-          quas!
-        </p>
-      </template>
-    </Card>
+  <div>
+    <div class="container mx-auto my-4" v-if="lobbyStore.getLobby">
+      <Card>
+        <template #title
+          ><h1 class="text-4xl">{{ lobbyStore.getLobby.name }}</h1></template
+        >
+        <template #content>
+          <h2 class="text-2xl mb-2">
+            Játékosok ({{ lobbyStore.getLobby.members.length }}/{{
+              lobbyStore.getLobby.maxMembers
+            }}):
+          </h2>
+          <Chip
+            v-for="player in lobbyStore.getLobby.members"
+            :key="player.id"
+            class="mr-1"
+          >
+            <i
+              v-if="player.id === lobbyStore.getLobby.owner"
+              class="fa fa-crown mr-1"
+            />
+            {{ player.displayName }}
+          </Chip>
+        </template>
+      </Card>
+    </div>
+    <OwnerLobbySettings v-if="isOwner"></OwnerLobbySettings>
+    <PlayerLobbySettings v-else></PlayerLobbySettings>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { useStateStore } from "@/stores/state";
 import { useLobbyStore } from "@/stores/lobbies";
 import Card from "primevue/card";
+import Chip from "primevue/chip";
+import OwnerLobbySettings from "@/views/lobbies/OwnerLobbySettings.vue";
+import PlayerLobbySettings from "@/views/lobbies/PlayerLobbySettings.vue";
 
 const router = useRouter();
 const stateStore = useStateStore();
@@ -30,6 +51,10 @@ const stompClient = Stomp.over(socket);
 
 const received = ref([]);
 const connected = ref(false);
+
+const isOwner = computed(
+  () => stateStore.getUser.id === lobbyStore.getLobby?.owner
+);
 
 onMounted(async () => {
   stateStore.setLoading(true);
@@ -53,7 +78,7 @@ function connect() {
     (frame) => {
       connected.value = true;
       console.log(frame);
-      stompClient.subscribe("/topic/greetings", (tick) => {
+      stompClient.subscribe("/topic/update", (tick) => {
         console.log(tick);
         received.value.push(JSON.parse(tick.body).content);
       });
