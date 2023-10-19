@@ -25,7 +25,6 @@
           <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)"
             >Játék elhagyása</Button
           >
-          {{ received }}
         </template>
       </Card>
     </div>
@@ -54,7 +53,6 @@ const lobbyCode = router.currentRoute.value.params.code;
 const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
 const stompClient = Stomp.over(socket);
 
-const received = ref([]);
 const connected = ref(false);
 
 const isOwner = computed(
@@ -82,9 +80,8 @@ function connect() {
       console.log("Connected!");
       connected.value = true;
       console.log(frame);
-      stompClient.subscribe("/user/topic/lobby/update", (tick) => {
-        console.log(tick);
-        received.value.push(JSON.parse(tick.body).content);
+      stompClient.subscribe("/user/topic/lobby/update", (msg) => {
+        handleLobbyUpdate(JSON.parse(msg.body));
       });
     },
     (error) => {
@@ -92,6 +89,25 @@ function connect() {
       connected.value = false;
     }
   );
+}
+
+function handleLobbyUpdate(update) {
+  switch (update.type) {
+    case "JOIN": {
+      lobbyStore.getLobby.members.push(update.change);
+      break;
+    }
+    case "LEAVE": {
+      const user = lobbyStore.getLobby.members.find(
+        (m) => m.id === update.change
+      );
+      lobbyStore.getLobby.members.splice(
+        lobbyStore.getLobby.members.indexOf(user),
+        1
+      );
+      break;
+    }
+  }
 }
 </script>
 
