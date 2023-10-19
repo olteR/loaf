@@ -1,4 +1,4 @@
-package olter.loaf.security.dto;
+package olter.loaf.common.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

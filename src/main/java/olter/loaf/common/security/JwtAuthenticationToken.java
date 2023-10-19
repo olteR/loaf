@@ -1,4 +1,4 @@
-package olter.loaf.security;
+package olter.loaf.common.security;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -15,6 +15,7 @@ export const useLobbyStore = defineStore("lobby", () => {
 
   const urls = {
     join: "http://localhost:3000/api/join/",
+    leave: "http://localhost:3000/api/leave/",
     myGames: "http://localhost:3000/api/my-games",
     lobby: "http://localhost:3000/api/lobby",
     lobbies: "http://localhost:3000/api/lobbies",
@@ -93,6 +94,20 @@ export const useLobbyStore = defineStore("lobby", () => {
     }
   }
 
+  async function leaveLobby(code) {
+    try {
+      await axios.post(urls.leave.concat(code));
+      await router.push("/my-games");
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
   return {
     getLobby,
     getLobbies,
@@ -101,5 +116,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchMyGames,
     createLobby,
     joinLobby,
+    leaveLobby,
   };
 });

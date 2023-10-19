@@ -1,4 +1,4 @@
-package olter.loaf.security;
+package olter.loaf.common.security;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 

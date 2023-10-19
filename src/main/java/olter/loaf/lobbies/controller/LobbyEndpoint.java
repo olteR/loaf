@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import olter.loaf.lobbies.dto.LobbyCreationRequest;
 import olter.loaf.lobbies.dto.LobbyDetailsResponse;
 import olter.loaf.lobbies.dto.LobbyListResponse;
-import olter.loaf.security.SecurityAnnotations;
+import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +45,11 @@ public class LobbyEndpoint {
   public ResponseEntity<LobbyDetailsResponse> joinLobby(
       @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.joinLobby(code, user));
+  }
+
+  @PostMapping("leave/{code}")
+  public ResponseEntity<Void> leaveLobby(@PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+    lobbyService.leaveLobby(code, user);
+    return ResponseEntity.ok().build();
   }
 }

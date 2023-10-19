@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.lobbies.LobbyMapper;
-import olter.loaf.lobbies.dto.LobbyCreationRequest;
-import olter.loaf.lobbies.dto.LobbyDetailsResponse;
-import olter.loaf.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobbies.dto.*;
 import olter.loaf.lobbies.exception.AlreadyJoinedException;
 import olter.loaf.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobbies.exception.LobbyFullException;
 import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
+import org.apache.catalina.User;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class LobbyService {
   private final LobbyRepository lobbyRepository;
   private final LobbyMapper lobbyMapper;
+  private final LobbyWebsocketController lobbyWebsocketController;
+  private final SimpMessagingTemplate simpMessagingTemplate;
 
   private final PasswordEncoder passwordEncoder;
 
@@ -89,10 +91,36 @@ public class LobbyService {
       throw new LobbyFullException(lobby.getId());
     }
 
+    lobby.getMembers().forEach(m -> {
+      log.info("Broadcasting join to " + m.getName());
+      simpMessagingTemplate.convertAndSendToUser(m.getName(), "/topic/lobby/update", new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, user));
+    });
+
     members.add(user);
     lobby.setMembers(members);
     lobbyRepository.save(lobby);
     return lobbyMapper.entityToDetailsResponse(lobby);
+  }
+
+  public void leaveLobby(String code, UserEntity user) {
+    LobbyEntity lobby =
+            lobbyRepository
+                    .findFirstByCode(code)
+                    .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+    List<UserEntity> members = lobby.getMembers();
+    log.info(user.getName() + " leaving lobby " + lobby.getName() + "...");
+
+    if (!members.contains(user)) {
+      throw new NotInLobbyException(lobby.getId(), user.getId());
+    }
+
+    members.remove(user);
+    lobby.setMembers(members);
+    lobbyRepository.save(lobby);
+    lobby.getMembers().forEach(m -> {
+      log.info("Broadcasting leave to " + m.getName());
+      simpMessagingTemplate.convertAndSendToUser(m.getName(), "/topic/lobby/update", new LobbyUpdateDto(LobbyUpdateTypeEnum.LEAVE, user.getId()));
+    });
   }
 
   private String generateLobbyCode() {

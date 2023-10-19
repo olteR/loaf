@@ -1,4 +1,4 @@
-package olter.loaf.security;
+package olter.loaf.common.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;

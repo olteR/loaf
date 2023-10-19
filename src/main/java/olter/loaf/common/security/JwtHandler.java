@@ -1,4 +1,4 @@
-package olter.loaf.security;
+package olter.loaf.common.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;

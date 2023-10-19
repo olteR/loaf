@@ -1,4 +1,4 @@
-package olter.loaf.security;
+package olter.loaf.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,8 +1,8 @@
 package olter.loaf.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import olter.loaf.security.dto.LoginRequest;
-import olter.loaf.security.dto.LoginResponse;
+import olter.loaf.common.security.dto.LoginRequest;
+import olter.loaf.common.security.dto.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

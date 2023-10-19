@@ -22,6 +22,10 @@
             />
             {{ player.displayName }}
           </Chip>
+          <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)"
+            >Játék elhagyása</Button
+          >
+          {{ received }}
         </template>
       </Card>
     </div>
@@ -37,6 +41,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { useStateStore } from "@/stores/state";
 import { useLobbyStore } from "@/stores/lobbies";
+import Button from "primevue/button";
 import Card from "primevue/card";
 import Chip from "primevue/chip";
 import OwnerLobbySettings from "@/views/lobbies/OwnerLobbySettings.vue";
@@ -46,7 +51,7 @@ const router = useRouter();
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
 const lobbyCode = router.currentRoute.value.params.code;
-const socket = new SockJS("http://localhost:3000/ws/lobby/" + lobbyCode);
+const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
 const stompClient = Stomp.over(socket);
 
 const received = ref([]);
@@ -72,13 +77,12 @@ onMounted(async () => {
 
 function connect() {
   stompClient.connect(
-    {
-      Authorization: "Bearer ".concat(stateStore.getJwt),
-    },
+    {},
     (frame) => {
+      console.log("Connected!");
       connected.value = true;
       console.log(frame);
-      stompClient.subscribe("/topic/update", (tick) => {
+      stompClient.subscribe("/user/topic/lobby/update", (tick) => {
         console.log(tick);
         received.value.push(JSON.parse(tick.body).content);
       });
