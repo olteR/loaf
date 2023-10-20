@@ -16,8 +16,8 @@ import olter.loaf.game.games.model.GameEntity;
 @RequiredArgsConstructor
 @Table(name = "players")
 public class PlayerEntity extends BaseEntity {
-    private Integer gold;
+  private Integer gold;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private GameEntity game;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private GameEntity game;
 }

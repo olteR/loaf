@@ -14,11 +14,10 @@ import olter.loaf.game.districts.model.DistrictTypeEnum;
 @AllArgsConstructor
 @Table(name = "characters")
 public class CharacterEntity {
-    @Id
-    private Long id;
-    private Integer number;
-    private String name;
+  @Id private Long id;
+  private Integer number;
+  private String name;
 
-    @Enumerated(EnumType.STRING)
-    private DistrictTypeEnum districtTypeBonus;
+  @Enumerated(EnumType.STRING)
+  private DistrictTypeEnum districtTypeBonus;
 }

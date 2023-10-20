@@ -1,6 +1,7 @@
 package olter.loaf.lobbies.controller;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +9,12 @@ import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.lobbies.LobbyMapper;
 import olter.loaf.lobbies.dto.*;
 import olter.loaf.lobbies.exception.AlreadyJoinedException;
-import olter.loaf.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobbies.exception.LobbyFullException;
+import olter.loaf.lobbies.exception.NoPrivilegeException;
+import olter.loaf.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
-import org.apache.catalina.User;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -91,10 +92,16 @@ public class LobbyService {
       throw new LobbyFullException(lobby.getId());
     }
 
-    lobby.getMembers().forEach(m -> {
-      log.info("Broadcasting join to " + m.getName());
-      simpMessagingTemplate.convertAndSendToUser(m.getName(), "/topic/lobby/update", new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, user));
-    });
+    lobby
+        .getMembers()
+        .forEach(
+            m -> {
+              log.info("Broadcasting join to " + m.getName());
+              simpMessagingTemplate.convertAndSendToUser(
+                  m.getName(),
+                  "/topic/lobby/update",
+                  new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, user));
+            });
 
     members.add(user);
     lobby.setMembers(members);
@@ -104,9 +111,9 @@ public class LobbyService {
 
   public void leaveLobby(String code, UserEntity user) {
     LobbyEntity lobby =
-            lobbyRepository
-                    .findFirstByCode(code)
-                    .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+        lobbyRepository
+            .findFirstByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
     List<UserEntity> members = lobby.getMembers();
     log.info(user.getName() + " leaving lobby " + lobby.getName() + "...");
 
@@ -117,10 +124,70 @@ public class LobbyService {
     members.remove(user);
     lobby.setMembers(members);
     lobbyRepository.save(lobby);
-    lobby.getMembers().forEach(m -> {
-      log.info("Broadcasting leave to " + m.getName());
-      simpMessagingTemplate.convertAndSendToUser(m.getName(), "/topic/lobby/update", new LobbyUpdateDto(LobbyUpdateTypeEnum.LEAVE, user.getId()));
-    });
+    lobby
+        .getMembers()
+        .forEach(
+            m -> {
+              log.info("Broadcasting leave to " + m.getName());
+              simpMessagingTemplate.convertAndSendToUser(
+                  m.getName(),
+                  "/topic/lobby/update",
+                  new LobbyUpdateDto(LobbyUpdateTypeEnum.LEAVE, user.getId()));
+            });
+  }
+
+  public void kickMember(String code, UserEntity user, Long targetUserId) {
+    LobbyEntity lobby =
+        lobbyRepository
+            .findFirstByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+    List<UserEntity> members = lobby.getMembers();
+
+    if (!Objects.equals(lobby.getOwner(), user.getId())) {
+      throw new NoPrivilegeException(lobby.getId(), user.getId());
+    }
+    if (!members.stream().map(UserEntity::getId).toList().contains(targetUserId)) {
+      throw new NotInLobbyException(lobby.getId(), user.getId());
+    }
+
+    members.forEach(
+        m -> {
+          log.info("Broadcasting kick to " + m.getName());
+          simpMessagingTemplate.convertAndSendToUser(
+              m.getName(),
+              "/topic/lobby/update",
+              new LobbyUpdateDto(LobbyUpdateTypeEnum.KICK, user.getId()));
+        });
+    lobby.setMembers(
+        members.stream().filter(m -> !Objects.equals(m.getId(), targetUserId)).toList());
+    lobbyRepository.save(lobby);
+  }
+
+  public void promoteMember(String code, UserEntity user, Long targetUserId) {
+    LobbyEntity lobby =
+        lobbyRepository
+            .findFirstByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+
+    if (!Objects.equals(lobby.getOwner(), user.getId())) {
+      throw new NoPrivilegeException(lobby.getId(), user.getId());
+    }
+    if (!lobby.getMembers().stream().map(UserEntity::getId).toList().contains(targetUserId)) {
+      throw new NotInLobbyException(lobby.getId(), user.getId());
+    }
+
+    lobby
+        .getMembers()
+        .forEach(
+            m -> {
+              log.info("Broadcasting leave to " + m.getName());
+              simpMessagingTemplate.convertAndSendToUser(
+                  m.getName(),
+                  "/topic/lobby/update",
+                  new LobbyUpdateDto(LobbyUpdateTypeEnum.OWNER, user.getId()));
+            });
+    lobby.setOwner(targetUserId);
+    lobbyRepository.save(lobby);
   }
 
   private String generateLobbyCode() {

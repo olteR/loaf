@@ -2,10 +2,10 @@ package olter.loaf.lobbies.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.lobbies.dto.LobbyCreationRequest;
 import olter.loaf.lobbies.dto.LobbyDetailsResponse;
 import olter.loaf.lobbies.dto.LobbyListResponse;
-import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,15 +41,34 @@ public class LobbyEndpoint {
     return ResponseEntity.ok().body(lobbyService.createLobby(request, user));
   }
 
-  @PatchMapping("/join/{code}")
+  @PatchMapping("/lobby/{code}/join")
   public ResponseEntity<LobbyDetailsResponse> joinLobby(
       @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     return ResponseEntity.ok().body(lobbyService.joinLobby(code, user));
   }
 
-  @PostMapping("leave/{code}")
-  public ResponseEntity<Void> leaveLobby(@PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+  @PostMapping("/lobby/{code}/leave")
+  public ResponseEntity<Void> leaveLobby(
+      @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
     lobbyService.leaveLobby(code, user);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/lobby/{code}/kick")
+  public ResponseEntity<Void> kickMember(
+      @PathVariable String code,
+      @SecurityAnnotations.GetLoggedInUser UserEntity user,
+      @RequestBody Long targetUserId) {
+    lobbyService.kickMember(code, user, targetUserId);
+    return ResponseEntity.ok().build();
+  }
+
+  @PostMapping("/lobby/{code}/promote")
+  public ResponseEntity<Void> promoteMember(
+      @PathVariable String code,
+      @SecurityAnnotations.GetLoggedInUser UserEntity user,
+      @RequestBody Long targetUserId) {
+    lobbyService.promoteMember(code, user, targetUserId);
     return ResponseEntity.ok().build();
   }
 }

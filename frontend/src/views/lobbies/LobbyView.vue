@@ -11,23 +11,49 @@
               lobbyStore.getLobby.maxMembers
             }}):
           </h2>
-          <Chip
-            v-for="player in lobbyStore.getLobby.members"
-            :key="player.id"
-            class="mr-1"
-          >
-            <i
-              v-if="player.id === lobbyStore.getLobby.owner"
-              class="fa fa-crown mr-1"
-            />
-            {{ player.displayName }}
-          </Chip>
+          <span v-for="player in lobbyStore.getLobby.members" :key="player.id">
+            <Chip :key="player.id" class="mr-1">
+              <i
+                v-if="player.id === lobbyStore.getLobby.owner"
+                class="fa fa-crown mr-1 my-3"
+              />
+              {{ player.displayName }}
+              <span v-if="isOwner && stateStore.getUser.id !== player.id">
+                <Button
+                  type="button"
+                  icon="fa fa-gear"
+                  class="playerOptionsButton"
+                  @click="toggle($event, player.id)"
+                />
+
+                <OverlayPanel
+                  :ref="
+                    (el) => {
+                      playerPanels[player.id] = el;
+                    }
+                  "
+                >
+                  <Button
+                    v-tooltip.bottom="'Tulajdonossá nevezés'"
+                    icon="fa fa-crown"
+                  />
+                  <Button
+                    v-tooltip.bottom="'Eltávolítás a lobbiból'"
+                    class="ml-2 p-button-danger"
+                    icon="fa fa-x"
+                  />
+                </OverlayPanel>
+              </span>
+            </Chip>
+          </span>
+
           <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)"
             >Játék elhagyása</Button
           >
         </template>
       </Card>
     </div>
+
     <OwnerLobbySettings v-if="isOwner"></OwnerLobbySettings>
     <PlayerLobbySettings v-else></PlayerLobbySettings>
   </div>
@@ -43,6 +69,7 @@ import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Chip from "primevue/chip";
+import OverlayPanel from "primevue/overlaypanel";
 import OwnerLobbySettings from "@/views/lobbies/OwnerLobbySettings.vue";
 import PlayerLobbySettings from "@/views/lobbies/PlayerLobbySettings.vue";
 
@@ -52,6 +79,7 @@ const lobbyStore = useLobbyStore();
 const lobbyCode = router.currentRoute.value.params.code;
 const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
 const stompClient = Stomp.over(socket);
+const playerPanels = ref({});
 
 const connected = ref(false);
 
@@ -61,9 +89,7 @@ const isOwner = computed(
 
 onMounted(async () => {
   stateStore.setLoading(true);
-  if (!lobbyStore.getLobby || lobbyStore.getLobby.code !== lobbyCode) {
-    await lobbyStore.fetchLobby(lobbyCode);
-  }
+  await lobbyStore.fetchLobby(lobbyCode);
   stateStore.getBreadcrumbs.push({
     name: "lobby",
     label: lobbyStore.getLobby.name,
@@ -109,6 +135,24 @@ function handleLobbyUpdate(update) {
     }
   }
 }
+
+function toggle(event, id) {
+  playerPanels.value[id].toggle(event);
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.playerOptionsButton {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.87) !important;
+  padding: 0 !important;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  width: min-content !important;
+}
+.playerOptionsButton:hover {
+  background: transparent !important;
+}
+.playerOptionsButton:focus {
+  background: transparent !important;
+}
+</style>
