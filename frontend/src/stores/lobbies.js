@@ -14,8 +14,10 @@ export const useLobbyStore = defineStore("lobby", () => {
   const getLobbies = computed(() => lobbies.value);
 
   const urls = {
-    join: "http://localhost:3000/api/join/",
-    leave: "http://localhost:3000/api/leave/",
+    join: (code) => `http://localhost:3000/api/lobby/${code}/join`,
+    leave: (code) => `http://localhost:3000/api/lobby/${code}/leave`,
+    kick: "http://localhost:3000/api/lobby/kick",
+    promote: "http://localhost:3000/api/lobby/promote",
     myGames: "http://localhost:3000/api/my-games",
     lobby: "http://localhost:3000/api/lobby",
     lobbies: "http://localhost:3000/api/lobbies",
@@ -81,7 +83,7 @@ export const useLobbyStore = defineStore("lobby", () => {
 
   async function joinLobby(code) {
     try {
-      const response = await axios.patch(urls.join.concat(code));
+      const response = await axios.patch(urls.join(code));
       lobby.value = response.data;
       await router.push("/lobby/".concat(lobby.value.code));
     } catch (error) {
@@ -96,8 +98,40 @@ export const useLobbyStore = defineStore("lobby", () => {
 
   async function leaveLobby(code) {
     try {
-      await axios.post(urls.leave.concat(code));
+      await axios.post(urls.leave(code));
       await router.push("/my-games");
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
+  async function kickMember(code, id) {
+    try {
+      await axios.post(urls.kick, {
+        code: code,
+        memberId: id,
+      });
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
+  async function promoteMember(code, id) {
+    try {
+      await axios.post(urls.promote, {
+        code: code,
+        memberId: id,
+      });
     } catch (error) {
       toast.add({
         severity: "error",
@@ -117,5 +151,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     createLobby,
     joinLobby,
     leaveLobby,
+    kickMember,
+    promoteMember,
   };
 });

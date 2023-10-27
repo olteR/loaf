@@ -6,6 +6,7 @@ import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.lobbies.dto.LobbyCreationRequest;
 import olter.loaf.lobbies.dto.LobbyDetailsResponse;
 import olter.loaf.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobbies.dto.LobbyMemberInteractionDto;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,21 +55,19 @@ public class LobbyEndpoint {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/lobby/{code}/kick")
+  @PostMapping("/lobby/kick")
   public ResponseEntity<Void> kickMember(
-      @PathVariable String code,
       @SecurityAnnotations.GetLoggedInUser UserEntity user,
-      @RequestBody Long targetUserId) {
-    lobbyService.kickMember(code, user, targetUserId);
+      @RequestBody LobbyMemberInteractionDto req) {
+    lobbyService.kickMember(user, req);
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/lobby/{code}/promote")
+  @PostMapping("/lobby/promote")
   public ResponseEntity<Void> promoteMember(
-      @PathVariable String code,
       @SecurityAnnotations.GetLoggedInUser UserEntity user,
-      @RequestBody Long targetUserId) {
-    lobbyService.promoteMember(code, user, targetUserId);
+      @RequestBody LobbyMemberInteractionDto req) {
+    lobbyService.promoteMember(user, req);
     return ResponseEntity.ok().build();
   }
 }

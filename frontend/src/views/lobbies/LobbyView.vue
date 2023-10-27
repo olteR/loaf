@@ -12,10 +12,10 @@
             }}):
           </h2>
           <span v-for="player in lobbyStore.getLobby.members" :key="player.id">
-            <Chip :key="player.id" class="mr-1">
+            <Chip :key="player.id" class="mr-1 py-3">
               <i
                 v-if="player.id === lobbyStore.getLobby.owner"
-                class="fa fa-crown mr-1 my-3"
+                class="fa fa-crown mr-1"
               />
               {{ player.displayName }}
               <span v-if="isOwner && stateStore.getUser.id !== player.id">
@@ -36,20 +36,22 @@
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
                     icon="fa fa-crown"
+                    @click="lobbyStore.promoteMember(lobbyCode, player.id)"
                   />
                   <Button
                     v-tooltip.bottom="'Eltávolítás a lobbiból'"
                     class="ml-2 p-button-danger"
                     icon="fa fa-x"
+                    @click="lobbyStore.kickMember(lobbyCode, player.id)"
                   />
                 </OverlayPanel>
               </span>
             </Chip>
           </span>
 
-          <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)"
-            >Játék elhagyása</Button
-          >
+          <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)">
+            Játék elhagyása
+          </Button>
         </template>
       </Card>
     </div>
@@ -62,6 +64,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
 import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { useStateStore } from "@/stores/state";
@@ -70,10 +73,11 @@ import Button from "primevue/button";
 import Card from "primevue/card";
 import Chip from "primevue/chip";
 import OverlayPanel from "primevue/overlaypanel";
-import OwnerLobbySettings from "@/views/lobbies/OwnerLobbySettings.vue";
-import PlayerLobbySettings from "@/views/lobbies/PlayerLobbySettings.vue";
+import OwnerLobbySettings from "@/components/lobbies/OwnerLobbySettings.vue";
+import PlayerLobbySettings from "@/components/lobbies/PlayerLobbySettings.vue";
 
 const router = useRouter();
+const toast = useToast();
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
 const lobbyCode = router.currentRoute.value.params.code;
@@ -121,6 +125,12 @@ function handleLobbyUpdate(update) {
   switch (update.type) {
     case "JOIN": {
       lobbyStore.getLobby.members.push(update.change);
+      toast.add({
+        severity: "success",
+        summary: "Felhasználó csatlakozott!",
+        detail: `${update.change.displayName} csatlakozott a lobbihoz.`,
+        life: 3000,
+      });
       break;
     }
     case "LEAVE": {
@@ -131,7 +141,51 @@ function handleLobbyUpdate(update) {
         lobbyStore.getLobby.members.indexOf(user),
         1
       );
+      toast.add({
+        severity: "warn",
+        summary: "Felhasználó kilépett!",
+        detail: `${user.displayName} elhagyta a lobbit.`,
+        life: 3000,
+      });
       break;
+    }
+    case "KICK": {
+      const user = lobbyStore.getLobby.members.find(
+        (m) => m.id === update.change
+      );
+      lobbyStore.getLobby.members.splice(
+        lobbyStore.getLobby.members.indexOf(user),
+        1
+      );
+      if (update.change === stateStore.getUser.id) {
+        router.push("/my-games");
+        toast.add({
+          severity: "error",
+          summary: "Eltávolítva!",
+          detail: `A tulajdonos eltávolított a lobbiból.`,
+          life: 3000,
+        });
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Felhasználó eltávolítva!",
+          detail: `${user.displayName} eltávolítva a lobbiból.`,
+          life: 3000,
+        });
+      }
+      break;
+    }
+    case "OWNER": {
+      lobbyStore.getLobby.owner = update.change;
+      toast.add({
+        severity: "info",
+        summary: "Új lobbi tulajdonos!",
+        detail: `${
+          lobbyStore.getLobby.members.find((m) => m.id === update.change)
+            .displayName
+        } a lobbi új tulajdonosa.`,
+        life: 3000,
+      });
     }
   }
 }
@@ -146,7 +200,7 @@ function toggle(event, id) {
   background: transparent;
   color: rgba(255, 255, 255, 0.87) !important;
   padding: 0 !important;
-  margin: 0.5rem 0 0.5rem 0.5rem;
+  margin: 0 0 0 0.5rem;
   width: min-content !important;
 }
 .playerOptionsButton:hover {

@@ -136,17 +136,18 @@ public class LobbyService {
             });
   }
 
-  public void kickMember(String code, UserEntity user, Long targetUserId) {
+  public void kickMember(UserEntity user, LobbyMemberInteractionDto req) {
     LobbyEntity lobby =
         lobbyRepository
-            .findFirstByCode(code)
-            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+            .findFirstByCode(req.getCode())
+            .orElseThrow(
+                () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
     List<UserEntity> members = lobby.getMembers();
 
     if (!Objects.equals(lobby.getOwner(), user.getId())) {
       throw new NoPrivilegeException(lobby.getId(), user.getId());
     }
-    if (!members.stream().map(UserEntity::getId).toList().contains(targetUserId)) {
+    if (!members.stream().map(UserEntity::getId).toList().contains(req.getMemberId())) {
       throw new NotInLobbyException(lobby.getId(), user.getId());
     }
 
@@ -156,23 +157,24 @@ public class LobbyService {
           simpMessagingTemplate.convertAndSendToUser(
               m.getName(),
               "/topic/lobby/update",
-              new LobbyUpdateDto(LobbyUpdateTypeEnum.KICK, user.getId()));
+              new LobbyUpdateDto(LobbyUpdateTypeEnum.KICK, req.getMemberId()));
         });
-    lobby.setMembers(
-        members.stream().filter(m -> !Objects.equals(m.getId(), targetUserId)).toList());
+    members.removeIf(m -> Objects.equals(m.getId(), req.getMemberId()));
+    lobby.setMembers(members);
     lobbyRepository.save(lobby);
   }
 
-  public void promoteMember(String code, UserEntity user, Long targetUserId) {
+  public void promoteMember(UserEntity user, LobbyMemberInteractionDto req) {
     LobbyEntity lobby =
         lobbyRepository
-            .findFirstByCode(code)
-            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+            .findFirstByCode(req.getCode())
+            .orElseThrow(
+                () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
 
     if (!Objects.equals(lobby.getOwner(), user.getId())) {
       throw new NoPrivilegeException(lobby.getId(), user.getId());
     }
-    if (!lobby.getMembers().stream().map(UserEntity::getId).toList().contains(targetUserId)) {
+    if (!lobby.getMembers().stream().map(UserEntity::getId).toList().contains(req.getMemberId())) {
       throw new NotInLobbyException(lobby.getId(), user.getId());
     }
 
@@ -180,13 +182,13 @@ public class LobbyService {
         .getMembers()
         .forEach(
             m -> {
-              log.info("Broadcasting leave to " + m.getName());
+              log.info("Broadcasting promotion to " + m.getName());
               simpMessagingTemplate.convertAndSendToUser(
                   m.getName(),
                   "/topic/lobby/update",
-                  new LobbyUpdateDto(LobbyUpdateTypeEnum.OWNER, user.getId()));
+                  new LobbyUpdateDto(LobbyUpdateTypeEnum.OWNER, req.getMemberId()));
             });
-    lobby.setOwner(targetUserId);
+    lobby.setOwner(req.getMemberId());
     lobbyRepository.save(lobby);
   }
 
