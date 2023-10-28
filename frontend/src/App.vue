@@ -1,6 +1,10 @@
 <template>
   <Toast position="bottom-center" />
-  <div v-if="!['login', 'register'].includes(router.currentRoute.value.name)">
+  <div
+    v-if="
+      !['login', 'register', 'game'].includes(router.currentRoute.value.name)
+    "
+  >
     <SiteMenu></SiteMenu>
   </div>
   <ProgressSpinner

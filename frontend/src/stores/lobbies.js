@@ -5,6 +5,7 @@ import { useToast } from "primevue/usetoast";
 import router from "@/router";
 
 export const useLobbyStore = defineStore("lobby", () => {
+  const baseUrl = window.location.origin;
   const toast = useToast();
 
   const lobby = ref();
@@ -14,13 +15,13 @@ export const useLobbyStore = defineStore("lobby", () => {
   const getLobbies = computed(() => lobbies.value);
 
   const urls = {
-    join: (code) => `http://localhost:3000/api/lobby/${code}/join`,
-    leave: (code) => `http://localhost:3000/api/lobby/${code}/leave`,
-    kick: "http://localhost:3000/api/lobby/kick",
-    promote: "http://localhost:3000/api/lobby/promote",
-    myGames: "http://localhost:3000/api/my-games",
-    lobby: "http://localhost:3000/api/lobby",
-    lobbies: "http://localhost:3000/api/lobbies",
+    join: (code) => `${baseUrl}/api/lobby/${code}/join`,
+    leave: (code) => `${baseUrl}/api/lobby/${code}/leave`,
+    kick: `${baseUrl}/api/lobby/kick`,
+    promote: `${baseUrl}/api/lobby/promote`,
+    myGames: `${baseUrl}/api/my-games`,
+    lobby: `${baseUrl}/api/lobby`,
+    lobbies: `${baseUrl}/api/lobbies`,
   };
 
   async function fetchLobby(code) {

@@ -6,10 +6,11 @@ import router from "@/router";
 import jwtDecode from "jwt-decode";
 
 export const useStateStore = defineStore("state", () => {
+  const baseUrl = window.location.origin;
   const toast = useToast();
 
   const urls = {
-    login: "http://localhost:3000/api/auth/login",
+    login: `${baseUrl}/api/auth/login`,
   };
 
   const user = ref();

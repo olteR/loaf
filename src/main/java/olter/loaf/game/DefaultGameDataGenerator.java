@@ -24,16 +24,19 @@ public class DefaultGameDataGenerator {
   Uradalom - 5
   Kastély - 4
   Palota - 3
+
   Templom - 3
   Kápolna - 3
   Kolostor - 3
   Katedrális - 2
+
   Fogadó - 5
   Kereskedőház - 3
   Piac - 4
   Dokk - 3
   Kikötő - 3
   Városháza 2
+
   Őrtorony - 3
   Börtön - 3
   Barakk - 3

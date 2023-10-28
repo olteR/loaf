@@ -25,9 +25,7 @@ import org.springframework.stereotype.Service;
 public class LobbyService {
   private final LobbyRepository lobbyRepository;
   private final LobbyMapper lobbyMapper;
-  private final LobbyWebsocketController lobbyWebsocketController;
   private final SimpMessagingTemplate simpMessagingTemplate;
-
   private final PasswordEncoder passwordEncoder;
 
   public List<LobbyListResponse> getMyGames(UserEntity loggedInUser) {

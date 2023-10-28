@@ -49,9 +49,21 @@
             </Chip>
           </span>
 
-          <Button class="float-right" @click="lobbyStore.leaveLobby(lobbyCode)">
-            Játék elhagyása
-          </Button>
+          <div class="float-right">
+            <Button
+              class="float-right"
+              @click="router.push('/game/' + lobbyCode)"
+            >
+              Játék indítása
+            </Button>
+            <Button
+              class="float-right p-button-danger mr-2"
+              @click="lobbyStore.leaveLobby(lobbyCode)"
+              :disabled="isOwner"
+            >
+              Játék elhagyása
+            </Button>
+          </div>
         </template>
       </Card>
     </div>
