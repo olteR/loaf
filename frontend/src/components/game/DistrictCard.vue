@@ -20,16 +20,16 @@
         {{ props.card.cost }}
       </div>
       <img class="district-img" :src="imageSource" />
+      <div
+        v-if="props.card"
+        class="district-text"
+        :style="{
+          background: secondaryColor,
+        }"
+      >
+        {{ props.card.name }}
+      </div>
     </template>
-    <div
-      v-if="props.card"
-      class="text-center font-bold text-2xl m-0"
-      :style="{
-        background: secondaryColor,
-      }"
-    >
-      {{ props.card.name }}
-    </div>
   </Dialog>
 </template>
 
@@ -103,5 +103,17 @@ const secondaryColor = computed(() => {
   font-size: 1.5rem;
   font-weight: 700;
   user-select: none;
+  opacity: 0.9;
+}
+.district-text {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin: 0;
+  user-select: none;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  opacity: 0.9;
 }
 </style>
