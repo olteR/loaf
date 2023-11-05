@@ -1,17 +1,20 @@
 <template>
-  <Hand
-    :cards="[
-      districtStore.getDistricts[0],
-      districtStore.getDistricts[1],
-      districtStore.getDistricts[9],
-    ]"
-  ></Hand>
+  <Card class="w-48 text-2xl m-4">
+    <template #content>
+      <div class="columns-2 text-center">
+        <div><i class="fa fa-coins"></i> 4</div>
+        <div><i class="fa fa-star"></i> 0</div>
+      </div>
+    </template>
+  </Card>
+  <Hand :cards="districtStore.getDistricts.filter((d) => d.id < 18)"></Hand>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 import { useStateStore } from "@/stores/state";
 import { useDistrictStore } from "@/stores/districts";
+import Card from "primevue/card";
 import Hand from "@/components/game/Hand.vue";
 
 const stateStore = useStateStore();
@@ -24,4 +27,8 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.p-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+</style>

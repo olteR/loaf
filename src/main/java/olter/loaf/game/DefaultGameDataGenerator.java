@@ -47,12 +47,12 @@ public class DefaultGameDataGenerator {
     List<DistrictEntity> districts =
         List.of(
             new DistrictEntity(1L, "Uradalom", DistrictTypeEnum.NOBLE, 3),
-            new DistrictEntity(2L, "Kastely", DistrictTypeEnum.NOBLE, 4),
+            new DistrictEntity(2L, "Kastély", DistrictTypeEnum.NOBLE, 4),
             new DistrictEntity(3L, "Palota", DistrictTypeEnum.NOBLE, 5),
             new DistrictEntity(4L, "Templom", DistrictTypeEnum.RELIGIOUS, 1),
-            new DistrictEntity(5L, "Kapolna", DistrictTypeEnum.RELIGIOUS, 2),
+            new DistrictEntity(5L, "Kápolna", DistrictTypeEnum.RELIGIOUS, 2),
             new DistrictEntity(6L, "Kolostor", DistrictTypeEnum.RELIGIOUS, 3),
-            new DistrictEntity(7L, "Katedralis", DistrictTypeEnum.RELIGIOUS, 5),
+            new DistrictEntity(7L, "Katedrális", DistrictTypeEnum.RELIGIOUS, 5),
             new DistrictEntity(8L, "Fogadó", DistrictTypeEnum.TRADE, 1),
             new DistrictEntity(9L, "Kereskedőház", DistrictTypeEnum.TRADE, 2),
             new DistrictEntity(10L, "Piac", DistrictTypeEnum.TRADE, 2),

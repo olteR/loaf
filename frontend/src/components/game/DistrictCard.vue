@@ -5,7 +5,7 @@
     id="draggable-container"
     :style="{
       'outline-color': primaryColor,
-      left: order * 6 + 'rem',
+      left: order * 7 + 'rem',
     }"
   >
     <div id="draggable-header" @mousedown="dragMouseDown">
@@ -42,8 +42,6 @@ const positions = ref({
   movementX: 0,
   movementY: 0,
 });
-const width = ref(window.innerWidth);
-const height = ref(window.innerHeight);
 
 const props = defineProps({
   card: Object,
@@ -83,6 +81,7 @@ const secondaryColor = computed(() => {
 
 function dragMouseDown(event) {
   event.preventDefault();
+  delete districtCard.value.style.transition;
   positions.value.clientX = event.clientX;
   positions.value.clientY = event.clientY;
   document.onmousemove = elementDrag;
@@ -96,7 +95,8 @@ function elementDrag(event) {
   positions.value.clientX = event.clientX;
   positions.value.clientY = event.clientY;
   districtCard.value.style.top =
-    districtCard.value.offsetTop - positions.value.movementY + "px";
+    Math.min(districtCard.value.offsetTop - positions.value.movementY, 48) +
+    "px";
   districtCard.value.style.left =
     districtCard.value.offsetLeft - positions.value.movementX + "px";
 }
@@ -104,6 +104,14 @@ function elementDrag(event) {
 function closeDragElement() {
   document.onmouseup = null;
   document.onmousemove = null;
+  const resetPos = districtCard.value.animate(
+    { top: 0, left: props.order * 7 + "rem" },
+    200
+  );
+  resetPos.onfinish = () => {
+    districtCard.value.style.top = 0;
+    districtCard.value.style.left = props.order * 7 + "rem";
+  };
 }
 </script>
 
@@ -150,8 +158,23 @@ function closeDragElement() {
   outline: thick solid;
   border-radius: 4px;
   top: 0;
+  transition: transform 0.2s;
+}
+#draggable-container:hover {
+  z-index: 11;
+  --webkit-transform: scale(1.05);
+  --moz-transform: scale(1.05);
+  --o-transform: scale(1.05);
+  --ms-transform: scale(1.05);
+  transform: scale(1.05);
 }
 #draggable-header {
   z-index: 10;
+}
+@keyframes resetPos {
+  100% {
+    top: 0;
+    left: 0;
+  }
 }
 </style>

@@ -7,7 +7,7 @@
         right: 0,
         'margin-left': 'auto',
         'margin-right': 'auto',
-        width: 10 * cards.length - 4 * (cards.length - 1) + 'rem',
+        width: 10 * cards.length - 3 * (cards.length - 1) + 'rem',
         height: '16.18rem',
       }"
     >
@@ -31,9 +31,8 @@ const props = defineProps({
 <style scoped>
 .hand {
   position: absolute;
-  width: 50%;
+  width: 100%;
   height: 20rem;
   bottom: 0;
-  left: 25%;
 }
 </style>
