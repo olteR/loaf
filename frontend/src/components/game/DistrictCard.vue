@@ -1,15 +1,14 @@
 <template>
-  <Dialog
+  <div
     v-if="props.card"
+    ref="districtCard"
+    id="draggable-container"
     :style="{
-      width: '10rem',
-      outline: 'thick solid',
       'outline-color': primaryColor,
+      left: order * 6 + 'rem',
     }"
-    :visible="true"
-    :closable="false"
   >
-    <template #header>
+    <div id="draggable-header" @mousedown="dragMouseDown">
       <div
         class="district-cost"
         :style="{
@@ -29,16 +28,26 @@
       >
         {{ props.card.name }}
       </div>
-    </template>
-  </Dialog>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import Dialog from "primevue/dialog";
-import { computed } from "vue";
+import { computed, ref } from "vue";
+
+const districtCard = ref();
+const positions = ref({
+  clientX: undefined,
+  clientY: undefined,
+  movementX: 0,
+  movementY: 0,
+});
+const width = ref(window.innerWidth);
+const height = ref(window.innerHeight);
 
 const props = defineProps({
   card: Object,
+  order: Number,
 });
 
 const imageSource = computed(
@@ -71,16 +80,34 @@ const secondaryColor = computed(() => {
   }
   return "#0D0236";
 });
+
+function dragMouseDown(event) {
+  event.preventDefault();
+  positions.value.clientX = event.clientX;
+  positions.value.clientY = event.clientY;
+  document.onmousemove = elementDrag;
+  document.onmouseup = closeDragElement;
+}
+
+function elementDrag(event) {
+  event.preventDefault();
+  positions.value.movementX = positions.value.clientX - event.clientX;
+  positions.value.movementY = positions.value.clientY - event.clientY;
+  positions.value.clientX = event.clientX;
+  positions.value.clientY = event.clientY;
+  districtCard.value.style.top =
+    districtCard.value.offsetTop - positions.value.movementY + "px";
+  districtCard.value.style.left =
+    districtCard.value.offsetLeft - positions.value.movementX + "px";
+}
+
+function closeDragElement() {
+  document.onmouseup = null;
+  document.onmousemove = null;
+}
 </script>
 
 <style>
-.p-dialog .p-dialog-header {
-  padding: 0 !important;
-}
-
-.p-dialog .p-dialog-content {
-  padding: 0 !important;
-}
 .district-img {
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -115,5 +142,16 @@ const secondaryColor = computed(() => {
   bottom: 0;
   width: 100%;
   opacity: 0.9;
+}
+#draggable-container {
+  position: absolute;
+  z-index: 9;
+  width: 10rem;
+  outline: thick solid;
+  border-radius: 4px;
+  top: 0;
+}
+#draggable-header {
+  z-index: 10;
 }
 </style>

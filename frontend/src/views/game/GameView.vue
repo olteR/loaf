@@ -1,16 +1,18 @@
 <template>
-  <div>
-    <DistrictCard :card="districtStore.getDistricts[0]"></DistrictCard>
-    <DistrictCard :card="districtStore.getDistricts[1]"></DistrictCard>
-    <DistrictCard :card="districtStore.getDistricts[9]"></DistrictCard>
-  </div>
+  <Hand
+    :cards="[
+      districtStore.getDistricts[0],
+      districtStore.getDistricts[1],
+      districtStore.getDistricts[9],
+    ]"
+  ></Hand>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 import { useStateStore } from "@/stores/state";
 import { useDistrictStore } from "@/stores/districts";
-import DistrictCard from "@/components/game/DistrictCard.vue";
+import Hand from "@/components/game/Hand.vue";
 
 const stateStore = useStateStore();
 const districtStore = useDistrictStore();
