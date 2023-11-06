@@ -14,7 +14,14 @@ import lombok.Setter;
 @Table(name = "districts")
 public class DistrictEntity {
   @Id private Long id;
+
+  @Column(unique = true)
   private String name;
+
+  private String cardName;
+
+  @Column(columnDefinition = "TEXT")
+  private String cardText;
 
   @Enumerated(EnumType.STRING)
   private DistrictTypeEnum type;

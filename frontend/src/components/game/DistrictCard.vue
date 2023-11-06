@@ -26,7 +26,7 @@
           background: secondaryColor,
         }"
       >
-        {{ props.card.name }}
+        {{ props.card.cardName }}
       </div>
     </div>
   </div>

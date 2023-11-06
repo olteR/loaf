@@ -7,7 +7,7 @@
       </div>
     </template>
   </Card>
-  <Hand :cards="districtStore.getDistricts.filter((d) => d.id < 18)"></Hand>
+  <Hand :cards="districtStore.getDistricts"></Hand>
 </template>
 
 <script setup>

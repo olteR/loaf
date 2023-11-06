@@ -11,6 +11,8 @@ import olter.loaf.game.districts.model.DistrictTypeEnum;
 public class DistrictListResponse {
   private Long id;
   private String name;
+  private String cardName;
+  private String cardText;
   private DistrictTypeEnum type;
   private Integer cost;
 }
