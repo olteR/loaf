@@ -57,10 +57,13 @@
             >
               Játék indítása
             </Button>
+            <Button v-if="isOwner" class="float-right p-button-danger mr-2">
+              Játék törlése
+            </Button>
             <Button
+              v-else
               class="float-right p-button-danger mr-2"
               @click="lobbyStore.leaveLobby(lobbyCode)"
-              :disabled="isOwner"
             >
               Játék elhagyása
             </Button>

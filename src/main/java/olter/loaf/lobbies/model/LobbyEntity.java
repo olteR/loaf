@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.users.model.UserEntity;
+import org.springframework.beans.factory.annotation.Value;
 
 @Entity
 @Getter

@@ -18,6 +18,8 @@ public class LogEntity extends BaseEntity {
   private Long lobbyId;
   private Long gameId;
   private Long playerId;
+  private String source;
+  private String target;
   private Long turn;
 
   @Enumerated(EnumType.STRING)

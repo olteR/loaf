@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.game.characters.model.CharacterEntity;
 import olter.loaf.game.characters.model.CharacterRepository;
+import olter.loaf.game.config.model.ConfigEntity;
+import olter.loaf.game.config.model.ConfigRepository;
+import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.districts.model.DistrictEntity;
 import olter.loaf.game.districts.model.DistrictRepository;
 import olter.loaf.game.districts.model.DistrictTypeEnum;
@@ -19,29 +22,7 @@ public class DefaultGameDataGenerator {
 
   private final DistrictRepository districtRepository;
   private final CharacterRepository characterRepository;
-
-  /*
-  Uradalom - 5
-  Kastély - 4
-  Palota - 3
-
-  Templom - 3
-  Kápolna - 3
-  Kolostor - 3
-  Katedrális - 2
-
-  Fogadó - 5
-  Kereskedőház - 3
-  Piac - 4
-  Dokk - 3
-  Kikötő - 3
-  Városháza 2
-
-  Őrtorony - 3
-  Börtön - 3
-  Barakk - 3
-  Erőd - 2
-  */
+  private final ConfigRepository configRepository;
 
   private void generateDefaultDistricts() {
     List<DistrictEntity> districts =
@@ -350,6 +331,55 @@ public class DefaultGameDataGenerator {
     log.info("Characters generated successfully!");
   }
 
+  private void generateDefaultConfig() {
+    List<ConfigEntity> defaultConfig =
+        List.of(
+            // Base Cards
+            new ConfigEntity(1L, 1L, 5, ConfigTypeEnum.BASE_CARD), // Uradalom - 5
+            new ConfigEntity(2L, 2L, 4, ConfigTypeEnum.BASE_CARD), // Kastély - 4
+            new ConfigEntity(3L, 3L, 3, ConfigTypeEnum.BASE_CARD), // Palota - 3
+            new ConfigEntity(4L, 4L, 3, ConfigTypeEnum.BASE_CARD), // Templom - 3
+            new ConfigEntity(5L, 5L, 3, ConfigTypeEnum.BASE_CARD), // Kápolna - 3
+            new ConfigEntity(6L, 6L, 3, ConfigTypeEnum.BASE_CARD), // Kolostor - 3
+            new ConfigEntity(7L, 7L, 2, ConfigTypeEnum.BASE_CARD), // Katedrális - 2
+            new ConfigEntity(8L, 8L, 5, ConfigTypeEnum.BASE_CARD), // Fogadó - 5
+            new ConfigEntity(9L, 9L, 3, ConfigTypeEnum.BASE_CARD), // Kereskedőház - 3
+            new ConfigEntity(10L, 10L, 4, ConfigTypeEnum.BASE_CARD), // Piac - 4
+            new ConfigEntity(11L, 11L, 3, ConfigTypeEnum.BASE_CARD), // Dokk - 3
+            new ConfigEntity(12L, 12L, 3, ConfigTypeEnum.BASE_CARD), // Kikötő - 3
+            new ConfigEntity(13L, 13L, 2, ConfigTypeEnum.BASE_CARD), // Városháza 2
+            new ConfigEntity(14L, 14L, 3, ConfigTypeEnum.BASE_CARD), // Őrtorony - 3
+            new ConfigEntity(15L, 15L, 3, ConfigTypeEnum.BASE_CARD), // Börtön - 3
+            new ConfigEntity(16L, 16L, 3, ConfigTypeEnum.BASE_CARD), // Barakk - 3
+            new ConfigEntity(17L, 17L, 2, ConfigTypeEnum.BASE_CARD), // Erőd - 2
+            new ConfigEntity(18L, 39L, 1, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Sárkánykapu
+            new ConfigEntity(19L, 28L, 2, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Gyár
+            new ConfigEntity(20L, 30L, 3, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Kísértetváros
+            new ConfigEntity(
+                21L, 21L, 4, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Birodalmi Kincstár
+            new ConfigEntity(22L, 26L, 5, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Erődítmény
+            new ConfigEntity(23L, 35L, 6, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Laboratórium
+            new ConfigEntity(24L, 33L, 7, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Könyvtár
+            new ConfigEntity(25L, 44L, 8, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Térképszoba
+            new ConfigEntity(26L, 34L, 9, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Kőfejtő
+            new ConfigEntity(27L, 47L, 10, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Varázstanoda
+            new ConfigEntity(28L, 32L, 11, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Kovácsműhely
+            new ConfigEntity(29L, 42L, 12, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Szobor
+            new ConfigEntity(30L, 46L, 13, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Tolvajtanya
+            new ConfigEntity(31L, 31L, 14, ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT), // Kívánságkút
+            new ConfigEntity(32L, 1L, 1, ConfigTypeEnum.DEFAULT_CHARACTER), // Orgyilkos
+            new ConfigEntity(33L, 2L, 2, ConfigTypeEnum.DEFAULT_CHARACTER), // Tolvaj
+            new ConfigEntity(34L, 3L, 3, ConfigTypeEnum.DEFAULT_CHARACTER), // Mágus
+            new ConfigEntity(35L, 4L, 4, ConfigTypeEnum.DEFAULT_CHARACTER), // Király
+            new ConfigEntity(36L, 5L, 5, ConfigTypeEnum.DEFAULT_CHARACTER), // Püspök
+            new ConfigEntity(37L, 6L, 6, ConfigTypeEnum.DEFAULT_CHARACTER), // Kereskedő
+            new ConfigEntity(38L, 7L, 7, ConfigTypeEnum.DEFAULT_CHARACTER), // Építész
+            new ConfigEntity(39L, 8L, 8, ConfigTypeEnum.DEFAULT_CHARACTER), // Hadúr
+            new ConfigEntity(40L, 9L, 9, ConfigTypeEnum.DEFAULT_CHARACTER)); // Királynő
+    configRepository.saveAll(defaultConfig);
+    log.info("Default config generated successfully!");
+  }
+
   @EventListener(ApplicationReadyEvent.class)
   public void startUpCheck() {
     if (districtRepository.count() == 0) {
@@ -359,6 +389,10 @@ public class DefaultGameDataGenerator {
     if (characterRepository.count() == 0) {
       log.info("No Characters found in database. Generating default cards...");
       generateDefaultCharacters();
+    }
+    if (configRepository.count() == 0) {
+      log.info("No Config found in database. Generating default config...");
+      generateDefaultConfig();
     }
   }
 }

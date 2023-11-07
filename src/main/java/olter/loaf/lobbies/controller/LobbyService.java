@@ -6,6 +6,9 @@ import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.games.controller.GameService;
+import olter.loaf.game.games.model.GameEntity;
+import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.lobbies.LobbyMapper;
 import olter.loaf.lobbies.dto.*;
 import olter.loaf.lobbies.exception.AlreadyJoinedException;
@@ -14,6 +17,7 @@ import olter.loaf.lobbies.exception.NoPrivilegeException;
 import olter.loaf.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.lobbies.model.LobbyRepository;
+import olter.loaf.lobbies.model.LobbyStatusEnum;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class LobbyService {
+  private final GameService gameService;
   private final LobbyRepository lobbyRepository;
   private final LobbyMapper lobbyMapper;
   private final SimpMessagingTemplate simpMessagingTemplate;
@@ -62,6 +67,7 @@ public class LobbyService {
     lobbyMapper.map(request, lobby);
     lobby.setOwner(creator.getId());
     lobby.setMembers(List.of(creator));
+    lobby.setStatus(LobbyStatusEnum.CREATED);
 
     while (lobby.getCode() == null || lobbyRepository.existsByCode(lobby.getCode())) {
       lobby.setCode(generateLobbyCode());
@@ -72,6 +78,9 @@ public class LobbyService {
       lobby.setPassword(passwordEncoder.encode(request.getPassword()));
     }
     lobbyRepository.save(lobby);
+
+    gameService.createGameForLobby(lobby.getId());
+
     return lobbyMapper.entityToDetailsResponse(lobby);
   }
 
