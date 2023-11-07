@@ -53,6 +53,7 @@
             <Button
               class="float-right"
               @click="router.push('/game/' + lobbyCode)"
+              :disabled="lobbyStore.getLobby.members.length < 2"
             >
               Játék indítása
             </Button>

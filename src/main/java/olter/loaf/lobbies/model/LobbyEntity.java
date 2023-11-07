@@ -27,6 +27,9 @@ public class LobbyEntity extends BaseEntity {
   private Long owner;
   private String password;
 
+  @Enumerated(EnumType.STRING)
+  private LobbyStatusEnum status;
+
   @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinTable(
       name = "lobby_users",

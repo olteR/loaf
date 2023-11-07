@@ -1,9 +1,7 @@
 package olter.loaf.game.players.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,6 +15,11 @@ import olter.loaf.game.games.model.GameEntity;
 @Table(name = "players")
 public class PlayerEntity extends BaseEntity {
   private Integer gold;
+  private Long currentCharacter;
+
+  @ElementCollection
+  @CollectionTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"))
+  private List<Long> hand;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private GameEntity game;

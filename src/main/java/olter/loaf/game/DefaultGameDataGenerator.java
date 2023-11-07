@@ -63,36 +63,255 @@ public class DefaultGameDataGenerator {
             new DistrictEntity(15L, "Börtön", "Börtön", null, DistrictTypeEnum.MILITARY, 2),
             new DistrictEntity(16L, "Barakk", "Barakk", null, DistrictTypeEnum.MILITARY, 3),
             new DistrictEntity(17L, "Erőd", "Erőd", null, DistrictTypeEnum.MILITARY, 3),
-            new DistrictEntity(18L, "Aranybánya", "Aranybánya", "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"/>.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(19L, "Állványzat", "Állványzat", "<p>Építhetsz úgy kerületet, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a kerület árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített kerületet.</p>", DistrictTypeEnum.UNIQUE, 3),
-            new DistrictEntity(20L, "Bazilika", "Bazilika", "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár városod minden olyan kerületéért, aminek ára páratlan szám.</p>", DistrictTypeEnum.UNIQUE, 4),
-            new DistrictEntity(21L, "Birodalmi Kincstár", "Birodalmi Kincstár", "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a kincstartalékodban lévő minden arany után.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(22L, "Capitolium", "Capitolium", "<p>A játék végén 3 <i class=\"fa fa-star\"/> jár, ha  van legalább 3 egyforma típusú kerületed.</p><p>A Capitolium csak egyszer adhat plusz pontokat.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(23L, "Csillagvizsgáló", "Csillag- vizsgáló", "<p>Ha lapot húzol nyersanyag gyűjtéskor, eggyel több közül választhatsz.", DistrictTypeEnum.UNIQUE, 4),
-            new DistrictEntity(24L, "Elefántcsonttorony", "Elefántcsont- torony", "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha az Elefántcsonttorony az egyetlen <span style=\"font-variant: small-caps\">egyedi</span> kerület a városodban.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(25L, "Emlékmű", "Emlékmű", "<p>Nem építhetsz Emlékművet, ha 5 vagy annál több kerületed van a városodban. Kezeld az Emlékművet 2 kerületként a befejezett város szempontjából.</p>", DistrictTypeEnum.UNIQUE, 4),
-            new DistrictEntity(26L, "Erődítmény", "Erődítmény", "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>", DistrictTypeEnum.UNIQUE, 3),
-            new DistrictEntity(27L, "Fegyvertár", "Fegyvertár", "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztítsd egy másik játékos kerületét.</p><p>Befejezett városban nem lehet kerületet elpusztítani.</p>", DistrictTypeEnum.UNIQUE, 3),
-            new DistrictEntity(28L, "Gyár", "Gyár", "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant: small-caps\">egyedi</span> kerület megépítéséért.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(29L, "Istálló", "Istálló", "<p>Az Istálló megépítése nem számít bele a körre vonatkozó építési korlátba.</p><p>Ha a magisztrátus elkobozza a játékos építhet még egy kerületet ebben a körben.</p>", DistrictTypeEnum.UNIQUE, 2),
-            new DistrictEntity(30L, "Kísértetváros", "Kísértetváros", "<p>A játék végén a Kísértetváros az általad választott típusú kerületnek számít.</p><p>Ha a birtokos úgy dönt, hogy a Kísértetváros kerülettípusa nem egyedi, akkor többé nem számít egyedinek.</p>", DistrictTypeEnum.UNIQUE, 2),
-            new DistrictEntity(31L, "Kívánságkút", "Kívánságkút", "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a városod minden <span style=\"font-variant: small-caps\">egyedi</span> kerülete után (beleértve a Kívánságkutat is)./p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(32L, "Kovácsműhely", "Kovácsműhely", "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"/>-ért 3 lapot kaphatsz.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(33L, "Könyvtár", "Könyvtár", "<p>Ha lapot húzol nyersanyag gyűjtéskor, eggyel több lapot tarts meg.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(34L, "Kőfejtő", "Kőfejtő", "<p>Bármennyi egyforma kerületet építhetsz a városodban.</p><p>8-as rangú karakter nem használhatja a képességét egyforma kerületek megszerzésére.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(35L, "Laboratórium", "Laboratórium", "<p>A köröd folyamán egyszer a pakli aljára tehetsz egy lapot a kezedből és kapsz 2 <i class=\"fa fa-coins\"/>.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(36L, "Múzeum", "Múzeum", "<p>A köröd folyamán egyszer helyezhetsz egy kártyát a kezedből a múzeum alá képpel lefelé. A játék végén minden kártyáért a múzeum alatt 1 <i class=\"fa fa-star\"/> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják az odatett lapok vele mennek. Ha elpusztítják, a lapok a pakli aljára kerülnek.</p>", DistrictTypeEnum.UNIQUE, 4),
-            new DistrictEntity(37L, "Nagy Fal", "Nagy Fal", "<p>A 8-as rangú karakternek eggyel több aranyat kell fizetnie, hogy használhassa a képességét városod bármely más területén.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(38L, "Park", "Park", "<p>Ha nincs lap a kezedben a köröd végén, húzol két kártyát.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(39L, "Sárkánykapu", "Sárkánykapu", "<p>A játék végén 2 <i class=\"fa fa-star\"/> jár.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(40L, "Szegényház", "Szegényház", "<p>Ha nincs arany a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"/>.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>", DistrictTypeEnum.UNIQUE, 4),
-            new DistrictEntity(41L, "Színház", "Színház", "<p>Minden választási fázis végén vakon kicserélheted az általad választott karaktert ellenfeled egyik karakterkártyájával.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(42L, "Szobor", "Szobor", "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha nálad van a korona</p>", DistrictTypeEnum.UNIQUE, 3),
-            new DistrictEntity(43L, "Temető", "Temető", "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy kerületet a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(44L, "Térképszoba", "Térképszoba", "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár minden kezedben marad lap után.</p>", DistrictTypeEnum.UNIQUE, 5),
-            new DistrictEntity(45L, "Titkos Kripta", "Titkos Kripta", "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"/> jár, ha a Titkos kripta a kezedben van.</p>", DistrictTypeEnum.UNIQUE, 0),
-            new DistrictEntity(46L, "Tolvajtanya", "Tolvajtanya", "<p>Építéskor a Tolvajtanya árát fizetheted részben lapokból (1 lap = 1 <i class=\"fa fa-coins\"/>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát csak az aranyat kapja vissza a tulajdonos.</p>", DistrictTypeEnum.UNIQUE, 6),
-            new DistrictEntity(47L, "Varázstanoda", "Varázstanoda", "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda az általad választott típusú kerületnek számít.</p>", DistrictTypeEnum.UNIQUE, 6));
+            new DistrictEntity(
+                18L,
+                "Aranybánya",
+                "Aranybánya",
+                "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa"
+                    + " fa-coins\"/>.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                19L,
+                "Állványzat",
+                "Állványzat",
+                "<p>Építhetsz úgy kerületet, hogy az Állványzatot semmisíted meg, ahelyett, hogy"
+                    + " kifizetnéd a kerület árát.</p><p>Magisztrátus nem kobozhat el Állványzat"
+                    + " álltal épített kerületet.</p>",
+                DistrictTypeEnum.UNIQUE,
+                3),
+            new DistrictEntity(
+                20L,
+                "Bazilika",
+                "Bazilika",
+                "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár városod minden olyan kerületéért,"
+                    + " aminek ára páratlan szám.</p>",
+                DistrictTypeEnum.UNIQUE,
+                4),
+            new DistrictEntity(
+                21L,
+                "Birodalmi Kincstár",
+                "Birodalmi Kincstár",
+                "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a kincstartalékodban lévő minden"
+                    + " arany után.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                22L,
+                "Capitolium",
+                "Capitolium",
+                "<p>A játék végén 3 <i class=\"fa fa-star\"/> jár, ha  van legalább 3 egyforma"
+                    + " típusú kerületed.</p><p>A Capitolium csak egyszer adhat plusz"
+                    + " pontokat.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                23L,
+                "Csillagvizsgáló",
+                "Csillag- vizsgáló",
+                "<p>Ha lapot húzol nyersanyag gyűjtéskor, eggyel több közül választhatsz.",
+                DistrictTypeEnum.UNIQUE,
+                4),
+            new DistrictEntity(
+                24L,
+                "Elefántcsonttorony",
+                "Elefántcsont- torony",
+                "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha az Elefántcsonttorony az"
+                    + " egyetlen <span style=\"font-variant: small-caps\">egyedi</span> kerület a"
+                    + " városodban.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                25L,
+                "Emlékmű",
+                "Emlékmű",
+                "<p>Nem építhetsz Emlékművet, ha 5 vagy annál több kerületed van a városodban."
+                    + " Kezeld az Emlékművet 2 kerületként a befejezett város szempontjából.</p>",
+                DistrictTypeEnum.UNIQUE,
+                4),
+            new DistrictEntity(
+                26L,
+                "Erődítmény",
+                "Erődítmény",
+                "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>",
+                DistrictTypeEnum.UNIQUE,
+                3),
+            new DistrictEntity(
+                27L,
+                "Fegyvertár",
+                "Fegyvertár",
+                "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztítsd egy másik"
+                    + " játékos kerületét.</p><p>Befejezett városban nem lehet kerületet"
+                    + " elpusztítani.</p>",
+                DistrictTypeEnum.UNIQUE,
+                3),
+            new DistrictEntity(
+                28L,
+                "Gyár",
+                "Gyár",
+                "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant:"
+                    + " small-caps\">egyedi</span> kerület megépítéséért.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                29L,
+                "Istálló",
+                "Istálló",
+                "<p>Az Istálló megépítése nem számít bele a körre vonatkozó építési"
+                    + " korlátba.</p><p>Ha a magisztrátus elkobozza a játékos építhet még egy"
+                    + " kerületet ebben a körben.</p>",
+                DistrictTypeEnum.UNIQUE,
+                2),
+            new DistrictEntity(
+                30L,
+                "Kísértetváros",
+                "Kísértetváros",
+                "<p>A játék végén a Kísértetváros az általad választott típusú kerületnek"
+                    + " számít.</p><p>Ha a birtokos úgy dönt, hogy a Kísértetváros kerülettípusa"
+                    + " nem egyedi, akkor többé nem számít egyedinek.</p>",
+                DistrictTypeEnum.UNIQUE,
+                2),
+            new DistrictEntity(
+                31L,
+                "Kívánságkút",
+                "Kívánságkút",
+                "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a városod minden <span"
+                    + " style=\"font-variant: small-caps\">egyedi</span> kerülete után (beleértve a"
+                    + " Kívánságkutat is)./p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                32L,
+                "Kovácsműhely",
+                "Kovácsműhely",
+                "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"/>-ért 3 lapot"
+                    + " kaphatsz.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                33L,
+                "Könyvtár",
+                "Könyvtár",
+                "<p>Ha lapot húzol nyersanyag gyűjtéskor, eggyel több lapot tarts meg.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                34L,
+                "Kőfejtő",
+                "Kőfejtő",
+                "<p>Bármennyi egyforma kerületet építhetsz a városodban.</p><p>8-as rangú karakter"
+                    + " nem használhatja a képességét egyforma kerületek megszerzésére.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                35L,
+                "Laboratórium",
+                "Laboratórium",
+                "<p>A köröd folyamán egyszer a pakli aljára tehetsz egy lapot a kezedből és kapsz 2"
+                    + " <i class=\"fa fa-coins\"/>.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                36L,
+                "Múzeum",
+                "Múzeum",
+                "<p>A köröd folyamán egyszer helyezhetsz egy kártyát a kezedből a múzeum alá képpel"
+                    + " lefelé. A játék végén minden kártyáért a múzeum alatt 1 <i class=\"fa"
+                    + " fa-star\"/> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják az odatett"
+                    + " lapok vele mennek. Ha elpusztítják, a lapok a pakli aljára kerülnek.</p>",
+                DistrictTypeEnum.UNIQUE,
+                4),
+            new DistrictEntity(
+                37L,
+                "Nagy Fal",
+                "Nagy Fal",
+                "<p>A 8-as rangú karakternek eggyel több aranyat kell fizetnie, hogy használhassa a"
+                    + " képességét városod bármely más területén.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                38L,
+                "Park",
+                "Park",
+                "<p>Ha nincs lap a kezedben a köröd végén, húzol két kártyát.</p><p>Ha a birtokos a"
+                    + " Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép"
+                    + " életbe.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                39L,
+                "Sárkánykapu",
+                "Sárkánykapu",
+                "<p>A játék végén 2 <i class=\"fa fa-star\"/> jár.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                40L,
+                "Szegényház",
+                "Szegényház",
+                "<p>Ha nincs arany a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa"
+                    + " fa-coins\"/>.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre,"
+                    + " akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a"
+                    + " Szegényház hatása után érvényesül.</p>",
+                DistrictTypeEnum.UNIQUE,
+                4),
+            new DistrictEntity(
+                41L,
+                "Színház",
+                "Színház",
+                "<p>Minden választási fázis végén vakon kicserélheted az általad választott"
+                    + " karaktert ellenfeled egyik karakterkártyájával.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                42L,
+                "Szobor",
+                "Szobor",
+                "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha nálad van a korona</p>",
+                DistrictTypeEnum.UNIQUE,
+                3),
+            new DistrictEntity(
+                43L,
+                "Temető",
+                "Temető",
+                "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy kerületet a városodban,"
+                    + " ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el"
+                    + " Temetőt ami a képessége által lett építve.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                44L,
+                "Térképszoba",
+                "Térképszoba",
+                "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár minden kezedben marad lap"
+                    + " után.</p>",
+                DistrictTypeEnum.UNIQUE,
+                5),
+            new DistrictEntity(
+                45L,
+                "Titkos Kripta",
+                "Titkos Kripta",
+                "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"/>"
+                    + " jár, ha a Titkos kripta a kezedben van.</p>",
+                DistrictTypeEnum.UNIQUE,
+                0),
+            new DistrictEntity(
+                46L,
+                "Tolvajtanya",
+                "Tolvajtanya",
+                "<p>Építéskor a Tolvajtanya árát fizetheted részben lapokból (1 lap = 1 <i"
+                    + " class=\"fa fa-coins\"/>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát"
+                    + " csak az aranyat kapja vissza a tulajdonos.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6),
+            new DistrictEntity(
+                47L,
+                "Varázstanoda",
+                "Varázstanoda",
+                "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda az"
+                    + " általad választott típusú kerületnek számít.</p>",
+                DistrictTypeEnum.UNIQUE,
+                6));
     districtRepository.saveAll(districts);
     log.info("Districts generated successfully!");
   }
