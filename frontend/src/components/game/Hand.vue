@@ -1,41 +1,51 @@
 <template>
-  <div
-    class="hand"
-    :style="{
-      width: cardsWidth + 10 + 'rem',
-    }"
-  >
-    <button
-      v-if="page !== 0"
-      class="absolute top-0 bottom-0 my-auto text-4xl w-20"
-      @click="page--"
-    >
-      <i class="fa fa-chevron-left"></i>
-    </button>
+  <div>
+    <Transition name="fade">
+      <div v-if="isDragging" class="card-dropper">
+        <i class="fa fa-hammer text-9xl mt-12"></i>
+        <p class="text-5xl mt-12">Kerület építése</p>
+      </div>
+    </Transition>
     <div
+      class="hand"
       :style="{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        'margin-left': 'auto',
-        'margin-right': 'auto',
-        width: cardsWidth + 'rem',
-        height: '16.18rem',
+        width: cardsWidth + 10 + 'rem',
       }"
     >
-      <DistrictCardNew
-        v-for="(card, i) in displayedCards"
-        :card="card"
-        :order="i"
-      ></DistrictCardNew>
+      <button
+        v-if="page !== 0"
+        class="absolute top-0 bottom-0 my-auto text-4xl w-20"
+        @click="page--"
+      >
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      <div
+        :style="{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          'margin-left': 'auto',
+          'margin-right': 'auto',
+          width: cardsWidth + 'rem',
+          height: '16.18rem',
+        }"
+      >
+        <DistrictCardNew
+          v-for="(card, i) in displayedCards"
+          :card="card"
+          :order="i"
+          @drag-begin="isDragging = true"
+          @drag-end="isDragging = false"
+        ></DistrictCardNew>
+      </div>
+      <button
+        v-if="page !== Math.floor(cards.length / 10) && cards.length > 10"
+        class="absolute right-0 top-0 bottom-0 my-auto text-4xl w-20"
+        @click="page++"
+      >
+        <i class="fa fa-chevron-right"></i>
+      </button>
     </div>
-    <button
-      v-if="page !== Math.floor(cards.length / 10) && cards.length > 10"
-      class="absolute right-0 top-0 bottom-0 my-auto text-4xl w-20"
-      @click="page++"
-    >
-      <i class="fa fa-chevron-right"></i>
-    </button>
   </div>
 </template>
 
@@ -48,6 +58,7 @@ const props = defineProps({
 });
 
 const page = ref(0);
+const isDragging = ref(false);
 
 const displayedCards = computed(() => {
   return props.cards.slice(page.value * 10, (page.value + 1) * 10);
@@ -68,5 +79,30 @@ const cardsWidth = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.card-dropper {
+  position: absolute;
+  height: 20rem;
+  width: 32.36rem;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: 24rem;
+  border: solid #9fa8da;
+  border-radius: 8px;
+  color: #9fa8da;
+  text-align: center;
 }
 </style>

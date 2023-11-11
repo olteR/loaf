@@ -35,6 +35,8 @@
 <script setup>
 import { computed, ref } from "vue";
 
+const emit = defineEmits(["drag-begin", "drag-end"]);
+
 const districtCard = ref();
 const positions = ref({
   clientX: undefined,
@@ -81,6 +83,7 @@ const secondaryColor = computed(() => {
 
 function dragMouseDown(event) {
   event.preventDefault();
+  emit("drag-begin");
   delete districtCard.value.style.transition;
   positions.value.clientX = event.clientX;
   positions.value.clientY = event.clientY;
@@ -102,6 +105,7 @@ function elementDrag(event) {
 }
 
 function closeDragElement() {
+  emit("drag-end");
   document.onmouseup = null;
   document.onmousemove = null;
   const resetPos = districtCard.value.animate(

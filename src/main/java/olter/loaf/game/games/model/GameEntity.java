@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.players.model.PlayerEntity;
+import olter.loaf.lobbies.model.LobbyEntity;
 
 @Entity
 @Getter
@@ -15,7 +16,6 @@ import olter.loaf.game.players.model.PlayerEntity;
 @RequiredArgsConstructor
 @Table(name = "games")
 public class GameEntity extends BaseEntity {
-  private Long lobbyId;
   private Long crownedPlayer;
   private Long currentPlayer;
   private Integer turn;
@@ -30,7 +30,10 @@ public class GameEntity extends BaseEntity {
 
   @ElementCollection
   @CollectionTable(name = "game_deck", joinColumns = @JoinColumn(name = "game_id"))
-  private LinkedList<Long> deck;
+  private List<Long> deck;
+
+  @OneToOne
+  private LobbyEntity lobby;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
   private List<PlayerEntity> players;

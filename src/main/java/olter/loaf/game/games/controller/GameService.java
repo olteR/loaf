@@ -7,6 +7,7 @@ import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
+import olter.loaf.lobbies.model.LobbyEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +19,9 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final ConfigRepository configRepository;
-    public void createGameForLobby(Long lobbyId) {
+    public void createGameForLobby(LobbyEntity lobby) {
         GameEntity game = new GameEntity();
-        game.setLobbyId(lobbyId);
+        game.setLobby(lobby);
         game.setUniqueCards(getDefaultUniqueDistricts());
         game.setCharacters(getDefaultCharacters());
         gameRepository.save(game);

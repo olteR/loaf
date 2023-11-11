@@ -79,7 +79,7 @@ public class LobbyService {
     }
     lobbyRepository.save(lobby);
 
-    gameService.createGameForLobby(lobby.getId());
+    gameService.createGameForLobby(lobby);
 
     return lobbyMapper.entityToDetailsResponse(lobby);
   }

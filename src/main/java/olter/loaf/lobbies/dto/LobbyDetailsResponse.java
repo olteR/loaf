@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import olter.loaf.game.games.dto.GameSettingsResponse;
 import olter.loaf.users.dto.UserResponse;
 
 @Getter
@@ -18,4 +19,5 @@ public class LobbyDetailsResponse {
   private Integer maxMembers;
   private Long owner;
   private List<UserResponse> members;
+  private GameSettingsResponse gameSettings;
 }

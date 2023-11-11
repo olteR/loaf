@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
+import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -30,6 +31,9 @@ public class LobbyEntity extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private LobbyStatusEnum status;
+
+  @OneToOne
+  private GameEntity game;
 
   @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinTable(
