@@ -7,6 +7,7 @@
       </div>
     </template>
   </Card>
+  <MemberList :members="lobbyStore.getLobby.members"></MemberList>
   <Hand :cards="districtStore.getDistricts"></Hand>
 </template>
 
@@ -14,11 +15,14 @@
 import { onMounted } from "vue";
 import { useStateStore } from "@/stores/state";
 import { useDistrictStore } from "@/stores/districts";
+import { useLobbyStore } from "@/stores/lobbies";
 import Card from "primevue/card";
+import MemberList from "@/components/game/MemberList.vue";
 import Hand from "@/components/game/Hand.vue";
 
 const stateStore = useStateStore();
 const districtStore = useDistrictStore();
+const lobbyStore = useLobbyStore();
 
 onMounted(async () => {
   stateStore.setLoading(true);

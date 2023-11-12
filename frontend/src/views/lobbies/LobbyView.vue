@@ -11,28 +11,45 @@
               lobbyStore.getLobby.maxMembers
             }}):
           </h2>
-          <span v-for="player in lobbyStore.getLobby.members" :key="player.id">
-            <Chip :key="player.id" class="mr-1 py-3">
-              <i
-                v-if="player.id === lobbyStore.getLobby.owner"
-                class="fa fa-crown mr-1"
-              />
-              {{ player.displayName }}
-              <span v-if="isOwner && stateStore.getUser.id !== player.id">
-                <Button
-                  type="button"
-                  icon="fa fa-gear"
-                  class="playerOptionsButton"
-                  @click="toggle($event, player.id)"
-                />
-
-                <OverlayPanel
-                  :ref="
-                    (el) => {
-                      playerPanels[player.id] = el;
-                    }
-                  "
-                >
+          <DataTable
+            :value="lobbyStore.getLobby.members"
+            :reorderableColumns="true"
+            @columnReorder="onColReorder"
+            @rowReorder="onRowReorder"
+          >
+            <Column
+              v-if="isOwner"
+              rowReorder
+              headerStyle="width: 3rem"
+              :reorderableColumn="false"
+            />
+            <Column
+              header="Sorrend"
+              style="width: 8rem"
+              bodyStyle="text-align: center"
+              headerStyle="text-align: center; font-size: 1.5rem;"
+            >
+              <template #body="slotProps">
+                {{
+                  lobbyStore.getLobby.members.indexOf(slotProps.data) + 1 + "."
+                }}
+              </template>
+            </Column>
+            <Column
+              field="displayName"
+              header="Név"
+              bodyStyle="text-align: center"
+              headerStyle="text-align: center; font-size: 1.5rem;"
+            ></Column>
+            <Column
+              v-if="isOwner"
+              header="Műveletek"
+              style="width: 16rem"
+              bodyStyle="text-align: center"
+              headerStyle="text-align: center; font-size: 1.5rem;"
+            >
+              <template #body="slotProps">
+                <div v-if="slotProps.data.id !== stateStore.getUser.id">
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
                     icon="fa fa-crown"
@@ -44,28 +61,27 @@
                     icon="fa fa-x"
                     @click="lobbyStore.kickMember(lobbyCode, player.id)"
                   />
-                </OverlayPanel>
-              </span>
-            </Chip>
-          </span>
+                </div>
+              </template>
+            </Column>
+          </DataTable>
 
-          <div class="float-right">
-            <Button
-              class="float-right"
-              @click="router.push('/game/' + lobbyCode)"
-              :disabled="lobbyStore.getLobby.members.length < 2"
-            >
-              Játék indítása
-            </Button>
-            <Button v-if="isOwner" class="float-right p-button-danger mr-2">
+          <div class="mt-2 ml-auto">
+            <Button v-if="isOwner" class="p-button-danger mr-2">
               Játék törlése
             </Button>
             <Button
               v-else
-              class="float-right p-button-danger mr-2"
+              class="p-button-danger mr-2"
               @click="lobbyStore.leaveLobby(lobbyCode)"
             >
               Játék elhagyása
+            </Button>
+            <Button
+              @click="router.push('/game/' + lobbyCode)"
+              :disabled="lobbyStore.getLobby.members.length < 2"
+            >
+              Játék indítása
             </Button>
           </div>
         </template>
@@ -87,8 +103,8 @@ import { useStateStore } from "@/stores/state";
 import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import Card from "primevue/card";
-import Chip from "primevue/chip";
-import OverlayPanel from "primevue/overlaypanel";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 import OwnerLobbySettings from "@/components/lobbies/OwnerLobbySettings.vue";
 import PlayerLobbySettings from "@/components/lobbies/PlayerLobbySettings.vue";
 
@@ -224,5 +240,10 @@ function toggle(event, id) {
 }
 .playerOptionsButton:focus {
   background: transparent !important;
+}
+::v-deep(.p-reorderable-column) {
+  .p-column-header-content {
+    display: block;
+  }
 }
 </style>
