@@ -13,11 +13,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "config")
 public class ConfigEntity {
-  @Id private Long id;
+    @Id
+    private Long id;
 
-  private Long configId;
-  private Integer configValue;
+    private Long configId;
+    private Integer configValue;
 
-  @Enumerated(EnumType.STRING)
-  private ConfigTypeEnum type;
+    @Enumerated(EnumType.STRING)
+    private ConfigTypeEnum type;
 }

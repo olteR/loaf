@@ -10,6 +10,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class NameResponse {
-  private Long id;
-  private String name;
+    private Long id;
+    private String name;
 }

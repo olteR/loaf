@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface DistrictMapper {
-  DistrictListResponse entityToListResponse(DistrictEntity entity);
+    DistrictListResponse entityToListResponse(DistrictEntity entity);
 }

@@ -10,6 +10,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class LobbyMemberInteractionDto {
-  private String code;
-  private Long memberId;
+    private String code;
+    private Long memberId;
 }

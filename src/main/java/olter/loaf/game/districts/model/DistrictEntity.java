@@ -13,18 +13,19 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "districts")
 public class DistrictEntity {
-  @Id private Long id;
+    @Id
+    private Long id;
 
-  @Column(unique = true)
-  private String name;
+    @Column(unique = true)
+    private String name;
 
-  private String cardName;
+    private String cardName;
 
-  @Column(columnDefinition = "TEXT")
-  private String cardText;
+    @Column(columnDefinition = "TEXT")
+    private String cardText;
 
-  @Enumerated(EnumType.STRING)
-  private DistrictTypeEnum type;
+    @Enumerated(EnumType.STRING)
+    private DistrictTypeEnum type;
 
-  private Integer cost;
+    private Integer cost;
 }

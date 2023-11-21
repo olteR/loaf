@@ -1,7 +1,5 @@
 package olter.loaf.users.controller;
 
-import java.util.Collection;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
@@ -18,86 +16,89 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collection;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService implements UserDetailsService {
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
-  private final JwtHandler jwtHandler;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtHandler jwtHandler;
 
-  public LoginResponse loginUser(LoginRequest loginRequest) {
-    UserEntity user =
-        userRepository
-            .findByName(loginRequest.getName())
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "User not found with this name"));
+    public LoginResponse loginUser(LoginRequest loginRequest) {
+        UserEntity user =
+            userRepository
+                .findByName(loginRequest.getName())
+                .orElseThrow(
+                    () ->
+                        new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED, "User not found with this name"));
 
-    if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+        }
+        log.info(user.getName() + " logging in");
+        return new LoginResponse(
+            user.getId(),
+            user.getName(),
+            jwtHandler.generateJwt(user.getName(), Map.of("uid", user.getId())));
     }
-    log.info(user.getName() + " logging in");
-    return new LoginResponse(
-        user.getId(),
-        user.getName(),
-        jwtHandler.generateJwt(user.getName(), Map.of("uid", user.getId())));
-  }
 
-  public UserEntity getLoggedInUser(String name) {
-    return userRepository
-        .findByName(name)
-        .orElseThrow(() -> new ResourceNotFoundException(UserEntity.class.getName(), name));
-  }
-
-  @Override
-  public UserDetails loadUserByUsername(String name) {
-    return userEntityToUserDetails(
-        userRepository
+    public UserEntity getLoggedInUser(String name) {
+        return userRepository
             .findByName(name)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "User not found with this username")));
-  }
+            .orElseThrow(() -> new ResourceNotFoundException(UserEntity.class.getName(), name));
+    }
 
-  private UserDetails userEntityToUserDetails(UserEntity userEntity) {
-    return new UserDetails() {
-      @Override
-      public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-      }
+    @Override
+    public UserDetails loadUserByUsername(String name) {
+        return userEntityToUserDetails(
+            userRepository
+                .findByName(name)
+                .orElseThrow(
+                    () ->
+                        new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED, "User not found with this username")));
+    }
 
-      @Override
-      public String getPassword() {
-        return userEntity.getPassword();
-      }
+    private UserDetails userEntityToUserDetails(UserEntity userEntity) {
+        return new UserDetails() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
 
-      @Override
-      public String getUsername() {
-        return userEntity.getName();
-      }
+            @Override
+            public String getPassword() {
+                return userEntity.getPassword();
+            }
 
-      @Override
-      public boolean isAccountNonExpired() {
-        return true;
-      }
+            @Override
+            public String getUsername() {
+                return userEntity.getName();
+            }
 
-      @Override
-      public boolean isAccountNonLocked() {
-        return true;
-      }
+            @Override
+            public boolean isAccountNonExpired() {
+                return true;
+            }
 
-      @Override
-      public boolean isCredentialsNonExpired() {
-        return true;
-      }
+            @Override
+            public boolean isAccountNonLocked() {
+                return true;
+            }
 
-      @Override
-      public boolean isEnabled() {
-        return true;
-      }
-    };
-  }
+            @Override
+            public boolean isCredentialsNonExpired() {
+                return true;
+            }
+
+            @Override
+            public boolean isEnabled() {
+                return true;
+            }
+        };
+    }
 }

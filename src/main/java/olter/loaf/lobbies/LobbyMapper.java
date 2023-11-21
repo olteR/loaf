@@ -11,11 +11,11 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = GameMapper.class)
 public interface LobbyMapper {
-  LobbyListResponse entityToListResponse(LobbyEntity entity);
+    LobbyListResponse entityToListResponse(LobbyEntity entity);
 
-  @Mapping(source = "game", target = "gameSettings")
-  LobbyDetailsResponse entityToDetailsResponse(LobbyEntity entity);
+    @Mapping(source = "game", target = "gameSettings")
+    LobbyDetailsResponse entityToDetailsResponse(LobbyEntity entity);
 
-  @Mapping(target = "password", ignore = true)
-  LobbyEntity map(LobbyCreationRequest source, @MappingTarget LobbyEntity target);
+    @Mapping(target = "password", ignore = true)
+    LobbyEntity map(LobbyCreationRequest source, @MappingTarget LobbyEntity target);
 }

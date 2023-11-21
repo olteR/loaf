@@ -13,9 +13,9 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class LobbyWebsocketController {
 
-  @MessageMapping("/lobby/update")
-  @SendTo("/topic/lobby/update")
-  ResponseEntity<LobbyUpdateDto> sendLobbyUpdate(LobbyUpdateDto lobbyUpdate) {
-    return ResponseEntity.ok().body(lobbyUpdate);
-  }
+    @MessageMapping("/lobby/update")
+    @SendTo("/topic/lobby/update")
+    ResponseEntity<LobbyUpdateDto> sendLobbyUpdate(LobbyUpdateDto lobbyUpdate) {
+        return ResponseEntity.ok().body(lobbyUpdate);
+    }
 }

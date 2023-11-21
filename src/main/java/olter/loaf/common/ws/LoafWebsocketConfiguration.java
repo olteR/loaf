@@ -12,21 +12,21 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class LoafWebsocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
-  private final LoafWebsocketHandshakeHandler handshakeHandler;
+    private final LoafWebsocketHandshakeHandler handshakeHandler;
 
-  @Override
-  public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.enableSimpleBroker("/topic");
-    registry.setApplicationDestinationPrefixes("/app");
-    registry.setUserDestinationPrefix("/user");
-  }
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
+    }
 
-  @Override
-  public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry
-        .addEndpoint("/ws")
-        .setHandshakeHandler(handshakeHandler)
-        .setAllowedOriginPatterns("*")
-        .withSockJS();
-  }
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry
+            .addEndpoint("/ws")
+            .setHandshakeHandler(handshakeHandler)
+            .setAllowedOriginPatterns("*")
+            .withSockJS();
+    }
 }

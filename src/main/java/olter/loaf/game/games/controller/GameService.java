@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class GameService {
     private final GameRepository gameRepository;
     private final ConfigRepository configRepository;
+
     public void createGameForLobby(LobbyEntity lobby) {
         GameEntity game = new GameEntity();
         game.setLobby(lobby);
@@ -28,10 +28,14 @@ public class GameService {
     }
 
     private List<Long> getDefaultUniqueDistricts() {
-        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT).stream().map(ConfigEntity::getConfigId).toList();
+        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT).stream()
+            .map(ConfigEntity::getConfigId)
+            .toList();
     }
 
     private List<Long> getDefaultCharacters() {
-        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().map(ConfigEntity::getConfigId).toList();
+        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream()
+            .map(ConfigEntity::getConfigId)
+            .toList();
     }
 }

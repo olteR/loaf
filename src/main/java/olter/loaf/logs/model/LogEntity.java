@@ -15,13 +15,13 @@ import olter.loaf.common.BaseEntity;
 @RequiredArgsConstructor
 @Table(name = "logs")
 public class LogEntity extends BaseEntity {
-  private Long lobbyId;
-  private Long gameId;
-  private Long playerId;
-  private String source;
-  private String target;
-  private Long turn;
+    private Long lobbyId;
+    private Long gameId;
+    private Long playerId;
+    private String source;
+    private String target;
+    private Long turn;
 
-  @Enumerated(EnumType.STRING)
-  private LogTypeEnum logType;
+    @Enumerated(EnumType.STRING)
+    private LogTypeEnum logType;
 }

@@ -1,7 +1,5 @@
 package olter.loaf.common.ws;
 
-import java.security.Principal;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import olter.loaf.common.security.JwtHandler;
@@ -11,23 +9,26 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
+import java.security.Principal;
+import java.util.Map;
+
 @Component
 @Log4j2
 @RequiredArgsConstructor
 public class LoafWebsocketHandshakeHandler extends DefaultHandshakeHandler {
 
-  private final JwtHandler jwtHandler;
+    private final JwtHandler jwtHandler;
 
-  @Override
-  protected Principal determineUser(
-      ServerHttpRequest request,
-      WebSocketHandler webSocketHandler,
-      Map<String, Object> attributes) {
-    if (!request.getURI().getQuery().isBlank()) {
-      String user = jwtHandler.getUsernameFromToken(request.getURI().getQuery());
-      log.info("Websocket authenticated for user: " + user);
-      return new LoafPrincipal(user);
+    @Override
+    protected Principal determineUser(
+        ServerHttpRequest request,
+        WebSocketHandler webSocketHandler,
+        Map<String, Object> attributes) {
+        if (!request.getURI().getQuery().isBlank()) {
+            String user = jwtHandler.getUsernameFromToken(request.getURI().getQuery());
+            log.info("Websocket authenticated for user: " + user);
+            return new LoafPrincipal(user);
+        }
+        return super.determineUser(request, webSocketHandler, attributes);
     }
-    return super.determineUser(request, webSocketHandler, attributes);
-  }
 }
