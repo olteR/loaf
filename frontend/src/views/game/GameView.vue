@@ -7,12 +7,13 @@
       </div>
     </template>
   </Card>
-  <MemberList :members="lobbyStore.getLobby.members"></MemberList>
-  <Hand :cards="cardStore.getCards.districts"></Hand>
+  <MemberList :members="lobbyStore.getLobby?.members"></MemberList>
+  <Hand :cards="cardStore.getCards?.districts"></Hand>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
+import router from "@/router";
 import { useStateStore } from "@/stores/state";
 import { useCardStore } from "@/stores/cards";
 import { useLobbyStore } from "@/stores/lobbies";
@@ -23,10 +24,12 @@ import Hand from "@/components/game/Hand.vue";
 const stateStore = useStateStore();
 const cardStore = useCardStore();
 const lobbyStore = useLobbyStore();
+const lobbyCode = router.currentRoute.value.params.code;
 
 onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
+  await lobbyStore.fetchLobby(lobbyCode);
   stateStore.setLoading(false);
 });
 </script>

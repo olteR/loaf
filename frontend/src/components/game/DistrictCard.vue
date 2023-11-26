@@ -123,7 +123,6 @@ function closeDragElement() {
   font-size: 1.5rem;
   font-weight: 700;
   user-select: none;
-  opacity: 0.9;
 }
 .district-text {
   text-align: center;
@@ -134,7 +133,7 @@ function closeDragElement() {
   position: absolute;
   bottom: 0;
   width: 100%;
-  opacity: 0.9;
+  opacity: 0.8;
 }
 #draggable-container {
   position: absolute;

@@ -5,6 +5,7 @@
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
+      'background-position-y': CARD_POS[character.id],
     }"
   >
     <div
@@ -22,14 +23,14 @@
         'background-color': secondaryColor,
       }"
     >
-      {{ character.name }}
+      <div class="mt-2 select-none">{{ character.name }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import { COLORS } from "@/utils/const";
+import { COLORS, CARD_POS } from "@/utils/const";
 
 const props = defineProps({
   character: Object,
@@ -58,20 +59,22 @@ const secondaryColor = computed(() => {
   width: 100%;
   outline: solid thick;
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   margin-left: 1.25rem;
-  background-position: center;
-  height: 2rem;
+  background-position-y: center;
+  background-size: cover;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
+  background-blend-mode: overlay;
 }
 .card-content {
   width: 100%;
   height: 100%;
-  opacity: 0.9;
-  padding-left: 1rem;
+  opacity: 0.8;
+  padding-left: 2.25rem;
   font-weight: bold;
-  align-items: center;
+  margin-left: -1.25rem;
 }
 .district-cost {
   z-index: 100;
@@ -86,6 +89,5 @@ const secondaryColor = computed(() => {
   font-size: 1.5rem;
   font-weight: 700;
   user-select: none;
-  opacity: 0.9;
 }
 </style>

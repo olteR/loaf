@@ -22,7 +22,7 @@
         'background-color': secondaryColor,
       }"
     >
-      {{ district.name }}
+      <div class="mt-2 select-none">{{ district.name }}</div>
     </div>
   </div>
 </template>
@@ -53,20 +53,22 @@ const secondaryColor = computed(() => {
   width: 100%;
   outline: solid thick;
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   margin-left: 1.25rem;
   background-position: center;
-  height: 2rem;
+  background-size: cover;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
+  background-blend-mode: overlay;
 }
 .card-content {
   width: 100%;
   height: 100%;
   opacity: 0.9;
-  padding-left: 1rem;
+  padding-left: 2.25rem;
   font-weight: bold;
-  align-items: center;
+  margin-left: -1.25rem;
 }
 .district-cost {
   z-index: 100;
@@ -81,6 +83,5 @@ const secondaryColor = computed(() => {
   font-size: 1.5rem;
   font-weight: 700;
   user-select: none;
-  opacity: 0.9;
 }
 </style>

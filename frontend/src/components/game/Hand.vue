@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="cards">
     <Transition name="fade">
       <div v-if="isDragging" class="card-dropper">
         <i class="fa fa-hammer text-9xl mt-12"></i>
