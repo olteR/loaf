@@ -8,7 +8,10 @@
     </template>
   </Card>
   <MemberList :members="lobbyStore.getLobby?.members"></MemberList>
-  <Hand :cards="cardStore.getCards?.districts"></Hand>
+  <PlayerHand
+    :cards="cardStore.getCards?.districts"
+    :card-images="cardStore.getDistrictImages"
+  ></PlayerHand>
 </template>
 
 <script setup>
@@ -19,7 +22,7 @@ import { useCardStore } from "@/stores/cards";
 import { useLobbyStore } from "@/stores/lobbies";
 import Card from "primevue/card";
 import MemberList from "@/components/game/MemberList.vue";
-import Hand from "@/components/game/Hand.vue";
+import PlayerHand from "@/components/game/PlayerHand.vue";
 
 const stateStore = useStateStore();
 const cardStore = useCardStore();

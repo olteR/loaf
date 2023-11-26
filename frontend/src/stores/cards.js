@@ -11,14 +11,28 @@ export const useCardStore = defineStore("card", () => {
     cards: `${baseUrl}/api/game/cards`,
   };
 
-  const cards = ref([]);
+  const cards = ref();
+  const characterImages = ref([]);
+  const districtImages = ref([]);
 
   const getCards = computed(() => cards.value);
+  const getCharacterImages = computed(() => characterImages.value);
+  const getDistrictImages = computed(() => districtImages.value);
 
   async function fetchCards() {
     try {
       const response = await axios.get(urls.cards);
       cards.value = response.data;
+      cards.value.characters.forEach((character) => {
+        let img = new Image();
+        img.src = `${window.location.origin}/src/assets/characters/${character.id}.jpg`;
+        characterImages.value.push(img);
+      });
+      cards.value.districts.forEach((district) => {
+        let img = new Image();
+        img.src = `${window.location.origin}/src/assets/districts/${district.id}.jpg`;
+        districtImages.value.push(img);
+      });
     } catch (error) {
       toast.add({
         severity: "error",
@@ -31,6 +45,8 @@ export const useCardStore = defineStore("card", () => {
 
   return {
     getCards: getCards,
+    getCharacterImages: getCharacterImages,
+    getDistrictImages: getDistrictImages,
     fetchCards,
   };
 });

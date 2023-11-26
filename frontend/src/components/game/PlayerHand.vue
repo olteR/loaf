@@ -30,13 +30,16 @@
           height: '16.18rem',
         }"
       >
-        <DistrictCardNew
-          v-for="(card, i) in displayedCards"
+        <DistrictCard
+          v-for="(card, i) in cards"
           :card="card"
-          :order="i"
+          :order="displayedCards.indexOf(card)"
+          :image="cardImages[i]"
+          :key="i"
+          :hidden="!displayedCards.includes(card)"
           @drag-begin="isDragging = true"
           @drag-end="isDragging = false"
-        ></DistrictCardNew>
+        ></DistrictCard>
       </div>
       <button
         v-if="page !== Math.floor(cards.length / 10) && cards.length > 10"
@@ -50,11 +53,12 @@
 </template>
 
 <script setup>
-import DistrictCardNew from "@/components/game/DistrictCard.vue";
+import DistrictCard from "@/components/game/DistrictCard.vue";
 import { computed, ref } from "vue";
 
 const props = defineProps({
   cards: Array,
+  cardImages: Array,
 });
 
 const page = ref(0);

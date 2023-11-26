@@ -18,7 +18,7 @@
       >
         {{ props.card.cost }}
       </div>
-      <img class="district-img" :src="imageSource" />
+      <img class="district-img" :src="image.src" />
       <div
         v-if="props.card"
         class="district-text"
@@ -49,11 +49,9 @@ const positions = ref({
 const props = defineProps({
   card: Object,
   order: Number,
+  image: Object,
 });
 
-const imageSource = computed(
-  () => `${window.location.origin}/src/assets/districts/${props.card?.id}.jpg`
-);
 const primaryColor = computed(() => {
   return COLORS[props.card.type].PRIMARY;
 });
