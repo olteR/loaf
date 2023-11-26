@@ -21,3 +21,30 @@ export const BREADCRUMB = {
     icon: "fa fa-user",
   },
 };
+
+export const COLORS = {
+  NOBLE: {
+    PRIMARY: "#F6E012",
+    SECONDARY: "#44381F",
+  },
+  RELIGIOUS: {
+    PRIMARY: "#40AFD5",
+    SECONDARY: "#020B2B",
+  },
+  TRADE: {
+    PRIMARY: "#92BF48",
+    SECONDARY: "#002F0D",
+  },
+  MILITARY: {
+    PRIMARY: "#E24549",
+    SECONDARY: "#23040B",
+  },
+  UNIQUE: {
+    PRIMARY: "#C05EA1",
+    SECONDARY: "#0D0236",
+  },
+  DEFAULT: {
+    PRIMARY: "#94989B",
+    SECONDARY: "#06100D",
+  },
+};

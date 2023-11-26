@@ -34,6 +34,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { COLORS } from "@/utils/const";
 
 const emit = defineEmits(["drag-begin", "drag-end"]);
 
@@ -54,31 +55,11 @@ const imageSource = computed(
   () => `${window.location.origin}/src/assets/districts/${props.card?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  switch (props.card.type) {
-    case "NOBLE":
-      return "#F6E012";
-    case "RELIGIOUS":
-      return "#40AFD5";
-    case "TRADE":
-      return "#92BF48";
-    case "MILITARY":
-      return "#E24549";
-  }
-  return "#C05EA1";
+  return COLORS[props.card.type].PRIMARY;
 });
 
 const secondaryColor = computed(() => {
-  switch (props.card.type) {
-    case "NOBLE":
-      return "#44381F";
-    case "RELIGIOUS":
-      return "#020B2B";
-    case "TRADE":
-      return "#002F0D";
-    case "MILITARY":
-      return "#23040B";
-  }
-  return "#0D0236";
+  return COLORS[props.card.type].SECONDARY;
 });
 
 function dragMouseDown(event) {
@@ -119,7 +100,7 @@ function closeDragElement() {
 }
 </script>
 
-<style>
+<style scoped>
 .district-img {
   -moz-user-select: none;
   -webkit-user-select: none;

@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="district"
+    v-if="character"
     class="list-card"
     :style="{
       'outline-color': primaryColor,
@@ -14,7 +14,7 @@
         'outline-color': primaryColor,
       }"
     >
-      {{ district.cost }}
+      {{ character.number }}
     </div>
     <div
       class="card-content"
@@ -22,7 +22,7 @@
         'background-color': secondaryColor,
       }"
     >
-      {{ district.name }}
+      {{ character.name }}
     </div>
   </div>
 </template>
@@ -32,19 +32,24 @@ import { computed } from "vue";
 import { COLORS } from "@/utils/const";
 
 const props = defineProps({
-  district: Object,
+  character: Object,
 });
 
 const imageSource = computed(
   () =>
-    `${window.location.origin}/src/assets/districts/${props.district?.id}.jpg`
+    `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  return COLORS[props.district.type].PRIMARY;
+  return (
+    COLORS[props.character.districtTypeBonus]?.PRIMARY || COLORS.DEFAULT.PRIMARY
+  );
 });
 
 const secondaryColor = computed(() => {
-  return COLORS[props.district.type].SECONDARY;
+  return (
+    COLORS[props.character.districtTypeBonus]?.SECONDARY ||
+    COLORS.DEFAULT.SECONDARY
+  );
 });
 </script>
 

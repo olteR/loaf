@@ -88,13 +88,12 @@
       </Card>
     </div>
 
-    <OwnerLobbySettings
-      v-if="isOwner"
-      :settings="lobbyStore.getLobby.gameSettings"
-      :players="lobbyStore.getLobby.members"
+    <LobbySettings
+      :is-owner="isOwner"
+      :settings="lobbyStore.getLobby?.gameSettings"
+      :players="lobbyStore.getLobby?.members"
       :cards="cardStore.getCards"
     />
-    <PlayerLobbySettings v-else></PlayerLobbySettings>
   </div>
 </template>
 
@@ -111,8 +110,7 @@ import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import OwnerLobbySettings from "@/components/lobbies/OwnerLobbySettings.vue";
-import PlayerLobbySettings from "@/components/lobbies/PlayerLobbySettings.vue";
+import LobbySettings from "@/components/lobbies/LobbySettings.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -122,7 +120,6 @@ const cardStore = useCardStore();
 const lobbyCode = router.currentRoute.value.params.code;
 const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
 const stompClient = Stomp.over(socket);
-const playerPanels = ref({});
 
 const connected = ref(false);
 
@@ -229,29 +226,9 @@ function handleLobbyUpdate(update) {
     }
   }
 }
-
-function toggle(event, id) {
-  playerPanels.value[id].toggle(event);
-}
 </script>
 
 <style scoped>
-.playerOptionsButton {
-  background: transparent;
-  color: rgba(255, 255, 255, 0.87) !important;
-  padding: 0 !important;
-  margin: 0 0 0 0.5rem;
-  width: min-content !important;
-}
-
-.playerOptionsButton:hover {
-  background: transparent !important;
-}
-
-.playerOptionsButton:focus {
-  background: transparent !important;
-}
-
 ::v-deep(.p-reorderable-column) {
   .p-column-header-content {
     display: block;
