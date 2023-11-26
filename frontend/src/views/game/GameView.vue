@@ -8,25 +8,25 @@
     </template>
   </Card>
   <MemberList :members="lobbyStore.getLobby.members"></MemberList>
-  <Hand :cards="districtStore.getDistricts"></Hand>
+  <Hand :cards="cardStore.getCards.districts"></Hand>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
 import { useStateStore } from "@/stores/state";
-import { useDistrictStore } from "@/stores/districts";
+import { useCardStore } from "@/stores/cards";
 import { useLobbyStore } from "@/stores/lobbies";
 import Card from "primevue/card";
 import MemberList from "@/components/game/MemberList.vue";
 import Hand from "@/components/game/Hand.vue";
 
 const stateStore = useStateStore();
-const districtStore = useDistrictStore();
+const cardStore = useCardStore();
 const lobbyStore = useLobbyStore();
 
 onMounted(async () => {
   stateStore.setLoading(true);
-  await districtStore.fetchDistricts();
+  await cardStore.fetchCards();
   stateStore.setLoading(false);
 });
 </script>

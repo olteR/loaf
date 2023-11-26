@@ -1,14 +1,14 @@
-package olter.loaf.game.districts.dto;
+package olter.loaf.game.cards.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import olter.loaf.game.districts.model.DistrictTypeEnum;
+import olter.loaf.game.cards.model.DistrictTypeEnum;
 
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class DistrictListResponse {
+public class DistrictResponse {
     private Long id;
     private String name;
     private String cardName;

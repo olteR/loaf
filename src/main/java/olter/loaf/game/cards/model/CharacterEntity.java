@@ -1,16 +1,23 @@
-package olter.loaf.game.characters.dto;
+package olter.loaf.game.cards.model;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import olter.loaf.game.districts.model.DistrictTypeEnum;
 
+@Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class CharacterListResponse {
+@AllArgsConstructor
+@Table(name = "characters")
+public class CharacterEntity {
+    @Id
     private Long id;
     private Integer number;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private DistrictTypeEnum districtTypeBonus;
 }

@@ -4,10 +4,10 @@
       <template #title><h1 class="text-4xl">Játék beállításai</h1></template>
       <template #content>
         <form>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-3 gap-4">
             <div>
               <label for="crownedPlayerSelect">
-                <span class="text-2xl">Koronával kezdő játékos</span>
+                <div class="text-2xl mb-4">Koronával kezdő játékos</div>
               </label>
               <Dropdown
                 id="crownedPlayerSelect"
@@ -17,11 +17,14 @@
                 class="w-full mt-1"
               ></Dropdown>
             </div>
-            <div class="col-span-2">
-              <span class="text-2xl">Karakterek</span>
+            <div>
+              <div class="text-2xl mb-4">Karakterek</div>
             </div>
-            <div class="col-span-2">
-              <span class="text-2xl">Egyedi kerületek</span>
+            <div>
+              <div class="text-2xl mb-4">Egyedi kerületek</div>
+              <div v-for="district in settings.uniqueCards" :key="district">
+                {{ cards.districts?.find((d) => d.id === district)?.name }}
+              </div>
             </div>
           </div>
         </form>
@@ -38,7 +41,7 @@ import Dropdown from "primevue/dropdown";
 const props = defineProps({
   settings: Object,
   players: Array,
-  districts: Array,
+  cards: Object,
 });
 
 const selectedCrowned = ref();

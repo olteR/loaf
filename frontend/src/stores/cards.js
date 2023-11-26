@@ -3,22 +3,22 @@ import { defineStore } from "pinia";
 import { useToast } from "primevue/usetoast";
 import axios from "axios";
 
-export const useDistrictStore = defineStore("district", () => {
+export const useCardStore = defineStore("card", () => {
   const baseUrl = window.location.origin;
   const toast = useToast();
 
   const urls = {
-    districts: `${baseUrl}/api/game/districts`,
+    cards: `${baseUrl}/api/game/cards`,
   };
 
-  const districts = ref([]);
+  const cards = ref([]);
 
-  const getDistricts = computed(() => districts.value);
+  const getCards = computed(() => cards.value);
 
-  async function fetchDistricts() {
+  async function fetchCards() {
     try {
-      const response = await axios.get(urls.districts);
-      districts.value = response.data;
+      const response = await axios.get(urls.cards);
+      cards.value = response.data;
     } catch (error) {
       toast.add({
         severity: "error",
@@ -30,7 +30,7 @@ export const useDistrictStore = defineStore("district", () => {
   }
 
   return {
-    getDistricts,
-    fetchDistricts,
+    getCards: getCards,
+    fetchCards,
   };
 });

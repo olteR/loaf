@@ -1,4 +1,4 @@
-package olter.loaf.game.districts.model;
+package olter.loaf.game.cards.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

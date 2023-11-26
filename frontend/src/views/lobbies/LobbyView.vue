@@ -92,7 +92,7 @@
       v-if="isOwner"
       :settings="lobbyStore.getLobby.gameSettings"
       :players="lobbyStore.getLobby.members"
-      :districts="districtStore.getDistricts"
+      :cards="cardStore.getCards"
     />
     <PlayerLobbySettings v-else></PlayerLobbySettings>
   </div>
@@ -106,7 +106,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
 import { useStateStore } from "@/stores/state";
 import { useLobbyStore } from "@/stores/lobbies";
-import { useDistrictStore } from "@/stores/districts";
+import { useCardStore } from "@/stores/cards";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
@@ -118,7 +118,7 @@ const router = useRouter();
 const toast = useToast();
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
-const districtStore = useDistrictStore();
+const cardStore = useCardStore();
 const lobbyCode = router.currentRoute.value.params.code;
 const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
 const stompClient = Stomp.over(socket);
@@ -133,7 +133,7 @@ const isOwner = computed(
 onMounted(async () => {
   stateStore.setLoading(true);
   await lobbyStore.fetchLobby(lobbyCode);
-  await districtStore.fetchDistricts();
+  await cardStore.fetchCards();
   stateStore.getBreadcrumbs.push({
     name: "lobby",
     label: lobbyStore.getLobby.name,
