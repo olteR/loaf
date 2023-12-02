@@ -76,9 +76,8 @@ public class LobbyService {
         if (request.getSecured() != null && request.getSecured()) {
             lobby.setPassword(passwordEncoder.encode(request.getPassword()));
         }
+        lobby.setGame(gameService.createGameForLobby());
         lobbyRepository.save(lobby);
-
-        gameService.createGameForLobby(lobby);
 
         return lobbyMapper.entityToDetailsResponse(lobby);
     }

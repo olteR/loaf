@@ -32,7 +32,7 @@ public class GameEntity extends BaseEntity {
     @CollectionTable(name = "game_deck", joinColumns = @JoinColumn(name = "game_id"))
     private List<Long> deck;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")

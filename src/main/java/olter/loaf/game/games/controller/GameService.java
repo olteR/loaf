@@ -19,12 +19,12 @@ public class GameService {
     private final GameRepository gameRepository;
     private final ConfigRepository configRepository;
 
-    public void createGameForLobby(LobbyEntity lobby) {
+    public GameEntity createGameForLobby() {
         GameEntity game = new GameEntity();
-        game.setLobby(lobby);
         game.setUniqueCards(getDefaultUniqueDistricts());
         game.setCharacters(getDefaultCharacters());
         gameRepository.save(game);
+        return game;
     }
 
     private List<Long> getDefaultUniqueDistricts() {

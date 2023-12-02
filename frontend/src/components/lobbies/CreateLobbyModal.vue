@@ -5,6 +5,7 @@
         <SelectButton
           v-model="lobbyForm.hidden"
           :options="hiddenOptions"
+          :allow-empty="false"
           option-value="value"
           option-label="label"
           class="col-span-7 grid grid-cols-2"
@@ -22,6 +23,7 @@
         <SelectButton
           v-model="lobbyForm.secured"
           :options="securedOptions"
+          :allow-empty="false"
           option-value="value"
           option-label="label"
           class="col-span-7 grid grid-cols-2"

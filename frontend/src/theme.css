@@ -1124,7 +1124,7 @@
     left: 3rem;
 }
 
-.p-input-icon-right > i:last-of-type {
+.p-input-icon-right > i:last-of-type, .p-input-icon-right > svg:last-of-type {
     right: 1rem;
     color: rgba(255, 255, 255, 0.6);
 }
@@ -7395,10 +7395,6 @@
 p {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
-}
-
-ul {
-    list-style: inside;
 }
 
 a.p-link {

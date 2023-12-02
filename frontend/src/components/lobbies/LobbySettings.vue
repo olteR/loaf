@@ -9,7 +9,7 @@
               <div class="text-2xl mb-4">Karakterek</div>
               <div v-for="character in settings.characters" :key="character">
                 <GameSettingCharacterList
-                  :character="cards.characters?.find((d) => d.id === character)"
+                  :character="cards?.characters.find((d) => d.id === character)"
                 />
               </div>
             </div>
@@ -17,7 +17,7 @@
               <div class="text-2xl mb-4">Egyedi kerületek</div>
               <div v-for="district in settings.uniqueCards" :key="district">
                 <GameSettingDistrictList
-                  :district="cards.districts?.find((d) => d.id === district)"
+                  :district="cards?.districts.find((d) => d.id === district)"
                 />
               </div>
             </div>

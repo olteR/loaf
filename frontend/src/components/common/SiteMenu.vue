@@ -7,7 +7,7 @@
     </template>
     <template #item="{ item }">
       <span :class="{ 'lg:invisible': item.phone }">
-        <Button class="menubutton" @click="router.push(item.to)">
+        <Button class="menubutton" @click="router.push(item.route)">
           <div
             class="menulabel"
             :class="{ active: router.currentRoute.value.name === item.label }"
@@ -43,27 +43,27 @@ const stateStore = useStateStore();
 const menuItems = ref([
   {
     label: "játékaim",
-    to: "/my-games",
+    route: "/my-games",
     icon: "fa fa-dice",
   },
   {
     label: "lobbik",
-    to: "/lobbies",
+    route: "/lobbies",
     icon: "fa fa-people-group",
   },
   {
     label: "statisztikák",
-    to: "/statistics",
+    route: "/statistics",
     icon: "fa fa-chart-line",
   },
   {
     label: "szabályok",
-    to: "/rules",
+    route: "/rules",
     icon: "fa fa-circle-info",
   },
   {
     label: "profil",
-    to: "/profile",
+    route: "/profile",
     icon: "fa fa-user",
     phone: true,
   },

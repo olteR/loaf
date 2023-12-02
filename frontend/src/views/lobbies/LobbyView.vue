@@ -29,10 +29,8 @@
               bodyStyle="text-align: center"
               headerStyle="text-align: center; font-size: 1.5rem;"
             >
-              <template #body="slotProps">
-                {{
-                  lobbyStore.getLobby.members.indexOf(slotProps.data) + 1 + "."
-                }}
+              <template #body="{ data }">
+                {{ lobbyStore.getLobby.members.indexOf(data) + 1 + "." }}
               </template>
             </Column>
             <Column
