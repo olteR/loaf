@@ -3,6 +3,7 @@ package olter.loaf.lobbies.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import olter.loaf.lobbies.model.LobbyStatusEnum;
 import olter.loaf.users.dto.UserResponse;
 
 import java.util.List;
@@ -16,5 +17,6 @@ public class LobbyListResponse {
     private Long owner;
     private Boolean secured;
     private Integer maxMembers;
+    private LobbyStatusEnum status;
     private List<UserResponse> members;
 }

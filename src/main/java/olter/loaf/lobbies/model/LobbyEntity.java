@@ -32,7 +32,7 @@ public class LobbyEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LobbyStatusEnum status;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private GameEntity game;
 

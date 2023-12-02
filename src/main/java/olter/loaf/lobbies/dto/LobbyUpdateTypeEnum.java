@@ -1,5 +1,8 @@
 package olter.loaf.lobbies.dto;
 
+import lombok.Getter;
+
+@Getter
 public enum LobbyUpdateTypeEnum {
     JOIN("JOIN"),
     LEAVE("LEAVE"),
@@ -13,7 +16,4 @@ public enum LobbyUpdateTypeEnum {
         this.value = value;
     }
 
-    public String getValue() {
-        return this.value;
-    }
 }

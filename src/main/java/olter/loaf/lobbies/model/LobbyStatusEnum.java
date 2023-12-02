@@ -1,5 +1,8 @@
 package olter.loaf.lobbies.model;
 
+import lombok.Getter;
+
+@Getter
 public enum LobbyStatusEnum {
     CREATED("CREATED"),
     ONGOING("ONGOING"),
@@ -11,7 +14,4 @@ public enum LobbyStatusEnum {
         this.value = value;
     }
 
-    public String getValue() {
-        return this.value;
-    }
 }

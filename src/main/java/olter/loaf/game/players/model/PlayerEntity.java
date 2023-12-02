@@ -1,6 +1,7 @@
 package olter.loaf.game.players.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,8 +14,10 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Table(name = "players")
 public class PlayerEntity extends BaseEntity {
+    private Long userId;
     private Integer gold;
     private Long currentCharacter;
 

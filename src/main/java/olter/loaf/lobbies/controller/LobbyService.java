@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.games.controller.GameService;
+import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.lobbies.LobbyMapper;
 import olter.loaf.lobbies.dto.*;
-import olter.loaf.lobbies.exception.AlreadyJoinedException;
-import olter.loaf.lobbies.exception.LobbyFullException;
-import olter.loaf.lobbies.exception.NoPrivilegeException;
-import olter.loaf.lobbies.exception.NotInLobbyException;
+import olter.loaf.lobbies.exception.*;
 import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.lobbies.model.LobbyRepository;
 import olter.loaf.lobbies.model.LobbyStatusEnum;
@@ -96,6 +94,9 @@ public class LobbyService {
         if (lobby.getMaxMembers() == members.size()) {
             throw new LobbyFullException(lobby.getId());
         }
+        if (!Objects.equals(lobby.getStatus(), LobbyStatusEnum.CREATED)) {
+            throw new GameInProgressException(lobby.getId());
+        }
 
         lobby
             .getMembers()
@@ -124,6 +125,9 @@ public class LobbyService {
 
         if (!members.contains(user)) {
             throw new NotInLobbyException(lobby.getId(), user.getId());
+        }
+        if (!Objects.equals(lobby.getStatus(), LobbyStatusEnum.CREATED)) {
+            throw new GameInProgressException(lobby.getId());
         }
 
         members.remove(user);
@@ -155,6 +159,9 @@ public class LobbyService {
         if (!members.stream().map(UserEntity::getId).toList().contains(req.getMemberId())) {
             throw new NotInLobbyException(lobby.getId(), user.getId());
         }
+        if (!Objects.equals(lobby.getStatus(), LobbyStatusEnum.CREATED)) {
+            throw new GameInProgressException(lobby.getId());
+        }
 
         members.forEach(
             m -> {
@@ -182,6 +189,9 @@ public class LobbyService {
         if (!lobby.getMembers().stream().map(UserEntity::getId).toList().contains(req.getMemberId())) {
             throw new NotInLobbyException(lobby.getId(), user.getId());
         }
+        if (!Objects.equals(lobby.getStatus(), LobbyStatusEnum.CREATED)) {
+            throw new GameInProgressException(lobby.getId());
+        }
 
         lobby
             .getMembers()
@@ -195,6 +205,23 @@ public class LobbyService {
                 });
         lobby.setOwner(req.getMemberId());
         lobbyRepository.save(lobby);
+    }
+
+    public GameStateResponse startGame(String code, UserEntity user) {
+        LobbyEntity lobby =
+            lobbyRepository
+                .findFirstByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+
+        if (!Objects.equals(lobby.getOwner(), user.getId())) {
+            throw new NoPrivilegeException(lobby.getId(), user.getId());
+        }
+
+        gameService.startGame(lobby);
+        lobby.setStatus(LobbyStatusEnum.ONGOING);
+        lobbyRepository.save(lobby);
+
+        return new GameStateResponse();
     }
 
     private String generateLobbyCode() {

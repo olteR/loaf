@@ -20,19 +20,22 @@ public class GameEntity extends BaseEntity {
     private Long currentPlayer;
     private Integer turn;
 
+    @Enumerated(EnumType.STRING)
+    private GamePhaseEnum phase;
+
     @ElementCollection
     @CollectionTable(name = "game_characters", joinColumns = @JoinColumn(name = "game_id"))
     private List<Long> characters;
 
     @ElementCollection
-    @CollectionTable(name = "game_unique_cards", joinColumns = @JoinColumn(name = "game_id"))
-    private List<Long> uniqueCards;
+    @CollectionTable(name = "game_unique_districts", joinColumns = @JoinColumn(name = "game_id"))
+    private List<Long> uniqueDistricts;
 
     @ElementCollection
     @CollectionTable(name = "game_deck", joinColumns = @JoinColumn(name = "game_id"))
     private List<Long> deck;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
