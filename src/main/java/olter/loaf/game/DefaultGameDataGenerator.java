@@ -2,14 +2,10 @@ package olter.loaf.game;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import olter.loaf.game.cards.model.CharacterEntity;
-import olter.loaf.game.cards.model.CharacterRepository;
+import olter.loaf.game.cards.model.*;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
-import olter.loaf.game.cards.model.DistrictEntity;
-import olter.loaf.game.cards.model.DistrictRepository;
-import olter.loaf.game.cards.model.DistrictTypeEnum;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -50,7 +46,7 @@ public class DefaultGameDataGenerator {
                     "Aranybánya",
                     "Aranybánya",
                     "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa"
-                        + " fa-coins\"/>.</p>",
+                        + " fa-coins\"></i>.</p>",
                     DistrictTypeEnum.UNIQUE,
                     6),
                 new DistrictEntity(
@@ -66,23 +62,23 @@ public class DefaultGameDataGenerator {
                     20L,
                     "Bazilika",
                     "Bazilika",
-                    "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár városod minden olyan kerületéért,"
-                        + " aminek ára páratlan szám.</p>",
+                    "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városod minden olyan"
+                        + " kerületéért, aminek ára páratlan szám.</p>",
                     DistrictTypeEnum.UNIQUE,
                     4),
                 new DistrictEntity(
                     21L,
                     "Birodalmi Kincstár",
                     "Birodalmi Kincstár",
-                    "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a kincstartalékodban lévő minden"
-                        + " arany után.</p>",
+                    "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a kincstartalékodban lévő"
+                        + " minden arany után.</p>",
                     DistrictTypeEnum.UNIQUE,
                     5),
                 new DistrictEntity(
                     22L,
                     "Capitolium",
                     "Capitolium",
-                    "<p>A játék végén 3 <i class=\"fa fa-star\"/> jár, ha  van legalább 3 egyforma"
+                    "<p>A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha  van legalább 3 egyforma"
                         + " típusú kerületed.</p><p>A Capitolium csak egyszer adhat plusz"
                         + " pontokat.</p>",
                     DistrictTypeEnum.UNIQUE,
@@ -98,7 +94,7 @@ public class DefaultGameDataGenerator {
                     24L,
                     "Elefántcsonttorony",
                     "Elefántcsont- torony",
-                    "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha az Elefántcsonttorony az"
+                    "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha az Elefántcsonttorony az"
                         + " egyetlen <span style=\"font-variant: small-caps\">egyedi</span> kerület a"
                         + " városodban.</p>",
                     DistrictTypeEnum.UNIQUE,
@@ -157,7 +153,7 @@ public class DefaultGameDataGenerator {
                     31L,
                     "Kívánságkút",
                     "Kívánságkút",
-                    "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár a városod minden <span"
+                    "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a városod minden <span"
                         + " style=\"font-variant: small-caps\">egyedi</span> kerülete után (beleértve a"
                         + " Kívánságkutat is)./p>",
                     DistrictTypeEnum.UNIQUE,
@@ -166,7 +162,7 @@ public class DefaultGameDataGenerator {
                     32L,
                     "Kovácsműhely",
                     "Kovácsműhely",
-                    "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"/>-ért 3 lapot"
+                    "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"></i>-ért 3 lapot"
                         + " kaphatsz.</p>",
                     DistrictTypeEnum.UNIQUE,
                     5),
@@ -190,7 +186,7 @@ public class DefaultGameDataGenerator {
                     "Laboratórium",
                     "Laboratórium",
                     "<p>A köröd folyamán egyszer a pakli aljára tehetsz egy lapot a kezedből és kapsz 2"
-                        + " <i class=\"fa fa-coins\"/>.</p>",
+                        + " <i class=\"fa fa-coins\"></i>.</p>",
                     DistrictTypeEnum.UNIQUE,
                     5),
                 new DistrictEntity(
@@ -199,8 +195,9 @@ public class DefaultGameDataGenerator {
                     "Múzeum",
                     "<p>A köröd folyamán egyszer helyezhetsz egy kártyát a kezedből a múzeum alá képpel"
                         + " lefelé. A játék végén minden kártyáért a múzeum alatt 1 <i class=\"fa"
-                        + " fa-star\"/> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják az odatett"
-                        + " lapok vele mennek. Ha elpusztítják, a lapok a pakli aljára kerülnek.</p>",
+                        + " fa-star\"></i> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják az"
+                        + " odatett lapok vele mennek. Ha elpusztítják, a lapok a pakli aljára"
+                        + " kerülnek.</p>",
                     DistrictTypeEnum.UNIQUE,
                     4),
                 new DistrictEntity(
@@ -224,7 +221,7 @@ public class DefaultGameDataGenerator {
                     39L,
                     "Sárkánykapu",
                     "Sárkánykapu",
-                    "<p>A játék végén 2 <i class=\"fa fa-star\"/> jár.</p>",
+                    "<p>A játék végén 2 <i class=\"fa fa-star\"></i> jár.</p>",
                     DistrictTypeEnum.UNIQUE,
                     6),
                 new DistrictEntity(
@@ -232,9 +229,9 @@ public class DefaultGameDataGenerator {
                     "Szegényház",
                     "Szegényház",
                     "<p>Ha nincs arany a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa"
-                        + " fa-coins\"/>.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre,"
-                        + " akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a"
-                        + " Szegényház hatása után érvényesül.</p>",
+                        + " fa-coins\"></i>.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott"
+                        + " köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista"
+                        + " képessége a Szegényház hatása után érvényesül.</p>",
                     DistrictTypeEnum.UNIQUE,
                     4),
                 new DistrictEntity(
@@ -249,7 +246,7 @@ public class DefaultGameDataGenerator {
                     42L,
                     "Szobor",
                     "Szobor",
-                    "<p>A játék végén 5 <i class=\"fa fa-star\"/> jár, ha nálad van a korona</p>",
+                    "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha nálad van a korona</p>",
                     DistrictTypeEnum.UNIQUE,
                     3),
                 new DistrictEntity(
@@ -265,7 +262,7 @@ public class DefaultGameDataGenerator {
                     44L,
                     "Térképszoba",
                     "Térképszoba",
-                    "<p>A játék végén 1 <i class=\"fa fa-star\"/> jár minden kezedben marad lap"
+                    "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben marad lap"
                         + " után.</p>",
                     DistrictTypeEnum.UNIQUE,
                     5),
@@ -273,8 +270,8 @@ public class DefaultGameDataGenerator {
                     45L,
                     "Titkos Kripta",
                     "Titkos Kripta",
-                    "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"/>"
-                        + " jár, ha a Titkos kripta a kezedben van.</p>",
+                    "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa"
+                        + " fa-star\"></i> jár, ha a Titkos kripta a kezedben van.</p>",
                     DistrictTypeEnum.UNIQUE,
                     0),
                 new DistrictEntity(
@@ -282,8 +279,8 @@ public class DefaultGameDataGenerator {
                     "Tolvajtanya",
                     "Tolvajtanya",
                     "<p>Építéskor a Tolvajtanya árát fizetheted részben lapokból (1 lap = 1 <i"
-                        + " class=\"fa fa-coins\"/>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát"
-                        + " csak az aranyat kapja vissza a tulajdonos.</p>",
+                        + " class=\"fa fa-coins\"></i>).</p><p>Ha a magisztrátus elkobozza a"
+                        + " Tolvajtanyát csak az aranyat kapja vissza a tulajdonos.</p>",
                     DistrictTypeEnum.UNIQUE,
                     6),
                 new DistrictEntity(
@@ -301,33 +298,188 @@ public class DefaultGameDataGenerator {
     private void generateDefaultCharacters() {
         List<CharacterEntity> characters =
             List.of(
-                new CharacterEntity(1L, 1, "Orgyilkos", null),
-                new CharacterEntity(2L, 2, "Tolvaj", null),
-                new CharacterEntity(3L, 3, "Mágus", null),
-                new CharacterEntity(4L, 4, "Király", DistrictTypeEnum.NOBLE),
-                new CharacterEntity(5L, 5, "Püspök", DistrictTypeEnum.RELIGIOUS),
-                new CharacterEntity(6L, 6, "Kereskedő", DistrictTypeEnum.TRADE),
-                new CharacterEntity(7L, 7, "Építész", null),
-                new CharacterEntity(8L, 8, "Hadúr", DistrictTypeEnum.MILITARY),
-                new CharacterEntity(9L, 9, "Királynő", null),
-                new CharacterEntity(10L, 1, "Boszorkány", null),
-                new CharacterEntity(11L, 2, "Kém", null),
-                new CharacterEntity(12L, 3, "Varázsló", null),
-                new CharacterEntity(13L, 4, "Császár", DistrictTypeEnum.NOBLE),
-                new CharacterEntity(14L, 5, "Apát", DistrictTypeEnum.RELIGIOUS),
-                new CharacterEntity(15L, 6, "Alkimista", null),
-                new CharacterEntity(16L, 7, "Navigátor", null),
-                new CharacterEntity(17L, 8, "Diplomata", DistrictTypeEnum.MILITARY),
-                new CharacterEntity(18L, 9, "Művész", null),
-                new CharacterEntity(19L, 1, "Magisztrátus", null),
-                new CharacterEntity(20L, 2, "Zsaroló", null),
-                new CharacterEntity(21L, 3, "Látnok", null),
-                new CharacterEntity(22L, 4, "Patrícius", DistrictTypeEnum.NOBLE),
-                new CharacterEntity(23L, 5, "Bíboros", DistrictTypeEnum.RELIGIOUS),
-                new CharacterEntity(24L, 6, "Szatócs", DistrictTypeEnum.TRADE),
-                new CharacterEntity(25L, 7, "Tudós", null),
-                new CharacterEntity(26L, 8, "Marsall", DistrictTypeEnum.MILITARY),
-                new CharacterEntity(27L, 9, "Adószedő", null));
+                new CharacterEntity(
+                    1L,
+                    1,
+                    "Orgyilkos",
+                    "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt"
+                        + " karakter kihagyja az egész körét</p>",
+                    null),
+                new CharacterEntity(
+                    2L,
+                    2,
+                    "Tolvaj",
+                    "<p>Válaszd ki, hogy melyik karaktertől szeretnél lopni! Amikor az a karakter"
+                        + " következik, elveszed az összes aranyát.</p><p>Nem rabolhatsz ki 1-es rangú"
+                        + " karkatert, megölt vagy megbabonázott karaktert.</p>",
+                    null),
+                new CharacterEntity(
+                    3L,
+                    3,
+                    "Mágus",
+                    "<p>A következő lehetőségek közül választhatsz:</p><p><ul><li>Kicserélheted a"
+                        + " kezedben lévő összes lapot egy másik játékos kezében lévő lapjaira. Ha"
+                        + " egyetlen lap sincs a kezedben, egszerűen elveszed a másik játékos"
+                        + " kártyáit.</li><li>Tetszőleteg számú lapot eldobsz a kezedből, és húzol"
+                        + " helyettük ugyanannyit.</li></ul></p>",
+                    null),
+                new CharacterEntity(
+                    4L,
+                    4,
+                    "Király",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">nemesi</span> kerületed"
+                        + " után.</p><p>A köröd során megkapod a koronát. A karakter választási"
+                        + " fázisban te választasz először karaktert, amíg egy másik játékos nem"
+                        + " választja a Királyt.</p><p>Ha meggyilkolnak, akkor ugyanúgy kihagyod a"
+                        + " körödet, mint bármely más karakter, a korona pedig nálad marad, mint"
+                        + " trónörökösnél.</p><p>Ha megbabonáznak, attól még megtartod a koronát.</p>",
+                    DistrictTypeEnum.NOBLE),
+                new CharacterEntity(
+                    5L,
+                    5,
+                    "Püspök",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">egyházi</span> kerületed"
+                        + " után.</p><p>Ebben a körben a 8-as rangú karakter nem használhatja"
+                        + " képességét a kerületeiden.</p><p>Ha megölnek, nyolcas rangú karakter"
+                        + " <b>tudja</b> használni a képességét a kerületeiden. Ugyanígy, ha"
+                        + " megbabonáznak, nyolcas rangú karakter <b>nem tudja</b> használni a"
+                        + " képességeit a Boszorkány kerületein, de <b>képes</b> használni a képességét"
+                        + " a Püspök kerületein.",
+                    DistrictTypeEnum.RELIGIOUS),
+                new CharacterEntity(
+                    6L,
+                    6,
+                    "Kereskedő",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületed"
+                        + " után.</p><p>Kapsz plusz egy <i class=\"fa fa-coins\"></i>.</p>",
+                    DistrictTypeEnum.TRADE),
+                new CharacterEntity(
+                    7L,
+                    7,
+                    "Építész",
+                    "<p>Kapsz két plusz kártyát.</p><p>Ebben a körben az építkezési korlátod 3"
+                        + " kerület.</p>",
+                    null),
+                new CharacterEntity(
+                    8L,
+                    8,
+                    "Hadúr",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i><b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">katonai</span> kerületed"
+                        + " után.</p><p>Elpusztíthatsz egy tetszőleges kerületet: ez eggyel kevesebb"
+                        + " aranyba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett"
+                        + " városban kerületet, de saját kerületeid egyikét igen.</p>",
+                    DistrictTypeEnum.MILITARY),
+                new CharacterEntity(
+                    9L,
+                    9,
+                    "Királynő",
+                    "<p>Ha olyan játékos mellett ülsz, aki 4-es rangú karaktert választott, kapsz 3 <i"
+                        + " class=\"fa fa-coins\"></i>. Ha ezt a karaktert megöli az Orgyilkos, és"
+                        + " melletted ült, az aranyat a kör legvégén kapod meg.</p>",
+                    null),
+                new CharacterEntity(
+                    10L,
+                    1,
+                    "Boszorkány",
+                    "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd"
+                        + " megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz"
+                        + " építkezni, és a kerületek közül csak azok hatása érvényesül, amik"
+                        + " nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül"
+                        + " sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a"
+                        + " körének. Nem képes kerületet építeni sem, karakterek képességeit használni"
+                        + " — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A kerületek közül"
+                        + " csak azok hatása érvényesül a megbabonázott karakter esetében, amik"
+                        + " nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te"
+                        + " játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a"
+                        + " plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b>"
+                        + " kezedben lévő lapokkal játszol, a <b>te</b> kincstartalékodban lévő"
+                        + " arannyal fizetsz, a <b>te</b> városod kerületeiből gyűjtesz nyersanyagokat,"
+                        + " a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a"
+                        + " megbabonázott játékos bírtokában lévő <span style=\"font-variant:"
+                        + " small-caps\">egyedi</span> kerületek hatásait.</p><p>Ha a Királyt vagy a"
+                        + " Patríciust babonázzák meg, varázslattól függetlenül megkapja a koronát. Ha"
+                        + " a Császárt babonázzák meg, te döntöd el, ki kapja a koronát, és attól a"
+                        + " játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter"
+                        + " nincs játékban ebben a körben, a köröd nem folytatódik.</p>",
+                    null),
+                new CharacterEntity(
+                    11L,
+                    2,
+                    "Kém",
+                    "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik"
+                        + " játékos kezében lévő lapokat. Minden olyan kártyáért, ami a kezében van, és"
+                        + " egyezik a megnevezett kerülettípussal elveszel tőle egy aranyat és húzol"
+                        + " egy lapot a pakliból.</p><p>Ha több egyező kerület van, mint amennyi"
+                        + " aranya, akkor elveszed minden aranyát, de ettől még ugyanúgy megkapod a"
+                        + " lapokat minden egyező kerület után.</p>",
+                    null),
+                new CharacterEntity(
+                    12L,
+                    3,
+                    "Varázsló",
+                    "<p>Megnézheted egy másik játékos lázben tartott lapjait, majd elvehetsz tőle"
+                        + " egyet. A lapot azonnal beépítheted a városodba, és ez nem számít bele az"
+                        + " építkezési korlátba.</p><p>Ebben a körben olyan kerületeket is építhetsz a"
+                        + " városodban, amilyenek már léteznek.</p>",
+                    null),
+                new CharacterEntity(
+                    13L,
+                    4,
+                    "Császár",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">nemesi</span> kerületed után.</p>",
+                    DistrictTypeEnum.NOBLE),
+                new CharacterEntity(14L, 5, "Apát", "<p></p>", DistrictTypeEnum.RELIGIOUS),
+                new CharacterEntity(15L, 6, "Alkimista", "<p></p>", null),
+                new CharacterEntity(16L, 7, "Navigátor", "<p></p>", null),
+                new CharacterEntity(
+                    17L,
+                    8,
+                    "Diplomata",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">katonai</span> kerületed"
+                        + " után.</p>",
+                    DistrictTypeEnum.MILITARY),
+                new CharacterEntity(18L, 9, "Művész", "<p></p>", null),
+                new CharacterEntity(19L, 1, "Magisztrátus", "<p></p>", null),
+                new CharacterEntity(20L, 2, "Zsaroló", "<p></p>", null),
+                new CharacterEntity(21L, 3, "Látnok", "<p></p>", null),
+                new CharacterEntity(
+                    22L,
+                    4,
+                    "Patrícius",
+                    "<p>Kapsz egy <b>lapot</b> a városodban lévő minden egyes <span"
+                        + " style=\"font-variant: small-caps\">nemesi</span> kerületed után.</p>",
+                    DistrictTypeEnum.NOBLE),
+                new CharacterEntity(
+                    23L,
+                    5,
+                    "Bíboros",
+                    "<p>Kapsz egy <b>lapot</b> a városodban lévő minden egyes <span"
+                        + " style=\"font-variant: small-caps\">egyházi</span> kerületed után.</p>",
+                    DistrictTypeEnum.RELIGIOUS),
+                new CharacterEntity(
+                    24L,
+                    6,
+                    "Szatócs",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületed"
+                        + " után.</p>",
+                    DistrictTypeEnum.TRADE),
+                new CharacterEntity(25L, 7, "Tudós", "<p></p>", null),
+                new CharacterEntity(
+                    26L,
+                    8,
+                    "Marsall",
+                    "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes"
+                        + " <span style=\"font-variant: small-caps\">katonai</span> kerületed"
+                        + " után.</p>",
+                    DistrictTypeEnum.MILITARY),
+                new CharacterEntity(27L, 9, "Adószedő", "<p></p>", null));
         characterRepository.saveAll(characters);
         log.info("Characters generated successfully!");
     }

@@ -21,9 +21,7 @@ public class CardService {
     private final CardMapper cardMapper;
 
     public List<CharacterResponse> getAllCharacters() {
-        return characterRepository.findAll().stream()
-            .map(cardMapper::entityToListResponse)
-            .toList();
+        return characterRepository.findAll().stream().map(cardMapper::entityToListResponse).toList();
     }
 
     public List<DistrictResponse> getAllDistricts() {
@@ -32,10 +30,10 @@ public class CardService {
 
     public CardsResponse getAllCards() {
         CardsResponse response = new CardsResponse();
-        response.setCharacters(characterRepository.findAll().stream()
-            .map(cardMapper::entityToListResponse)
-            .toList());
-        response.setDistricts(districtRepository.findAll().stream().map(cardMapper::entityToListResponse).toList());
+        response.setCharacters(
+            characterRepository.findAll().stream().map(cardMapper::entityToListResponse).toList());
+        response.setDistricts(
+            districtRepository.findAll().stream().map(cardMapper::entityToListResponse).toList());
         return response;
     }
 }

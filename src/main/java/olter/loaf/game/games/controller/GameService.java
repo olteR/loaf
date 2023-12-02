@@ -7,7 +7,6 @@ import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
-import olter.loaf.lobbies.model.LobbyEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

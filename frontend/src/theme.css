@@ -7397,6 +7397,10 @@ p {
     margin-bottom: 0.5rem;
 }
 
+ul {
+    list-style: inside;
+}
+
 a.p-link {
     text-decoration-line: underline;
 }

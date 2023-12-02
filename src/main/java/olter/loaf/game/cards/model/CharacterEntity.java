@@ -18,6 +18,9 @@ public class CharacterEntity {
     private Integer number;
     private String name;
 
+    @Column(columnDefinition = "TEXT")
+    private String cardText;
+
     @Enumerated(EnumType.STRING)
     private DistrictTypeEnum districtTypeBonus;
 }

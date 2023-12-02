@@ -23,7 +23,15 @@
         'background-color': secondaryColor,
       }"
     >
-      <div class="mt-2 select-none">{{ character.name }}</div>
+      <div class="mt-2 select-none">
+        {{ character.name }}
+      </div>
+      <div class="ml-auto mr-4 my-auto">
+        <i
+          class="fa fa-star"
+          v-tooltip.top="{ value: character.cardText, escape: false }"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -69,6 +77,7 @@ const secondaryColor = computed(() => {
   background-blend-mode: overlay;
 }
 .card-content {
+  display: inline-flex;
   width: 100%;
   height: 100%;
   opacity: 0.8;

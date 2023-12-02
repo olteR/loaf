@@ -104,4 +104,7 @@ const menuItems = ref([
     margin-left: 0 !important;
   }
 }
+.p-menuitem {
+  list-style: none;
+}
 </style>
