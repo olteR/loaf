@@ -12,5 +12,5 @@ import java.util.List;
 public class GameSettingsResponse {
     private Long crownedPlayer;
     private List<Long> characters;
-    private List<Long> uniqueCards;
+    private List<Long> uniqueDistricts;
 }

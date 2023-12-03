@@ -29,7 +29,10 @@
       <div class="ml-auto mr-4 my-auto">
         <i
           class="fa fa-star"
-          v-tooltip.top="{ value: character.cardText, escape: false }"
+          v-tooltip="{
+            value: character.cardText,
+            escape: false,
+          }"
         />
       </div>
     </div>

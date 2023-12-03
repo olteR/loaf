@@ -7397,8 +7397,13 @@ p {
     margin-bottom: 0.5rem;
 }
 
-ul {
+.p-tooltip-text>ul {
     list-style: inside;
+}
+
+.p-tooltip {
+    width: unset !important;
+    max-width: 20% !important;
 }
 
 a.p-link {

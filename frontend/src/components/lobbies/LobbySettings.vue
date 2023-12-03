@@ -31,13 +31,16 @@
             </div>
             <div>
               <div class="inline-flex w-full">
-                <div class="text-2xl mb-4">Karakterek</div>
+                <div class="text-2xl mb-4">Egyedi kerületek</div>
                 <div class="ml-auto mb-4" v-if="isOwner">
                   <Button>Módosítás</Button>
                 </div>
               </div>
               <div class="margin-offset">
-                <div v-for="district in settings.uniqueCards" :key="district">
+                <div
+                  v-for="district in settings.uniqueDistricts"
+                  :key="district"
+                >
                   <GameSettingDistrictList
                     :district="cards?.districts.find((d) => d.id === district)"
                   />
