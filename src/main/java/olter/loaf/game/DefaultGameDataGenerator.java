@@ -155,7 +155,7 @@ public class DefaultGameDataGenerator {
                     "Kívánságkút",
                     "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a városod minden <span"
                         + " style=\"font-variant: small-caps\">egyedi</span> kerülete után (beleértve a"
-                        + " Kívánságkutat is)./p>",
+                        + " Kívánságkutat is).</p>",
                     DistrictTypeEnum.UNIQUE,
                     5),
                 new DistrictEntity(

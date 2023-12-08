@@ -66,16 +66,7 @@
         decrementButtonIcon="pi pi-minus"
       />
     </div>
-    <div>
-      <Button
-        class="p-button-danger"
-        label="mégsem"
-        icon="pi pi-times"
-        :disabled="loading"
-        @click="dialogRef.close()"
-      ></Button>
-    </div>
-    <div>
+    <div class="col-span-2">
       <Button
         class="float-right p-button-success"
         label="létrehozás"
@@ -88,7 +79,7 @@
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
+import { ref } from "vue";
 import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
@@ -97,7 +88,7 @@ import Password from "primevue/password";
 import SelectButton from "primevue/selectbutton";
 
 const lobbyStore = useLobbyStore();
-const dialogRef = inject("dialogRef");
+const emit = defineEmits(["hide"]);
 const loading = ref(false);
 
 const lobbyForm = ref({
@@ -134,7 +125,7 @@ async function createLobby() {
   loading.value = true;
   await lobbyStore.createLobby(lobbyForm.value);
   loading.value = false;
-  dialogRef.value.close();
+  emit("hide");
 }
 </script>
 

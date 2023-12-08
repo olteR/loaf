@@ -22,6 +22,8 @@ export const BREADCRUMB = {
   },
 };
 
+export const MAX_UNIQUE_DISTRICTS = 14;
+
 export const COLORS = {
   NOBLE: {
     PRIMARY: "#F6E012",
@@ -46,6 +48,10 @@ export const COLORS = {
   DEFAULT: {
     PRIMARY: "#94989B",
     SECONDARY: "#06100D",
+  },
+  DISABLED: {
+    PRIMARY: "#06100D",
+    SECONDARY: "#94989B",
   },
 };
 

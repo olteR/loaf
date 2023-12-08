@@ -16,7 +16,9 @@
               <div class="inline-flex w-full">
                 <div class="text-2xl mb-4">Karakterek</div>
                 <div class="ml-auto mb-4" v-if="isOwner">
-                  <Button>Módosítás</Button>
+                  <Button @click="characterSettingsVisible = true"
+                    >Módosítás</Button
+                  >
                 </div>
               </div>
               <div class="margin-offset">
@@ -33,7 +35,9 @@
               <div class="inline-flex w-full">
                 <div class="text-2xl mb-4">Egyedi kerületek</div>
                 <div class="ml-auto mb-4" v-if="isOwner">
-                  <Button>Módosítás</Button>
+                  <Button @click="districtSettingsVisible = true"
+                    >Módosítás</Button
+                  >
                 </div>
               </div>
               <div class="margin-offset">
@@ -41,8 +45,9 @@
                   v-for="district in settings.uniqueDistricts"
                   :key="district"
                 >
-                  <GameSettingDistrictList
+                  <GameSettingDistrictCard
                     :district="cards?.districts.find((d) => d.id === district)"
+                    :selected="true"
                   />
                 </div>
               </div>
@@ -61,6 +66,23 @@
         </form>
       </template>
     </Card>
+    <Dialog
+      v-model:visible="characterSettingsVisible"
+      modal
+      header="Karakterek módosítása"
+    >
+      <CharacterSettingModal :characters="cards.characters" />
+    </Dialog>
+    <Dialog
+      v-model:visible="districtSettingsVisible"
+      modal
+      header="Egyedi kerületek módosítása"
+    >
+      <DistrictSettingModal
+        :districts="cards.districts.filter((d) => d.type === 'UNIQUE')"
+        :selected-districts="settings.uniqueDistricts"
+      />
+    </Dialog>
   </div>
 </template>
 
@@ -68,8 +90,11 @@
 import { computed, onMounted, ref } from "vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
+import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
-import GameSettingDistrictList from "@/components/lobbies/GameSettingDistrictList.vue";
+import CharacterSettingModal from "@/components/lobbies/CharacterSettingModal.vue";
+import DistrictSettingModal from "@/components/lobbies/DistrictSettingModal.vue";
+import GameSettingDistrictCard from "@/components/lobbies/GameSettingDistrictCard.vue";
 import GameSettingCharacterList from "@/components/lobbies/GameSettingCharacterList.vue";
 
 const props = defineProps({
@@ -80,6 +105,8 @@ const props = defineProps({
 });
 
 const selectedCrowned = ref();
+const characterSettingsVisible = ref(false);
+const districtSettingsVisible = ref(false);
 
 const playerSelect = computed(() => {
   let list = JSON.parse(JSON.stringify(props.players || []));

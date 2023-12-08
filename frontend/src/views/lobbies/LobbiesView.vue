@@ -15,7 +15,7 @@
               label="új lobbi"
               class="float-right"
               icon="pi pi-plus-circle"
-              @click="openDialog()"
+              @click="createModalVisible = true"
             />
           </div>
         </div>
@@ -38,7 +38,13 @@
       </Card>
       <LobbyList :lobbies="lobbyStore.getLobbies" :type="'search'" />
     </div>
-    <DynamicDialog />
+    <Dialog
+      v-model:visible="createModalVisible"
+      modal
+      header="Új lobbi létrehozása"
+    >
+      <CreateLobbyModal />
+    </Dialog>
   </div>
 </template>
 
@@ -46,18 +52,17 @@
 import { onMounted, ref } from "vue";
 import { useLobbyStore } from "@/stores/lobbies";
 import { useStateStore } from "@/stores/state";
-import { useDialog } from "primevue/usedialog";
 import CreateLobbyModal from "@/components/lobbies/CreateLobbyModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
-import DynamicDialog from "primevue/dynamicdialog";
+import Dialog from "primevue/dialog";
 import ProgressSpinner from "primevue/progressspinner";
 import LobbyList from "@/components/lobbies/LobbyList.vue";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
-const dialog = useDialog();
 const canRefresh = ref(false);
+const createModalVisible = ref(false);
 const loading = ref(false);
 
 onMounted(async () => {
@@ -77,16 +82,6 @@ async function getLobbies() {
   setTimeout(() => {
     canRefresh.value = true;
   }, 3000);
-}
-
-function openDialog() {
-  dialog.open(CreateLobbyModal, {
-    props: {
-      header: "Új lobbi létrehozása",
-      modal: true,
-      closable: false,
-    },
-  });
 }
 </script>
 

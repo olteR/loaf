@@ -5,6 +5,7 @@
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
+      cursor: clickable ? 'pointer' : 'default',
     }"
   >
     <div
@@ -39,6 +40,9 @@ import { COLORS } from "@/utils/const";
 
 const props = defineProps({
   district: Object,
+  selected: Boolean,
+  selectable: Boolean,
+  clickable: Boolean,
 });
 
 const imageSource = computed(
@@ -46,11 +50,19 @@ const imageSource = computed(
     `${window.location.origin}/src/assets/districts/${props.district?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  return COLORS[props.district.type].PRIMARY;
+  return props.selected
+    ? COLORS[props.district.type].PRIMARY
+    : props.clickable
+    ? COLORS.DISABLED.PRIMARY
+    : COLORS.DEFAULT.PRIMARY;
 });
 
 const secondaryColor = computed(() => {
-  return COLORS[props.district.type].SECONDARY;
+  return props.selected
+    ? COLORS[props.district.type].SECONDARY
+    : props.clickable
+    ? COLORS.DISABLED.SECONDARY
+    : COLORS.DEFAULT.SECONDARY;
 });
 </script>
 
