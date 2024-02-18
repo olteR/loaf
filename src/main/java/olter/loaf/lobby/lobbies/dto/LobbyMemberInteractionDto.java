@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.dto;
+package olter.loaf.lobby.lobbies.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

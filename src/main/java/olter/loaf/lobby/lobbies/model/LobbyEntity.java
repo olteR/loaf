@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.model;
+package olter.loaf.lobby.lobbies.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,7 +22,6 @@ public class LobbyEntity extends BaseEntity {
     @Column(unique = true)
     private String code;
 
-    private Boolean hidden;
     private Boolean secured;
     private Integer maxMembers;
 

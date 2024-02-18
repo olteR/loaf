@@ -1,4 +1,4 @@
-package olter.loaf.logs.model;
+package olter.loaf.game.logs.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,7 +15,6 @@ import olter.loaf.common.BaseEntity;
 @RequiredArgsConstructor
 @Table(name = "logs")
 public class LogEntity extends BaseEntity {
-    private Long lobbyId;
     private Long gameId;
     private Long playerId;
     private String source;

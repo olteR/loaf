@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.model;
+package olter.loaf.lobby.lobbies.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

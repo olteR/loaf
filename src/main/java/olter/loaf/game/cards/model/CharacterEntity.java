@@ -16,6 +16,8 @@ public class CharacterEntity {
     @Id
     private Long id;
     private Integer number;
+
+    @Column(unique = true)
     private String name;
 
     @Column(columnDefinition = "TEXT")

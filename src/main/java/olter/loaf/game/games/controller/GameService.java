@@ -10,7 +10,7 @@ import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
-import olter.loaf.lobbies.model.LobbyEntity;
+import olter.loaf.lobby.lobbies.model.LobbyEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

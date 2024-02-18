@@ -1,9 +1,9 @@
-package olter.loaf.lobbies.dto;
+package olter.loaf.lobby.lobbies.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import olter.loaf.lobbies.model.LobbyStatusEnum;
+import olter.loaf.lobby.lobbies.model.LobbyStatusEnum;
 import olter.loaf.users.dto.UserResponse;
 
 import java.util.List;

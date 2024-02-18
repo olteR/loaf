@@ -1,4 +1,4 @@
-package olter.loaf.logs.model;
+package olter.loaf.game.logs.model;
 
 public enum LogTypeEnum {
     SELECT_CHARACTER("SELECT_CHARACTER"), // targetId

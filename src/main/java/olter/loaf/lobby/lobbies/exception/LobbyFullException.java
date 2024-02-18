@@ -1,4 +1,4 @@
-package olter.loaf.lobbies.exception;
+package olter.loaf.lobby.lobbies.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

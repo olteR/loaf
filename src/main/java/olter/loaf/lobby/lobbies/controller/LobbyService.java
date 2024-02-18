@@ -1,16 +1,16 @@
-package olter.loaf.lobbies.controller;
+package olter.loaf.lobby.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.games.controller.GameService;
 import olter.loaf.game.games.dto.GameStateResponse;
-import olter.loaf.lobbies.LobbyMapper;
-import olter.loaf.lobbies.dto.*;
-import olter.loaf.lobbies.exception.*;
-import olter.loaf.lobbies.model.LobbyEntity;
-import olter.loaf.lobbies.model.LobbyRepository;
-import olter.loaf.lobbies.model.LobbyStatusEnum;
+import olter.loaf.lobby.lobbies.LobbyMapper;
+import olter.loaf.lobby.lobbies.dto.*;
+import olter.loaf.lobby.lobbies.exception.*;
+import olter.loaf.lobby.lobbies.model.LobbyEntity;
+import olter.loaf.lobby.lobbies.model.LobbyRepository;
+import olter.loaf.lobby.lobbies.model.LobbyStatusEnum;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,7 +53,7 @@ public class LobbyService {
     public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
         log.info("Getting lobbies for " + loggedInUser.getName());
         return lobbyRepository.findAll().stream()
-            .filter(l -> !l.getHidden() && !l.getMembers().contains(loggedInUser))
+            .filter(l -> !l.getMembers().contains(loggedInUser))
             .map(lobbyMapper::entityToListResponse)
             .toList();
     }

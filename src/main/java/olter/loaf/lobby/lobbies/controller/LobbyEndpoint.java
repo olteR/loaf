@@ -1,12 +1,12 @@
-package olter.loaf.lobbies.controller;
+package olter.loaf.lobby.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.game.games.dto.GameStateResponse;
-import olter.loaf.lobbies.dto.LobbyCreationRequest;
-import olter.loaf.lobbies.dto.LobbyDetailsResponse;
-import olter.loaf.lobbies.dto.LobbyListResponse;
-import olter.loaf.lobbies.dto.LobbyMemberInteractionDto;
+import olter.loaf.lobby.lobbies.dto.LobbyCreationRequest;
+import olter.loaf.lobby.lobbies.dto.LobbyDetailsResponse;
+import olter.loaf.lobby.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobby.lobbies.dto.LobbyMemberInteractionDto;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
