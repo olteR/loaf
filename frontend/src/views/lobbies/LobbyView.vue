@@ -38,7 +38,15 @@
               header="Név"
               bodyStyle="text-align: center"
               headerStyle="text-align: center; font-size: 1.5rem;"
-            ></Column>
+            >
+              <template #body="{ data }">
+                {{ data.name }}
+                <i
+                  v-if="data.id === lobbyStore.getLobby.owner"
+                  class="fa fa-star mr-1"
+                />
+              </template>
+            </Column>
             <Column
               v-if="isOwner"
               header="Műveletek"
@@ -50,7 +58,7 @@
                 <div v-if="slotProps.data.id !== stateStore.getUser.id">
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
-                    icon="fa fa-crown"
+                    icon="fa fa-star"
                     @click="lobbyStore.promoteMember(lobbyCode, player.id)"
                   />
                   <Button

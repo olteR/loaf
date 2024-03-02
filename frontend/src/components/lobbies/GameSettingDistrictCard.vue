@@ -26,7 +26,7 @@
       <div class="mt-2 select-none">{{ district.name }}</div>
       <div class="ml-auto mr-4 my-auto">
         <i
-          class="fa fa-star"
+          class="fa fa-info-circle"
           v-tooltip="{ value: district.cardText, escape: false }"
         />
       </div>

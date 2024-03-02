@@ -28,7 +28,7 @@
       </div>
       <div class="ml-auto mr-4 my-auto">
         <i
-          class="fa fa-star"
+          class="fa fa-info-circle"
           v-tooltip="{
             value: character.cardText,
             escape: false,

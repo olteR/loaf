@@ -23,6 +23,8 @@ export const BREADCRUMB = {
 };
 
 export const MAX_UNIQUE_DISTRICTS = 14;
+export const MIN_LOBBY_PLAYERS = 3;
+export const MAX_LOBBY_PLAYERS = 8;
 
 export const COLORS = {
   NOBLE: {

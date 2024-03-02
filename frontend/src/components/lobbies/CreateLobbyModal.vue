@@ -1,41 +1,5 @@
 <template>
   <div class="grid gap-x-8 gap-y-4 grid-cols-2 p-1">
-    <div>
-      <div class="grid grid-cols-8">
-        <SelectButton
-          v-model="lobbyForm.hidden"
-          :options="hiddenOptions"
-          :allow-empty="false"
-          option-value="value"
-          option-label="label"
-          class="col-span-7 grid grid-cols-2"
-        />
-        <i
-          v-tooltip.top="
-            'A rejtett lobbi nem fog látszani a nyilvános listában, csak linkkel lehet belépni.'
-          "
-          class="fa fa-info-circle m-auto"
-        ></i>
-      </div>
-    </div>
-    <div>
-      <div class="grid grid-cols-8">
-        <SelectButton
-          v-model="lobbyForm.secured"
-          :options="securedOptions"
-          :allow-empty="false"
-          option-value="value"
-          option-label="label"
-          class="col-span-7 grid grid-cols-2"
-        />
-        <i
-          v-tooltip.top="
-            'A védett lobbihoz történő belépéshez a létrehozáskor megadott jelszó szükséges.'
-          "
-          class="fa fa-info-circle m-auto"
-        ></i>
-      </div>
-    </div>
     <div class="p-float-label">
       <InputText id="name" v-model="lobbyForm.name" class="w-full"></InputText>
       <label for="name">név</label>
@@ -51,13 +15,13 @@
       ></Password>
       <label for="password">jelszó</label>
     </div>
-    <div class="grid grid-cols-1 col-span-2 mb-2">
+    <div class="grid grid-cols-1">
       <label for="maxMembers" class="text-center">maximum játékosok</label>
       <InputNumber
         v-model="lobbyForm.maxMembers"
         id="maxMembers"
-        :min="3"
-        :max="9"
+        :min="MIN_LOBBY_PLAYERS"
+        :max="MAX_LOBBY_PLAYERS"
         showButtons
         buttonLayout="horizontal"
         decrementButtonClass="primary"
@@ -66,7 +30,28 @@
         decrementButtonIcon="pi pi-minus"
       />
     </div>
-    <div class="col-span-2">
+    <div class="relative">
+      <div
+        class="absolute bottom-0 w-full grid grid-cols-8"
+        style="height: 3.75rem"
+      >
+        <SelectButton
+          v-model="lobbyForm.secured"
+          :options="securedOptions"
+          :allow-empty="false"
+          option-value="value"
+          option-label="label"
+          class="col-span-7 grid grid-cols-2"
+        />
+        <i
+          v-tooltip.right="
+            'A védett lobbihoz történő belépéshez a létrehozáskor megadott jelszó szükséges.'
+          "
+          class="fa fa-info-circle m-auto"
+        ></i>
+      </div>
+    </div>
+    <div class="col-span-2 mt-2">
       <Button
         class="float-right p-button-success"
         label="létrehozás"
@@ -86,6 +71,7 @@ import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import SelectButton from "primevue/selectbutton";
+import { MAX_LOBBY_PLAYERS, MIN_LOBBY_PLAYERS } from "@/utils/const";
 
 const lobbyStore = useLobbyStore();
 const emit = defineEmits(["hide"]);
@@ -96,19 +82,8 @@ const lobbyForm = ref({
   password: null,
   hidden: false,
   secured: false,
-  maxMembers: 8,
+  maxMembers: MAX_LOBBY_PLAYERS,
 });
-
-const hiddenOptions = ref([
-  {
-    label: "nyílvános",
-    value: false,
-  },
-  {
-    label: "rejtett",
-    value: true,
-  },
-]);
 
 const securedOptions = ref([
   {
