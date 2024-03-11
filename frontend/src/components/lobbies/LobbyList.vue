@@ -2,8 +2,8 @@
   <Panel v-for="lobby in props.lobbies" :key="lobby.name" class="mb-2">
     <template #header>
       <span class="text-4xl">
-        <i v-if="lobby.secured" class="fa fa-lock"></i>
         {{ lobby.name }}
+        <i v-if="lobby.secured" class="fa fa-lock"></i>
       </span>
       <div class="ml-auto text-4xl">
         {{ lobby.members.length }}/{{ lobby.maxMembers }}

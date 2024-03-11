@@ -3,12 +3,37 @@
     <Card>
       <template #content>
         <div class="grid grid-cols-6">
-          <div class="col-span-5">
+          <div class="col-span-5 flex">
             <Button
+              class="w-12 h-12 my-auto"
               icon="pi pi-sync"
               :disabled="!canRefresh"
               @click="getLobbies()"
             />
+            <span class="p-float-label">
+              <InputText id="search" type="text" v-model="search" />
+              <label for="search">keresés</label>
+            </span>
+            <span class="my-auto ml-8">
+              <InputSwitch
+                class="mr-2"
+                v-model="showLocked"
+                inputId="lockedSwitch"
+              />
+              <label class="select-none" for="lockedSwitch"
+                >Zárt lobbik mutatása</label
+              >
+            </span>
+            <span class="my-auto ml-8">
+              <InputSwitch
+                class="mr-2"
+                v-model="showFull"
+                inputId="fullSwitch"
+              />
+              <label class="select-none" for="fullSwitch"
+                >Teli lobbik mutatása</label
+              >
+            </span>
           </div>
           <div>
             <Button
@@ -56,14 +81,19 @@ import CreateLobbyModal from "@/components/lobbies/CreateLobbyModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
+import InputSwitch from "primevue/inputswitch";
 import ProgressSpinner from "primevue/progressspinner";
 import LobbyList from "@/components/lobbies/LobbyList.vue";
+import InputText from "primevue/inputtext";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
 const canRefresh = ref(false);
 const createModalVisible = ref(false);
 const loading = ref(false);
+const search = ref();
+const showLocked = ref(true);
+const showFull = ref(true);
 
 onMounted(async () => {
   stateStore.setLoading(true);

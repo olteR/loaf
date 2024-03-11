@@ -86,6 +86,7 @@ const menuItems = ref([
 }
 .menulabel {
   border-bottom: 2px solid transparent;
+  font-size: 1.25rem;
 }
 .active {
   border-bottom: 2px solid #ce93d8;
