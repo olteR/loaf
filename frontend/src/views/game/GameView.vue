@@ -7,32 +7,41 @@
       </div>
     </template>
   </Card>
-  <MemberList :members="lobbyStore.getLobby?.members"></MemberList>
+  <MemberList :members="gameStore.getGameState?.players"></MemberList>
   <PlayerHand
-    :cards="cardStore.getCards?.districts"
+    :cards="cardsInHand"
     :card-images="cardStore.getDistrictImages"
   ></PlayerHand>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import router from "@/router";
 import { useStateStore } from "@/stores/state";
 import { useCardStore } from "@/stores/cards";
-import { useLobbyStore } from "@/stores/lobbies";
 import Card from "primevue/card";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
+import { useGameStore } from "@/stores/games";
 
 const stateStore = useStateStore();
 const cardStore = useCardStore();
-const lobbyStore = useLobbyStore();
+const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
+const cardsInHand = computed(() => {
+  let hand = [];
+  gameStore.getGameState?.hand.forEach((card) => {
+    hand.push(
+      cardStore.getCards.districts.find((district) => district.id === card)
+    );
+  });
+  return hand;
+});
 
 onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
-  await lobbyStore.fetchLobby(lobbyCode);
+  await gameStore.fetchGameState(lobbyCode);
   stateStore.setLoading(false);
 });
 </script>

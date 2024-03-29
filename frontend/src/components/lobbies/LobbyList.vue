@@ -3,7 +3,22 @@
     <template #header>
       <span class="text-4xl">
         {{ lobby.name }}
-        <i v-if="lobby.secured" class="fa fa-lock"></i>
+        <i
+          v-if="lobby.secured"
+          v-tooltip.top="{
+            value: 'Jelszóval védett lobbi',
+            escape: false,
+          }"
+          class="fa fa-lock"
+        ></i>
+        <i
+          v-if="lobby.status === 'ONGOING'"
+          v-tooltip.top="{
+            value: 'Folyamatban lévő játék',
+            escape: false,
+          }"
+          class="fa fa-gamepad"
+        ></i>
       </span>
       <div class="ml-auto text-4xl">
         {{ lobby.members.length }}/{{ lobby.maxMembers }}
@@ -25,11 +40,18 @@
           @click="joinLobby(lobby.code)"
         ></Button>
         <Button
-          v-if="props.type === 'mine'"
-          label="megnyitás"
+          v-else-if="props.type === 'mine' && lobby.status === 'CREATED'"
+          label="lobbi megnyitása"
           icon="pi pi-play"
           class="mr-2"
           @click="router.push('lobby/'.concat(lobby.code))"
+        ></Button>
+        <Button
+          v-else
+          label="játék megnyitása"
+          icon="fa fa-gamepad"
+          class="mr-2"
+          @click="router.push('game/'.concat(lobby.code))"
         ></Button>
         <Button
           v-if="props.type === 'mine'"

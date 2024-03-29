@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.games.model.GameEntity;
+import org.hibernate.annotations.Formula;
 
 import java.util.List;
 
@@ -20,10 +21,19 @@ public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
     private Long currentCharacter;
+    private Boolean isRevealed;
+    private String displayName;
+
+    @Column(unique = true)
+    private String name;
 
     @ElementCollection
     @CollectionTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"))
     private List<Long> hand;
+
+    @ElementCollection
+    @CollectionTable(name = "player_districts", joinColumns = @JoinColumn(name = "player_id"))
+    private List<DistrictEmbeddable> districts;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private GameEntity game;

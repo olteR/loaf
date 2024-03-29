@@ -8,7 +8,9 @@ public enum LobbyUpdateTypeEnum {
     LEAVE("LEAVE"),
     KICK("KICK"),
     SETTINGS("SETTINGS"),
-    OWNER("OWNER");
+    OWNER("OWNER"),
+    DELETE("DELETE"),
+    START("START");
 
     private final String value;
 

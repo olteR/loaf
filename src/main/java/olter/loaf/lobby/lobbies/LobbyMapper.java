@@ -16,6 +16,13 @@ public interface LobbyMapper {
     @Mapping(source = "game", target = "gameSettings")
     LobbyDetailsResponse entityToDetailsResponse(LobbyEntity entity);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "code", ignore = true)
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "game", ignore = true)
+    @Mapping(target = "members", ignore = true)
     LobbyEntity map(LobbyCreationRequest source, @MappingTarget LobbyEntity target);
 }

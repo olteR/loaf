@@ -3,6 +3,7 @@ package olter.loaf.lobby.lobbies.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.controller.GameService;
 import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.lobby.lobbies.LobbyMapper;
@@ -24,9 +25,10 @@ import java.util.Random;
 @RequiredArgsConstructor
 @Slf4j
 public class LobbyService {
-    private final GameService gameService;
     private final LobbyRepository lobbyRepository;
     private final LobbyMapper lobbyMapper;
+    private final GameService gameService;
+    private final GameMapper gameMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final PasswordEncoder passwordEncoder;
 
@@ -43,7 +45,7 @@ public class LobbyService {
             lobbyRepository
                 .findFirstByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
-        log.info("Getting lobby" + lobby.getName() + " for " + loggedInUser.getName());
+        log.info("Getting lobby " + lobby.getName() + " for " + loggedInUser.getName());
         if (!lobby.getMembers().contains(loggedInUser)) {
             throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
         }
@@ -74,7 +76,7 @@ public class LobbyService {
         if (request.getSecured() != null && request.getSecured()) {
             lobby.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        lobby.setGame(gameService.createGameForLobby());
+        lobby.setGame(gameService.createGameForLobby(lobby.getCode()));
         lobbyRepository.save(lobby);
 
         return lobbyMapper.entityToDetailsResponse(lobby);
@@ -207,7 +209,7 @@ public class LobbyService {
         lobbyRepository.save(lobby);
     }
 
-    public GameStateResponse startGame(String code, UserEntity user) {
+    public void startGame(String code, UserEntity user) {
         LobbyEntity lobby =
             lobbyRepository
                 .findFirstByCode(code)
@@ -219,9 +221,19 @@ public class LobbyService {
 
         gameService.startGame(lobby);
         lobby.setStatus(LobbyStatusEnum.ONGOING);
-        lobbyRepository.save(lobby);
 
-        return new GameStateResponse();
+        lobby
+            .getMembers()
+            .forEach(
+                m -> {
+                    log.info("Broadcasting start to " + m.getName());
+                    simpMessagingTemplate.convertAndSendToUser(
+                        m.getName(),
+                        "/topic/lobby/update",
+                        new LobbyUpdateDto(LobbyUpdateTypeEnum.START, null));
+                });
+
+        lobbyRepository.save(lobby);
     }
 
     private String generateLobbyCode() {

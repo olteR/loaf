@@ -11,7 +11,7 @@ export const useCardStore = defineStore("card", () => {
     cards: `${baseUrl}/api/game/cards`,
   };
 
-  const cards = ref();
+  const cards = ref([]);
   const characterImages = ref([]);
   const districtImages = ref([]);
 

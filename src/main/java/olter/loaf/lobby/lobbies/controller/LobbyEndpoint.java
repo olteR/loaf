@@ -32,9 +32,10 @@ public class LobbyEndpoint {
     }
 
     @GetMapping("/lobby/{code}/start")
-    public ResponseEntity<GameStateResponse> startGame(
+    public ResponseEntity<Void> startGame(
         @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
-        return ResponseEntity.ok().body(lobbyService.startGame(code, user));
+        lobbyService.startGame(code, user);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/lobbies")

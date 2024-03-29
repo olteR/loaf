@@ -22,6 +22,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     myGames: `${baseUrl}/api/my-games`,
     lobby: `${baseUrl}/api/lobby`,
     lobbies: `${baseUrl}/api/lobbies`,
+    start: (code) => `${baseUrl}/api/lobby/${code}/start`,
   };
 
   async function fetchLobby(code) {
@@ -143,6 +144,20 @@ export const useLobbyStore = defineStore("lobby", () => {
     }
   }
 
+  async function startGame(code) {
+    try {
+      const response = await axios.get(urls.start(code));
+      console.log(response);
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
   return {
     getLobby,
     getLobbies,
@@ -154,5 +169,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     leaveLobby,
     kickMember,
     promoteMember,
+    startGame,
   };
 });

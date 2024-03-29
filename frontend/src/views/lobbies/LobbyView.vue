@@ -84,7 +84,7 @@
               Játék elhagyása
             </Button>
             <Button
-              @click="router.push('/game/' + lobbyCode)"
+              @click="start()"
               :disabled="lobbyStore.getLobby.members.length < 2"
             >
               Játék indítása
@@ -162,6 +162,11 @@ function connect() {
       connected.value = false;
     }
   );
+}
+
+function start() {
+  lobbyStore.startGame(lobbyCode);
+  router.push("/game/" + lobbyCode);
 }
 
 function handleLobbyUpdate(update) {

@@ -127,34 +127,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.33.0</version>
-                <configuration>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>src/main/java/**/*.java</include>
-                            </includes>
-                            <trimTrailingWhitespace/>
-                            <endWithNewline/>
-                            <indent>
-                                <tabs>true</tabs>
-                                <spacesPerTab>8</spacesPerTab>
-                            </indent>
-                        </format>
-                    </formats>
-                    <java>
-                        <googleJavaFormat>
-                            <version>1.15.0</version>
-                            <style>GOOGLE</style>
-                            <reflowLongStrings>true</reflowLongStrings>
-                        </googleJavaFormat>
-                        <removeUnusedImports/>
-                    </java>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
