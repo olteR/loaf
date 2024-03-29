@@ -50,8 +50,6 @@ function toggle(index) {
     toggleValues.value[index] = !toggleValues.value[index];
   }
 }
-
-function save() {}
 </script>
 
 <style scoped></style>

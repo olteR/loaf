@@ -2,7 +2,9 @@
   <Card class="w-48 text-2xl m-2">
     <template #content>
       <div class="columns-2 text-center">
-        <div><i class="fa fa-coins"></i> 4</div>
+        <div>
+          <i class="fa fa-coins"></i> {{ gameStore.getGameState?.gold }}
+        </div>
         <div><i class="fa fa-star"></i> 0</div>
       </div>
     </template>
@@ -11,7 +13,10 @@
     :members="gameStore.getGameDetails?.members"
     :players="gameStore.getGameState?.players"
   ></MemberList>
-  <CharacterList></CharacterList>
+  <CharacterList
+    :characters="charactersInGame"
+    :card-images="cardStore.getCharacterImages"
+  ></CharacterList>
   <PlayerHand
     :cards="cardsInHand"
     :card-images="cardStore.getDistrictImages"
@@ -51,6 +56,16 @@ const cardsInHand = computed(() => {
     );
   });
   return hand;
+});
+
+const charactersInGame = computed(() => {
+  let characters = [];
+  gameStore.getGameDetails?.characters.forEach((card) => {
+    characters.push(
+      cardStore.getCards.characters.find((character) => character.id === card)
+    );
+  });
+  return characters;
 });
 
 onMounted(async () => {

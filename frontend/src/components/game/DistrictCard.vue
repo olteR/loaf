@@ -18,7 +18,7 @@
       >
         {{ props.card.cost }}
       </div>
-      <img class="district-img" :src="image.src" />
+      <img class="district-img" :src="props.image.src" />
       <div
         v-if="props.card"
         class="district-text"

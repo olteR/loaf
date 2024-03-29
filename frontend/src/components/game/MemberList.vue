@@ -1,11 +1,17 @@
 <template>
-  <Card class="members ml-2">
-    <template #content>
-      <div v-for="(member, i) in members" :key="member.id" class="text-2xl">
-        {{ i + 1 + ". " + member.displayName }}
-      </div>
-    </template>
-  </Card>
+  <div class="members">
+    <Card
+      class="ml-2 mb-0.5"
+      v-for="(member, i) in props.members"
+      :key="member.id"
+    >
+      <template #content>
+        <div class="text-2xl">
+          {{ i + 1 + ". " + member.displayName }}
+        </div>
+      </template>
+    </Card>
+  </div>
 </template>
 
 <script setup>
@@ -27,5 +33,10 @@ const props = defineProps({
   margin-top: auto;
   margin-bottom: auto;
   user-select: none;
+}
+::v-deep(.p-card) {
+  .p-card-content {
+    padding: 0 !important;
+  }
 }
 </style>

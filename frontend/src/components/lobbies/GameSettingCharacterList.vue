@@ -23,7 +23,7 @@
         'background-color': secondaryColor,
       }"
     >
-      <div class="mt-2 select-none">
+      <div class="text-4xl mt-3 select-none">
         {{ character.name }}
       </div>
       <div class="ml-auto mr-4 my-auto">
@@ -74,7 +74,7 @@ const secondaryColor = computed(() => {
   margin-left: 1.25rem;
   background-position-y: center;
   background-size: cover;
-  height: 2.5rem;
+  height: 4.5rem;
   display: inline-flex;
   align-items: center;
   background-blend-mode: overlay;

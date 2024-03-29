@@ -25,7 +25,7 @@
                 <div v-for="character in settings.characters" :key="character">
                   <GameSettingCharacterList
                     :character="
-                      cards?.characters.find((d) => d.id === character)
+                      cards.characters?.find((d) => d.id === character)
                     "
                   />
                 </div>
@@ -46,7 +46,7 @@
                   :key="district"
                 >
                   <GameSettingDistrictCard
-                    :district="cards?.districts.find((d) => d.id === district)"
+                    :district="cards.districts?.find((d) => d.id === district)"
                     :selected="true"
                   />
                 </div>
