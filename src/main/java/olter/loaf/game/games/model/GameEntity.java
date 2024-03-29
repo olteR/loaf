@@ -20,9 +20,6 @@ public class GameEntity extends BaseEntity {
     private Long currentPlayer;
     private Integer turn;
 
-    @Column(unique = true)
-    private String code;
-
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;
 

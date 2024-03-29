@@ -2,6 +2,7 @@ package olter.loaf.lobby.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
+import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.lobby.lobbies.dto.LobbyCreationRequest;
 import olter.loaf.lobby.lobbies.dto.LobbyDetailsResponse;
@@ -29,6 +30,13 @@ public class LobbyEndpoint {
     public ResponseEntity<LobbyDetailsResponse> getLobbyDetails(
         @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
         return ResponseEntity.ok().body(lobbyService.getLobby(code, user));
+    }
+
+    @GetMapping("/game/{code}/details")
+    public ResponseEntity<GameDetailsResponse> getGameDetails(
+        @PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+        return ResponseEntity.ok().body(lobbyService.getGame(code, user));
     }
 
     @GetMapping("/lobby/{code}/start")

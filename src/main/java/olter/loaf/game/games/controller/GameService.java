@@ -33,7 +33,6 @@ public class GameService {
     private final GameMapper gameMapper;
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
-    private final UserRepository userRepository;
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
@@ -41,7 +40,6 @@ public class GameService {
     public GameEntity createGameForLobby(String code) {
         log.info("Creating game for lobby " + code);
         GameEntity game = new GameEntity();
-        game.setCode(code);
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
         game.setCharacters(getDefaultCharacters());
@@ -73,19 +71,17 @@ public class GameService {
                         STARTING_GOLD,
                         null,
                         false,
-                        user.getDisplayName(),
-                        user.getName(),
                         drawFromDeck(game, STARTING_CARDS),
                         Collections.emptyList(),
                         game))
             .toList());
     }
 
-    public GameStateResponse getGameState(String code, UserEntity loggedInUser) {
-        log.info("Getting " + code + " state for " + loggedInUser.getName());
+    public GameStateResponse getGameState(Long id, UserEntity loggedInUser) {
+        log.info("Getting " + id + " state for " + loggedInUser.getName());
         GameEntity game =
-            gameRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
+            gameRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), id));
         PlayerEntity player =
             playerRepository.findFirstByUserIdAndGame(loggedInUser.getId(), game)
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));

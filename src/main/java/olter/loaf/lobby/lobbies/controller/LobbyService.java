@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.controller.GameService;
+import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.lobby.lobbies.LobbyMapper;
 import olter.loaf.lobby.lobbies.dto.*;
@@ -50,6 +51,18 @@ public class LobbyService {
             throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
         }
         return lobbyMapper.entityToDetailsResponse(lobby);
+    }
+
+    public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
+        log.info("Getting lobby " + code + " for " + loggedInUser.getName());
+        LobbyEntity lobby =
+            lobbyRepository
+                .findFirstByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+        if (!lobby.getMembers().contains(loggedInUser)) {
+            throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
+        }
+        return gameMapper.lobbyToDetailsResponse(lobby);
     }
 
     public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {

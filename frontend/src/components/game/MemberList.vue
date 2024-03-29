@@ -1,5 +1,5 @@
 <template>
-  <Card class="members">
+  <Card class="members ml-2">
     <template #content>
       <div v-for="(member, i) in members" :key="member.id" class="text-2xl">
         {{ i + 1 + ". " + member.displayName }}
@@ -13,6 +13,7 @@ import Card from "primevue/card";
 
 const props = defineProps({
   members: Array,
+  players: Array,
 });
 </script>
 
@@ -25,5 +26,6 @@ const props = defineProps({
   bottom: 0;
   margin-top: auto;
   margin-bottom: auto;
+  user-select: none;
 }
 </style>

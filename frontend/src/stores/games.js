@@ -8,12 +8,29 @@ export const useGameStore = defineStore("game", () => {
   const toast = useToast();
 
   const urls = {
+    details: (code) => `${baseUrl}/api/game/${code}/details`,
     state: (code) => `${baseUrl}/api/game/${code}/state`,
   };
 
+  const gameDetails = ref();
   const gameState = ref();
 
+  const getGameDetails = computed(() => gameDetails.value);
   const getGameState = computed(() => gameState.value);
+
+  async function fetchGameDetails(code) {
+    try {
+      const response = await axios.get(urls.details(code));
+      gameDetails.value = response.data;
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
 
   async function fetchGameState(code) {
     try {
@@ -31,6 +48,8 @@ export const useGameStore = defineStore("game", () => {
 
   return {
     getGameState: getGameState,
+    getGameDetails: getGameDetails,
     fetchGameState,
+    fetchGameDetails,
   };
 });

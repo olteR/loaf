@@ -22,10 +22,6 @@ public class PlayerEntity extends BaseEntity {
     private Integer gold;
     private Long currentCharacter;
     private Boolean isRevealed;
-    private String displayName;
-
-    @Column(unique = true)
-    private String name;
 
     @ElementCollection
     @CollectionTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"))

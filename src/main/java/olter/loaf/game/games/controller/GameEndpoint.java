@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameEndpoint {
     private final GameService gameService;
 
-    @GetMapping("/game/{code}/state")
+    @GetMapping("/game/{id}/state")
     public ResponseEntity<GameStateResponse> getLobbyDetails(
-        @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
-        return ResponseEntity.ok().body(gameService.getGameState(code, user));
+        @PathVariable Long id, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+        return ResponseEntity.ok().body(gameService.getGameState(id, user));
     }
 }
