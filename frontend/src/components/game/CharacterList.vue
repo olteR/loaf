@@ -10,6 +10,7 @@
           :character="character"
           :image="cardImages[character.id - 1]"
           :total-characters="characters?.length"
+          :discarded="props.discarded?.includes(character.number)"
         ></CharacterToken>
       </div>
     </div>
@@ -22,6 +23,7 @@ import CharacterToken from "@/components/game/CharacterToken.vue";
 const props = defineProps({
   characters: Array,
   cardImages: Array,
+  discarded: Array,
 });
 </script>
 
@@ -34,6 +36,6 @@ const props = defineProps({
   margin-right: auto;
   left: 0;
   right: 0;
-  top: 0.75rem;
+  top: 3rem;
 }
 </style>

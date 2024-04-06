@@ -77,7 +77,7 @@ const cardsWidth = computed(() => {
 <style scoped>
 .hand {
   position: absolute;
-  height: 20rem;
+  height: 18rem;
   margin-left: auto;
   margin-right: auto;
   left: 0;

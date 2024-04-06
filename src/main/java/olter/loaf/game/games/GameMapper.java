@@ -17,6 +17,7 @@ public interface GameMapper {
 
     GameSettingsResponse entityToSettingsResponse(GameEntity entity);
 
+    @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
     GameStateResponse entitiesToStateResponse(GameEntity game, PlayerEntity player);
 
     @Mapping(target = "handSize", expression = "java(player.getHand().size())")

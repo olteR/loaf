@@ -1,4 +1,5 @@
 <template>
+  <div class="game-area"></div>
   <Card class="w-48 text-2xl m-2">
     <template #content>
       <div class="columns-2 text-center">
@@ -18,7 +19,9 @@
   <CharacterList
     :characters="charactersInGame"
     :card-images="cardStore.getCharacterImages"
+    :discarded="gameStore.getGameState?.discardedCharacters"
   ></CharacterList>
+  <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
     :cards="cardsInHand"
     :card-images="cardStore.getDistrictImages"
@@ -70,6 +73,17 @@ const charactersInGame = computed(() => {
   return characters;
 });
 
+const currentMessage = computed(() => {
+  if (gameStore.getGameState?.phase === "SELECTION") {
+    return (
+      gameStore.getGameDetails?.members.find(
+        (m) => m.id === gameStore.getGameState?.currentPlayer
+      ).displayName + " választ karaktert!"
+    );
+  }
+  return "";
+});
+
 onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
@@ -82,5 +96,23 @@ onMounted(async () => {
 <style scoped>
 .p-card {
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.annoucement-message {
+  width: 100%;
+  position: absolute;
+  top: 25%;
+  text-align: center;
+  font-size: xx-large;
+}
+.game-area {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: url("@/assets/gamebg.jpg");
+  background-position: center;
+  filter: brightness(30%);
+  z-index: -1000;
 }
 </style>

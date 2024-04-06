@@ -18,10 +18,15 @@ import java.util.List;
 public class GameEntity extends BaseEntity {
     private Long crownedPlayer;
     private Long currentPlayer;
+    private Integer downwardDiscard;
     private Integer turn;
 
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;
+
+    @ElementCollection
+    @CollectionTable(name = "game_discarded_characters", joinColumns = @JoinColumn(name = "game_id"))
+    private List<Integer> upwardDiscard;
 
     @ElementCollection
     @CollectionTable(name = "game_characters", joinColumns = @JoinColumn(name = "game_id"))

@@ -3,6 +3,7 @@ package olter.loaf.game.games.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.cards.model.CharacterRepository;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
@@ -35,6 +36,7 @@ public class GameService {
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
     private final LobbyRepository lobbyRepository;
+    private final CharacterRepository characterRepository;
     private final GameMapper gameMapper;
 
     private final Integer STARTING_GOLD = 2;
@@ -55,6 +57,7 @@ public class GameService {
         log.info("Starting game for lobby " + lobby.getCode());
         Random r = new Random();
         GameEntity game = lobby.getGame();
+        int gameSize = lobby.getMembers().size();
 
         if (game.getCrownedPlayer() == null) {
             game.setCrownedPlayer(lobby.getMembers().get(r.nextInt(lobby.getMembers().size())).getId());
@@ -64,6 +67,10 @@ public class GameService {
         game.setPhase(GamePhaseEnum.SELECTION);
         game.setCurrentPlayer(game.getCrownedPlayer());
         game.setDeck(assembleDeck(game.getUniqueDistricts()));
+        game.setDownwardDiscard(r.nextInt(game.getCharacters().size()));
+        game.setUpwardDiscard(discardCharacters(configRepository.findByTypeAndConfigId(
+            game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
+            (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
 
         gameRepository.save(game);
         playerRepository.saveAll(lobby.getMembers().stream()
@@ -140,6 +147,18 @@ public class GameService {
                     }
                 });
         return baseDeck;
+    }
+
+    private List<Integer> discardCharacters(int discardCount, int characters, List<Integer> excludes) {
+        Random r = new Random();
+        List<Integer> discardedCharacters = new ArrayList<>();
+        while (discardedCharacters.size() < discardCount) {
+            Integer chosenCharacter = r.nextInt(characters);
+            if (!excludes.contains(chosenCharacter)) {
+                discardedCharacters.add(chosenCharacter);
+            }
+        }
+        return discardedCharacters;
     }
 
     private List<Long> getDefaultUniqueDistricts() {

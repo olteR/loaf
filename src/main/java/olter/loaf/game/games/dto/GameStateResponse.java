@@ -18,5 +18,6 @@ public class GameStateResponse {
     private Integer gold;
     private Long currentCharacter;
     private List<Long> hand;
+    private List<Integer> discardedCharacters;
     private List<PublicPlayerResponse> players;
 }
