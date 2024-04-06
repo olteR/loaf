@@ -8,7 +8,8 @@
       >
         <CharacterToken
           :character="character"
-          :image="cardImages[character.id]"
+          :image="cardImages[character.id - 1]"
+          :total-characters="characters?.length"
         ></CharacterToken>
       </div>
     </div>
@@ -27,12 +28,12 @@ const props = defineProps({
 <style scoped>
 .characters {
   position: absolute;
-  height: 20rem;
-  width: 50%;
+  height: 10rem;
+  width: 72rem;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
-  top: 0.5rem;
+  top: 0.75rem;
 }
 </style>

@@ -7,6 +7,7 @@ import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
+import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
@@ -14,9 +15,10 @@ import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
+import olter.loaf.lobby.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
+import olter.loaf.lobby.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
-import olter.loaf.users.model.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,9 +32,10 @@ import java.util.stream.Stream;
 @Slf4j
 public class GameService {
     private final GameRepository gameRepository;
-    private final GameMapper gameMapper;
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
+    private final LobbyRepository lobbyRepository;
+    private final GameMapper gameMapper;
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
@@ -75,6 +78,18 @@ public class GameService {
                         Collections.emptyList(),
                         game))
             .toList());
+    }
+
+    public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
+        log.info("Getting lobby " + code + " for " + loggedInUser.getName());
+        LobbyEntity lobby =
+            lobbyRepository
+                .findFirstByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+        if (!lobby.getMembers().contains(loggedInUser)) {
+            throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
+        }
+        return gameMapper.lobbyToDetailsResponse(lobby);
     }
 
     public GameStateResponse getGameState(Long id, UserEntity loggedInUser) {

@@ -12,6 +12,7 @@ import java.util.List;
 public class PublicPlayerResponse {
     private Long userId;
     private Integer gold;
+    private Integer handSize;
     private List<PlayerDistrictResponse> districts;
     private Long currentCharacter;
 }

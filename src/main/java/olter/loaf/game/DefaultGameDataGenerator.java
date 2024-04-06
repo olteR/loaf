@@ -528,7 +528,16 @@ public class DefaultGameDataGenerator {
                 new ConfigEntity(37L, 6L, 6, ConfigTypeEnum.DEFAULT_CHARACTER), // Kereskedő
                 new ConfigEntity(38L, 7L, 7, ConfigTypeEnum.DEFAULT_CHARACTER), // Építész
                 new ConfigEntity(39L, 8L, 8, ConfigTypeEnum.DEFAULT_CHARACTER), // Hadúr
-                new ConfigEntity(40L, 9L, 9, ConfigTypeEnum.DEFAULT_CHARACTER)); // Királynő
+                new ConfigEntity(40L, 9L, 18, ConfigTypeEnum.DEFAULT_CHARACTER), // Művész
+                new ConfigEntity(41L, 4L, 2, ConfigTypeEnum.UPWARDS_CARDS_8C),
+                new ConfigEntity(42L, 5L, 1, ConfigTypeEnum.UPWARDS_CARDS_8C),
+                new ConfigEntity(43L, 6L, 0, ConfigTypeEnum.UPWARDS_CARDS_8C),
+                new ConfigEntity(44L, 7L, 0, ConfigTypeEnum.UPWARDS_CARDS_8C),
+                new ConfigEntity(45L, 4L, 3, ConfigTypeEnum.UPWARDS_CARDS_9C),
+                new ConfigEntity(46L, 5L, 2, ConfigTypeEnum.UPWARDS_CARDS_9C),
+                new ConfigEntity(47L, 6L, 1, ConfigTypeEnum.UPWARDS_CARDS_9C),
+                new ConfigEntity(48L, 7L, 0, ConfigTypeEnum.UPWARDS_CARDS_9C),
+                new ConfigEntity(49L, 8L, 0, ConfigTypeEnum.UPWARDS_CARDS_9C));
         configRepository.saveAll(defaultConfig);
         log.info("Default config generated successfully!");
     }

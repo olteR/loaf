@@ -2,8 +2,6 @@ package olter.loaf.lobby.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
-import olter.loaf.game.games.dto.GameDetailsResponse;
-import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.lobby.lobbies.dto.LobbyCreationRequest;
 import olter.loaf.lobby.lobbies.dto.LobbyDetailsResponse;
 import olter.loaf.lobby.lobbies.dto.LobbyListResponse;
@@ -20,6 +18,12 @@ import java.util.List;
 public class LobbyEndpoint {
     private final LobbyService lobbyService;
 
+    @GetMapping("/lobbies")
+    public ResponseEntity<List<LobbyListResponse>> getLobbies(
+        @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+        return ResponseEntity.ok().body(lobbyService.getLobbies(user));
+    }
+
     @GetMapping("/my-games")
     public ResponseEntity<List<LobbyListResponse>> getMyGames(
         @SecurityAnnotations.GetLoggedInUser UserEntity user) {
@@ -32,24 +36,11 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().body(lobbyService.getLobby(code, user));
     }
 
-    @GetMapping("/game/{code}/details")
-    public ResponseEntity<GameDetailsResponse> getGameDetails(
-        @PathVariable String code,
-        @SecurityAnnotations.GetLoggedInUser UserEntity user) {
-        return ResponseEntity.ok().body(lobbyService.getGame(code, user));
-    }
-
     @GetMapping("/lobby/{code}/start")
     public ResponseEntity<Void> startGame(
         @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
         lobbyService.startGame(code, user);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/lobbies")
-    public ResponseEntity<List<LobbyListResponse>> getLobbies(
-        @SecurityAnnotations.GetLoggedInUser UserEntity user) {
-        return ResponseEntity.ok().body(lobbyService.getLobbies(user));
     }
 
     @PostMapping("/lobby")

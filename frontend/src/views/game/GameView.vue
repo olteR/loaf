@@ -12,6 +12,8 @@
   <MemberList
     :members="gameStore.getGameDetails?.members"
     :players="gameStore.getGameState?.players"
+    :crownedPlayer="gameStore.getGameState?.crownedPlayer"
+    :currentPlayer="gameStore.getGameState?.currentPlayer"
   ></MemberList>
   <CharacterList
     :characters="charactersInGame"

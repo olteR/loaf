@@ -84,7 +84,7 @@ const secondaryColor = computed(() => {
   display: inline-flex;
   width: 100%;
   height: 100%;
-  opacity: 0.9;
+  opacity: 0.8;
   padding-left: 2.25rem;
   font-weight: bold;
   margin-left: -1.25rem;

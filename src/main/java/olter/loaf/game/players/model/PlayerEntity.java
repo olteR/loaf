@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.games.model.GameEntity;
-import org.hibernate.annotations.Formula;
 
 import java.util.List;
 
