@@ -42,12 +42,12 @@ public class GameService {
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
 
-    public GameEntity createGameForLobby(String code) {
+    public GameEntity createGameForLobby(String code, Integer maxMembers) {
         log.info("Creating game for lobby " + code);
         GameEntity game = new GameEntity();
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
-        game.setCharacters(getDefaultCharacters());
+        game.setCharacters(getDefaultCharacters(maxMembers == 8));
         gameRepository.save(game);
         return game;
     }
@@ -167,8 +167,13 @@ public class GameService {
             .toList();
     }
 
-    private List<Long> getDefaultCharacters() {
-        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream()
+    private List<Long> getDefaultCharacters(boolean hasEightMaxPlayers) {
+        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
+            if (!hasEightMaxPlayers) {
+                return c.getConfigValue() != 9;
+            }
+            return true;
+            })
             .map(ConfigEntity::getConfigId)
             .toList();
     }

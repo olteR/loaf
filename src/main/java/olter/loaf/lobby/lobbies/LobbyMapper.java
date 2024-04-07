@@ -17,7 +17,6 @@ public interface LobbyMapper {
     LobbyDetailsResponse entityToDetailsResponse(LobbyEntity entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", ignore = true)
     @Mapping(target = "code", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "password", ignore = true)

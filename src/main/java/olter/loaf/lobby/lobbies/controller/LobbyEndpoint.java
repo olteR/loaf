@@ -78,4 +78,12 @@ public class LobbyEndpoint {
         lobbyService.promoteMember(user, req);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/lobby/{code}/delete")
+    public ResponseEntity<Void> deleteLobby(
+        @PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+        lobbyService.deleteLobby(code, user);
+        return ResponseEntity.ok().build();
+    }
 }

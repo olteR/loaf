@@ -24,6 +24,6 @@ public class UserEntity extends BaseEntity {
     private String displayName;
     private String password;
 
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     private List<LobbyEntity> lobbies;
 }

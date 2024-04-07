@@ -23,6 +23,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     lobby: `${baseUrl}/api/lobby`,
     lobbies: `${baseUrl}/api/lobbies`,
     start: (code) => `${baseUrl}/api/lobby/${code}/start`,
+    delete: (code) => `${baseUrl}/api/lobby/${code}/delete`,
   };
 
   async function fetchLobby(code) {
@@ -73,6 +74,20 @@ export const useLobbyStore = defineStore("lobby", () => {
       const response = await axios.post(urls.lobby, request);
       lobby.value = response.data;
       await router.push("/lobby/".concat(lobby.value.code));
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "hiba.",
+        detail: error,
+        life: 3000,
+      });
+    }
+  }
+
+  async function deleteLobby(code) {
+    try {
+      await axios.delete(urls.delete(code));
+      lobby.value = null;
     } catch (error) {
       toast.add({
         severity: "error",
@@ -165,6 +180,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchLobbies,
     fetchMyGames,
     createLobby,
+    deleteLobby,
     joinLobby,
     leaveLobby,
     kickMember,

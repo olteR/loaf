@@ -73,7 +73,12 @@
           </DataTable>
 
           <div class="mt-2 ml-auto">
-            <Button v-if="isOwner" class="p-button-danger mr-2">
+            <ConfirmDialog></ConfirmDialog>
+            <Button
+              v-if="isOwner"
+              class="p-button-danger mr-2"
+              @click="openDeleteModal($event)"
+            >
               Játék törlése
             </Button>
             <Button
@@ -106,6 +111,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from "webstomp-client";
@@ -114,18 +120,20 @@ import { useLobbyStore } from "@/stores/lobbies";
 import { useCardStore } from "@/stores/cards";
 import Button from "primevue/button";
 import Card from "primevue/card";
+import ConfirmDialog from "primevue/confirmpopup";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import LobbySettings from "@/components/lobbies/LobbySettings.vue";
 
 const router = useRouter();
+const confirm = useConfirm();
 const toast = useToast();
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
 const cardStore = useCardStore();
 const lobbyCode = router.currentRoute.value.params.code;
-const socket = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
-const stompClient = Stomp.over(socket);
+const socket = ref();
+const stompClient = ref();
 
 const connected = ref(false);
 
@@ -147,27 +155,49 @@ onMounted(async () => {
 });
 
 function connect() {
-  stompClient.connect(
-    {},
-    (frame) => {
-      console.log("Connected!");
-      connected.value = true;
-      console.log(frame);
-      stompClient.subscribe("/user/topic/lobby/update", (msg) => {
-        handleLobbyUpdate(JSON.parse(msg.body));
-      });
-    },
-    (error) => {
-      console.log(error);
-      connected.value = false;
-    }
-  );
+  socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
+  stompClient.value = Stomp.over(socket);
+  stompClient.value.connect({}, connectCallback, errorCallback);
 }
+
+const connectCallback = function (frame) {
+  console.log("Connected!");
+  connected.value = true;
+  console.log(frame);
+  stompClient.value.subscribe("/user/topic/lobby/update", (msg) => {
+    handleLobbyUpdate(JSON.parse(msg.body));
+  });
+};
+
+const errorCallback = function (error) {
+  console.log(error);
+  connected.value = false;
+  console.log("Reconnecting...");
+  setTimeout(connect, 5000);
+};
 
 function start() {
   lobbyStore.startGame(lobbyCode);
+  stompClient.value.disconnect();
   router.push("/game/" + lobbyCode);
 }
+
+const openDeleteModal = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: "Biztosan kitörlöd a lobbit?",
+    header: "Lobbi törlése",
+    accept: () => {
+      lobbyStore.deleteLobby(lobbyCode);
+      stompClient.value.disconnect();
+      router.push("/my-games");
+    },
+    acceptClass: "p-button-danger",
+    acceptLabel: "Igen",
+    rejectClass: "p-button-primary",
+    rejectLabel: "Nem",
+  });
+};
 
 function handleLobbyUpdate(update) {
   switch (update.type) {
@@ -234,6 +264,18 @@ function handleLobbyUpdate(update) {
         } a lobbi új tulajdonosa.`,
         life: 3000,
       });
+      break;
+    }
+    case "START": {
+      toast.add({
+        severity: "info",
+        summary: "A játék indul!",
+        detail:
+          "A lobbitulajdonos elindította a játékot, ami rögtön kezdetét veszi!",
+        life: 3000,
+      });
+      stompClient.value.disconnect();
+      router.push("/game/" + lobbyCode);
     }
   }
 }

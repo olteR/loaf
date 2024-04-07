@@ -35,7 +35,7 @@ public class LobbyEntity extends BaseEntity {
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private GameEntity game;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "lobby_users",
         joinColumns = {@JoinColumn(name = "lobby_id")},

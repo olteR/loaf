@@ -82,7 +82,7 @@ const lobbyForm = ref({
   password: null,
   hidden: false,
   secured: false,
-  maxMembers: MAX_LOBBY_PLAYERS,
+  maxMembers: MAX_LOBBY_PLAYERS - 1,
 });
 
 const securedOptions = ref([
