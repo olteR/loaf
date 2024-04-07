@@ -7,14 +7,13 @@
         >
         <template #content>
           <h2 class="text-2xl mb-2">
-            Játékosok ({{ lobbyStore.getLobby.members.length }}/{{
+            Játékosok ({{ lobbyStore.getLobby.members?.length }}/{{
               lobbyStore.getLobby.maxMembers
             }}):
           </h2>
           <DataTable
             :value="lobbyStore.getLobby.members"
             :reorderableColumns="true"
-            @columnReorder="onColReorder"
             @rowReorder="onRowReorder"
           >
             <Column
@@ -59,13 +58,15 @@
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
                     icon="fa fa-star"
-                    @click="lobbyStore.promoteMember(lobbyCode, player.id)"
+                    @click="
+                      lobbyStore.promoteMember(lobbyCode, slotProps.data.id)
+                    "
                   />
                   <Button
                     v-tooltip.bottom="'Eltávolítás a lobbiból'"
                     class="ml-2 p-button-danger"
                     icon="fa fa-x"
-                    @click="lobbyStore.kickMember(lobbyCode, player.id)"
+                    @click="lobbyStore.kickMember(lobbyCode, slotProps.data.id)"
                   />
                 </div>
               </template>
@@ -90,7 +91,7 @@
             </Button>
             <Button
               @click="start()"
-              :disabled="lobbyStore.getLobby.members.length < 2"
+              :disabled="lobbyStore.getLobby.members?.length < 2"
             >
               Játék indítása
             </Button>
@@ -155,9 +156,11 @@ onMounted(async () => {
 });
 
 function connect() {
-  socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
-  stompClient.value = Stomp.over(socket);
-  stompClient.value.connect({}, connectCallback, errorCallback);
+  if (!connected.value) {
+    socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
+    stompClient.value = Stomp.over(socket);
+    stompClient.value.connect({}, connectCallback, errorCallback);
+  }
 }
 
 const connectCallback = function (frame) {
@@ -177,8 +180,8 @@ const errorCallback = function (error) {
 };
 
 function start() {
-  lobbyStore.startGame(lobbyCode);
   stompClient.value.disconnect();
+  lobbyStore.startGame(lobbyCode);
   router.push("/game/" + lobbyCode);
 }
 

@@ -9,11 +9,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = GameMapper.class)
+@Mapper(componentModel = "spring", uses = {GameMapper.class})
 public interface LobbyMapper {
     LobbyListResponse entityToListResponse(LobbyEntity entity);
 
     @Mapping(source = "game", target = "gameSettings")
+    @Mapping(target = "members", ignore = true)
     LobbyDetailsResponse entityToDetailsResponse(LobbyEntity entity);
 
     @Mapping(target = "id", ignore = true)

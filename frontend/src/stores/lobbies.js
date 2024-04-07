@@ -116,6 +116,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   async function leaveLobby(code) {
     try {
       await axios.post(urls.leave(code));
+      lobby.value = null;
       await router.push("/my-games");
     } catch (error) {
       toast.add({

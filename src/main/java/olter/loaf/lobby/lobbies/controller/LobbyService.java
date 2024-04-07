@@ -4,13 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.games.controller.GameService;
+import olter.loaf.game.players.model.PlayerEntity;
+import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobby.lobbies.LobbyMapper;
 import olter.loaf.lobby.lobbies.dto.*;
 import olter.loaf.lobby.lobbies.exception.*;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
 import olter.loaf.lobby.lobbies.model.LobbyRepository;
 import olter.loaf.lobby.lobbies.model.LobbyStatusEnum;
+import olter.loaf.users.UserMapper;
 import olter.loaf.users.model.UserEntity;
+import olter.loaf.users.model.UserRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +28,10 @@ import java.util.Random;
 @Slf4j
 public class LobbyService {
     private final LobbyRepository lobbyRepository;
+    private final PlayerRepository playerRepository;
+    private final UserRepository userRepository;
     private final LobbyMapper lobbyMapper;
+    private final UserMapper userMapper;
     private final GameService gameService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final PasswordEncoder passwordEncoder;
@@ -35,10 +42,10 @@ public class LobbyService {
                 .findFirstByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         log.info("Getting lobby " + lobby.getName() + " for " + loggedInUser.getName());
-        if (!lobby.getMembers().contains(loggedInUser)) {
-            throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
-        }
-        return lobbyMapper.entityToDetailsResponse(lobby);
+        validateContainment(lobby, loggedInUser.getId());
+        LobbyDetailsResponse response = lobbyMapper.entityToDetailsResponse(lobby);
+        response.setMembers(userRepository.getLobbyMembers(lobby.getCode()));
+        return response;
     }
 
     public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
@@ -73,7 +80,7 @@ public class LobbyService {
         if (request.getSecured() != null && request.getSecured()) {
             lobby.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        lobby.setGame(gameService.createGameForLobby(lobby.getCode(), lobby.getMaxMembers()));
+        lobby.setGame(gameService.createGameForLobby(lobby));
         lobbyRepository.save(lobby);
 
         return lobbyMapper.entityToDetailsResponse(lobby);
@@ -88,6 +95,8 @@ public class LobbyService {
         log.info(user.getName() + " joining lobby " + lobby.getName());
 
         validateJoin(lobby, user);
+
+
         lobby
             .getMembers()
             .forEach(
@@ -96,12 +105,19 @@ public class LobbyService {
                     simpMessagingTemplate.convertAndSendToUser(
                         m.getName(),
                         "/topic/lobby/update",
-                        new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, user));
+                        new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user)));
                 });
 
         members.add(user);
         lobby.setMembers(members);
         lobbyRepository.save(lobby);
+
+        PlayerEntity p = new PlayerEntity();
+        p.setUserId(user.getId());
+        p.setOrder(lobby.getMembers().size());
+        p.setGame(lobby.getGame());
+        playerRepository.save(p);
+
         return lobbyMapper.entityToDetailsResponse(lobby);
     }
 
@@ -111,14 +127,23 @@ public class LobbyService {
                 .findFirstByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         List<UserEntity> members = lobby.getMembers();
+        PlayerEntity leavingPlayer = playerRepository.findByUserIdAndGame(user.getId(), lobby.getGame())
+            .orElseThrow(() -> new NotInLobbyException(lobby.getId(), user.getId()));
         log.info(user.getName() + " leaving lobby " + lobby.getName());
 
-        validateContainment(lobby, user.getId());
         validateProgress(lobby);
 
         members.remove(user);
         lobby.setMembers(members);
         lobbyRepository.save(lobby);
+
+        playerRepository.saveAll(
+            playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), leavingPlayer.getOrder()).stream()
+                .peek(p -> {
+                    p.setOrder(p.getOrder() - 1);
+                }).toList());
+        playerRepository.delete(leavingPlayer);
+
         lobby
             .getMembers()
             .forEach(
@@ -138,11 +163,18 @@ public class LobbyService {
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
         List<UserEntity> members = lobby.getMembers();
-        log.info("Kicking member " + req.getMemberId() + " from lobby " + req.getCode() );
+        PlayerEntity kickedPlayer = playerRepository.findByUserIdAndGame(req.getMemberId(), lobby.getGame())
+            .orElseThrow(() -> new NotInLobbyException(lobby.getId(), req.getMemberId()));
+        log.info("Kicking member " + req.getMemberId() + " from lobby " + req.getCode());
 
         validateOwnerRequest(lobby, user);
-        validateContainment(lobby, req.getMemberId());
 
+        playerRepository.saveAll(
+            playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), kickedPlayer.getOrder()).stream()
+                .peek(p -> {
+                    p.setOrder(p.getOrder() - 1);
+                }).toList());
+        playerRepository.delete(kickedPlayer);
 
         members.forEach(
             m -> {

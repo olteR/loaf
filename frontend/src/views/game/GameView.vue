@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStateStore } from "@/stores/state";
 import { useCardStore } from "@/stores/cards";
@@ -42,12 +42,18 @@ import Card from "primevue/card";
 import CharacterList from "@/components/game/CharacterList.vue";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
+import SockJS from "sockjs-client/dist/sockjs";
+import Stomp from "webstomp-client";
 
 const router = useRouter();
 const stateStore = useStateStore();
 const cardStore = useCardStore();
 const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
+const socket = ref();
+const stompClient = ref();
+
+const connected = ref(false);
 
 // const onTurn = computed(() => {
 //   return gameStore.getGameState?.currentPlayer === stateStore.getUser.id;
@@ -89,8 +95,37 @@ onMounted(async () => {
   await cardStore.fetchCards();
   await gameStore.fetchGameDetails(lobbyCode);
   await gameStore.fetchGameState(gameStore.getGameDetails.gameId);
+  connect();
   stateStore.setLoading(false);
 });
+
+function handleGameUpdate(update) {
+  console.log(update);
+}
+
+function connect() {
+  if (!connected.value) {
+    socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
+    stompClient.value = Stomp.over(socket);
+    stompClient.value.connect({}, connectCallback, errorCallback);
+  }
+}
+
+const connectCallback = function (frame) {
+  console.log("Connected!");
+  connected.value = true;
+  console.log(frame);
+  stompClient.value.subscribe("/user/topic/game/update", (msg) => {
+    handleGameUpdate(JSON.parse(msg.body));
+  });
+};
+
+const errorCallback = function (error) {
+  console.log(error);
+  connected.value = false;
+  console.log("Reconnecting...");
+  setTimeout(connect, 5000);
+};
 </script>
 
 <style scoped>

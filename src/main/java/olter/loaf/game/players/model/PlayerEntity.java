@@ -22,6 +22,9 @@ public class PlayerEntity extends BaseEntity {
     private Long currentCharacter;
     private Boolean isRevealed;
 
+    @Column(name = "player_order")
+    private Integer order;
+
     @ElementCollection
     @CollectionTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"))
     private List<Long> hand;

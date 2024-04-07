@@ -3,7 +3,6 @@ package olter.loaf.game.games.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
-import olter.loaf.game.cards.model.CharacterRepository;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
@@ -36,19 +35,24 @@ public class GameService {
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
     private final LobbyRepository lobbyRepository;
-    private final CharacterRepository characterRepository;
     private final GameMapper gameMapper;
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
 
-    public GameEntity createGameForLobby(String code, Integer maxMembers) {
-        log.info("Creating game for lobby " + code);
+    public GameEntity createGameForLobby(LobbyEntity lobby) {
+        log.info("Creating game for lobby " + lobby.getCode());
         GameEntity game = new GameEntity();
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
-        game.setCharacters(getDefaultCharacters(maxMembers == 8));
+        game.setCharacters(getDefaultCharacters(lobby.getMaxMembers() == 8));
         gameRepository.save(game);
+
+        PlayerEntity p = new PlayerEntity();
+        p.setUserId(lobby.getOwner());
+        p.setOrder(1);
+        p.setGame(game);
+        playerRepository.save(p);
         return game;
     }
 
@@ -73,18 +77,10 @@ public class GameService {
             (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
 
         gameRepository.save(game);
-        playerRepository.saveAll(lobby.getMembers().stream()
-            .map(
-                user ->
-                    new PlayerEntity(
-                        user.getId(),
-                        STARTING_GOLD,
-                        null,
-                        false,
-                        drawFromDeck(game, STARTING_CARDS),
-                        Collections.emptyList(),
-                        game))
-            .toList());
+        playerRepository.saveAll(playerRepository.findAllByGame(game).stream().peek(p -> {
+            p.setGold(STARTING_GOLD);
+            p.setHand(drawFromDeck(game, STARTING_CARDS));
+        }).toList());
     }
 
     public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
@@ -105,7 +101,7 @@ public class GameService {
             gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), id));
         PlayerEntity player =
-            playerRepository.findFirstByUserIdAndGame(loggedInUser.getId(), game)
+            playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
 
         game.getPlayers().forEach(p -> {
@@ -153,7 +149,7 @@ public class GameService {
         Random r = new Random();
         List<Integer> discardedCharacters = new ArrayList<>();
         while (discardedCharacters.size() < discardCount) {
-            Integer chosenCharacter = r.nextInt(characters);
+            Integer chosenCharacter = r.nextInt(characters) + 1;
             if (!excludes.contains(chosenCharacter)) {
                 discardedCharacters.add(chosenCharacter);
             }
@@ -169,10 +165,10 @@ public class GameService {
 
     private List<Long> getDefaultCharacters(boolean hasEightMaxPlayers) {
         return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
-            if (!hasEightMaxPlayers) {
-                return c.getConfigValue() != 9;
-            }
-            return true;
+                if (!hasEightMaxPlayers) {
+                    return c.getConfigValue() != 9;
+                }
+                return true;
             })
             .map(ConfigEntity::getConfigId)
             .toList();
