@@ -46,12 +46,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       const response = await axios.get(urls.lobbies);
       lobbies.value = response.data;
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -60,12 +55,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       const response = await axios.get(urls.myGames);
       lobbies.value = response.data;
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -75,12 +65,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       lobby.value = response.data;
       await router.push("/lobby/".concat(lobby.value.code));
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -89,12 +74,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       await axios.delete(urls.delete(code));
       lobby.value = null;
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -104,12 +84,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       lobby.value = response.data;
       await router.push("/lobby/".concat(lobby.value.code));
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -119,12 +94,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       lobby.value = null;
       await router.push("/my-games");
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -135,12 +105,7 @@ export const useLobbyStore = defineStore("lobby", () => {
         memberId: id,
       });
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -151,12 +116,7 @@ export const useLobbyStore = defineStore("lobby", () => {
         memberId: id,
       });
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -165,13 +125,17 @@ export const useLobbyStore = defineStore("lobby", () => {
       const response = await axios.get(urls.start(code));
       console.log(response);
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
+  }
+
+  function handleError(error) {
+    toast.add({
+      severity: "error",
+      summary: "hiba.",
+      detail: error,
+      life: 3000,
+    });
   }
 
   return {

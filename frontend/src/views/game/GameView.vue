@@ -2,7 +2,7 @@
   <div class="game-area"></div>
   <Card class="w-48 text-2xl m-2">
     <template #content>
-      <div class="columns-2 text-center">
+      <div class="columns-2 text-center select-none">
         <div>
           <i class="fa fa-coins"></i> {{ gameStore.getGameState?.gold }}
         </div>
@@ -20,6 +20,8 @@
     :characters="charactersInGame"
     :card-images="cardStore.getCharacterImages"
     :discarded="gameStore.getGameState?.discardedCharacters"
+    :unavailable="gameStore.getGameState?.unavailableCharacters"
+    @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
@@ -81,11 +83,11 @@ const charactersInGame = computed(() => {
 
 const currentMessage = computed(() => {
   if (gameStore.getGameState?.phase === "SELECTION") {
-    return (
-      gameStore.getGameDetails?.members.find(
-        (m) => m.id === gameStore.getGameState?.currentPlayer
-      ).displayName + " választ karaktert!"
-    );
+    return stateStore.getUser.id === gameStore.getGameState?.currentPlayer
+      ? "Válassz karaktert!"
+      : gameStore.getGameDetails?.members.find(
+          (m) => m.id === gameStore.getGameState?.currentPlayer
+        ).displayName + " választ karaktert!";
   }
   return "";
 });
@@ -94,7 +96,7 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGameDetails(lobbyCode);
-  await gameStore.fetchGameState(gameStore.getGameDetails.gameId);
+  await gameStore.fetchGameState(lobbyCode);
   connect();
   stateStore.setLoading(false);
 });
@@ -138,6 +140,9 @@ const errorCallback = function (error) {
   top: 25%;
   text-align: center;
   font-size: xx-large;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 .game-area {
   position: absolute;

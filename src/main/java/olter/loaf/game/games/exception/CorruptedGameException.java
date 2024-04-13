@@ -1,4 +1,4 @@
-package olter.loaf.lobby.lobbies.exception;
+package olter.loaf.game.games.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.Serial;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class AlreadyJoinedException extends RuntimeException {
+public class CorruptedGameException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> AlreadyJoinedException(Long lobbyId, Long userId) {
-        super("user " + userId + " already in lobby " + lobbyId);
+    public <T> CorruptedGameException(Long gameId) {
+        super("Corrupted data in game " + gameId);
     }
 }

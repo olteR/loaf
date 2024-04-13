@@ -33,7 +33,7 @@
         <DistrictCard
           v-for="(card, i) in cards"
           :card="card"
-          :order="displayedCards.indexOf(card)"
+          :order="i"
           :image="cardImages[i]"
           :key="i"
           :hidden="!displayedCards.includes(card)"

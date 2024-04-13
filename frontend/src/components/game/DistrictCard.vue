@@ -121,6 +121,8 @@ function closeDragElement() {
   font-size: 1.5rem;
   font-weight: 700;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 .district-text {
   text-align: center;
@@ -140,7 +142,9 @@ function closeDragElement() {
   outline: thick solid;
   border-radius: 4px;
   top: 0;
-  transition: transform 0.2s;
+  -webkit-transition: transform 0.2s;
+  -moz-transition: transform 0.2s;
+  -ms-transition: transform 0.2s;
 }
 #draggable-container:hover {
   z-index: 11;

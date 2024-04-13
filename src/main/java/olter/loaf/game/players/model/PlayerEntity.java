@@ -19,7 +19,7 @@ import java.util.List;
 public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
-    private Long currentCharacter;
+    private Integer currentCharacter;
     private Boolean isRevealed;
 
     @Column(name = "player_order")

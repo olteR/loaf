@@ -9,10 +9,17 @@ import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameStateResponse;
+import olter.loaf.game.games.exception.CorruptedGameException;
+import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.games.exception.NotInGameException;
+import olter.loaf.game.games.exception.NotOnTurnException;
+import olter.loaf.game.games.model.GameCharacterEmbeddable;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
+import olter.loaf.game.logs.model.LogEntity;
+import olter.loaf.game.logs.model.LogRepository;
+import olter.loaf.game.logs.model.LogTypeEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobby.lobbies.exception.NotInLobbyException;
@@ -21,10 +28,7 @@ import olter.loaf.lobby.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Service
@@ -35,6 +39,7 @@ public class GameService {
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
     private final LobbyRepository lobbyRepository;
+    private final LogRepository logRepository;
     private final GameMapper gameMapper;
 
     private final Integer STARTING_GOLD = 2;
@@ -95,14 +100,21 @@ public class GameService {
         return gameMapper.lobbyToDetailsResponse(lobby);
     }
 
-    public GameStateResponse getGameState(Long id, UserEntity loggedInUser) {
-        log.info("Getting " + id + " state for " + loggedInUser.getName());
+    public GameStateResponse getGameState(String code, UserEntity loggedInUser) {
+        log.info("Getting " + code + " state for " + loggedInUser.getName());
         GameEntity game =
-            gameRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), id));
+            gameRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
         PlayerEntity player =
             playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
+
+        List<Integer> unavailableCharacters = new ArrayList<>();
+        if (game.getPhase() == GamePhaseEnum.SELECTION && game.getCurrentPlayer().equals(loggedInUser.getId())) {
+            unavailableCharacters.add(game.getDownwardDiscard());
+            unavailableCharacters.addAll(game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(
+                Objects::nonNull).toList());
+        }
 
         game.getPlayers().forEach(p -> {
             if (!p.getIsRevealed()) {
@@ -110,7 +122,36 @@ public class GameService {
             }
         });
 
-        return gameMapper.entitiesToStateResponse(game, player);
+        GameStateResponse response = gameMapper.entitiesToStateResponse(game, player);
+        response.setUnavailableCharacters(unavailableCharacters);
+
+        return response;
+    }
+
+    public void selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
+        log.info("Selecting character " + selectedCharacter + " for " + loggedInUser.getName() + " in game " + code);
+        GameEntity game =
+            gameRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
+
+        game.getPlayers().stream().filter(p -> p.getUserId().equals(loggedInUser.getId())).findFirst()
+            .orElseThrow(() -> new NotInGameException(game.getId(),
+                loggedInUser.getId())).setCurrentCharacter(selectedCharacter);
+        validateSelectionTurn(game, loggedInUser.getId());
+        setNextPlayer(game);
+        gameRepository.save(game);
+
+        // TODO: BROADCAST ON WS
+
+        LogEntity log = new LogEntity();
+        log.setGameId(game.getId());
+        log.setUserId(loggedInUser.getId());
+        log.setTarget(String.valueOf(
+            game.getCharacters().stream().filter(c -> c.getNumber().equals(selectedCharacter)).findFirst()
+                .orElseThrow(() -> new CorruptedGameException(game.getId())).getCharacterId()));
+        log.setTurn(game.getTurn());
+        log.setLogType(LogTypeEnum.SELECT_CHARACTER);
+        logRepository.save(log);
     }
 
     private List<Long> drawFromDeck(GameEntity game, int cardCount) {
@@ -163,14 +204,40 @@ public class GameService {
             .toList();
     }
 
-    private List<Long> getDefaultCharacters(boolean hasEightMaxPlayers) {
+    private List<GameCharacterEmbeddable> getDefaultCharacters(boolean hasEightMaxPlayers) {
         return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
                 if (!hasEightMaxPlayers) {
                     return c.getConfigValue() != 9;
                 }
                 return true;
             })
-            .map(ConfigEntity::getConfigId)
+            .map(gameMapper::configToCharacterEmbeddable)
             .toList();
+    }
+
+    private void setNextPlayer(GameEntity game) {
+        PlayerEntity currentPlayer =
+            game.getPlayers().stream().filter(p -> p.getUserId().equals(game.getCurrentPlayer())).findFirst()
+                .orElseThrow(() -> new CorruptedGameException(game.getId()));
+
+        if (currentPlayer.getOrder() < game.getPlayers().size()) {
+            game.setCurrentPlayer(game.getPlayers().get(game.getPlayers().indexOf(currentPlayer) + 1).getUserId());
+        } else {
+            game.setCurrentPlayer(game.getPlayers().get(0).getUserId());
+            switch (game.getPhase()) {
+                case SELECTION -> game.setPhase(GamePhaseEnum.TURN);
+                case TURN -> game.setPhase(GamePhaseEnum.SELECTION);
+                case END_TURN -> game.setPhase(GamePhaseEnum.ENDED);
+            }
+        }
+    }
+
+    private void validateSelectionTurn(GameEntity game, Long userId) {
+        if (!Objects.equals(game.getPhase(), GamePhaseEnum.SELECTION)) {
+            throw new InvalidPhaseActionException(game.getId());
+        }
+        if (!Objects.equals(game.getCurrentPlayer(), userId)) {
+            throw new NotOnTurnException(game.getId(), userId);
+        }
     }
 }

@@ -14,5 +14,5 @@ public class PublicPlayerResponse {
     private Integer gold;
     private Integer handSize;
     private List<PlayerDistrictResponse> districts;
-    private Long currentCharacter;
+    private Integer currentCharacter;
 }

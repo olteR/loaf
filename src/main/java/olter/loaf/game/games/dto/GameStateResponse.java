@@ -19,5 +19,6 @@ public class GameStateResponse {
     private Long currentCharacter;
     private List<Long> hand;
     private List<Integer> discardedCharacters;
+    private List<Integer> unavailableCharacters;
     private List<PublicPlayerResponse> players;
 }

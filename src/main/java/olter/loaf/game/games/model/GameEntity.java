@@ -30,7 +30,7 @@ public class GameEntity extends BaseEntity {
 
     @ElementCollection
     @CollectionTable(name = "game_characters", joinColumns = @JoinColumn(name = "game_id"))
-    private List<Long> characters;
+    private List<GameCharacterEmbeddable> characters;
 
     @ElementCollection
     @CollectionTable(name = "game_unique_districts", joinColumns = @JoinColumn(name = "game_id"))

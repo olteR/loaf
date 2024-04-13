@@ -11,6 +11,8 @@
           :image="cardImages[character.id - 1]"
           :total-characters="characters?.length"
           :discarded="props.discarded?.includes(character.number)"
+          :unavailable="props.unavailable?.includes(character.number)"
+          @select="(number) => emit('select', number)"
         ></CharacterToken>
       </div>
     </div>
@@ -24,7 +26,9 @@ const props = defineProps({
   characters: Array,
   cardImages: Array,
   discarded: Array,
+  unavailable: Array,
 });
+const emit = defineEmits(["select"]);
 </script>
 
 <style scoped>

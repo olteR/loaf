@@ -10,6 +10,7 @@ export const useGameStore = defineStore("game", () => {
   const urls = {
     details: (code) => `${baseUrl}/api/game/${code}/details`,
     state: (code) => `${baseUrl}/api/game/${code}/state`,
+    select: (code) => `${baseUrl}/api/game/${code}/select`,
   };
 
   const gameDetails = ref();
@@ -23,12 +24,7 @@ export const useGameStore = defineStore("game", () => {
       const response = await axios.get(urls.details(code));
       gameDetails.value = response.data;
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
   }
 
@@ -37,13 +33,25 @@ export const useGameStore = defineStore("game", () => {
       const response = await axios.get(urls.state(code));
       gameState.value = response.data;
     } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
+      handleError(error);
     }
+  }
+
+  async function selectCharacter(code, character) {
+    try {
+      await axios.get(urls.select(code) + "?character=" + character);
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  function handleError(error) {
+    toast.add({
+      severity: "error",
+      summary: "hiba.",
+      detail: error,
+      life: 3000,
+    });
   }
 
   return {
@@ -51,5 +59,6 @@ export const useGameStore = defineStore("game", () => {
     getGameDetails: getGameDetails,
     fetchGameState,
     fetchGameDetails,
+    selectCharacter,
   };
 });

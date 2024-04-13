@@ -1,4 +1,4 @@
-package olter.loaf.lobby.lobbies.exception;
+package olter.loaf.game.games.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.Serial;
 
 @ResponseStatus(value = HttpStatus.FORBIDDEN)
-public class NoPrivilegeException extends RuntimeException {
+public class NotOnTurnException extends RuntimeException {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NoPrivilegeException(Long lobbyId, Long userId) {
-        super(userId + " has owner privilege for lobby " + lobbyId);
+    public <T> NotOnTurnException(Long gameId, Long userId) {
+        super(userId + " is not on turn in " + gameId);
     }
 }
