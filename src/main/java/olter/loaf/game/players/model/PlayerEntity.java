@@ -30,6 +30,14 @@ public class PlayerEntity extends BaseEntity {
     private List<Long> hand;
 
     @ElementCollection
+    @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))
+    private List<Integer> unavailableCharacters;
+
+    @ElementCollection
+    @CollectionTable(name = "player_skipped_characters", joinColumns = @JoinColumn(name = "player_id"))
+    private List<Integer> skippedCharacters;
+
+    @ElementCollection
     @CollectionTable(name = "player_districts", joinColumns = @JoinColumn(name = "player_id"))
     private List<DistrictEmbeddable> districts;
 

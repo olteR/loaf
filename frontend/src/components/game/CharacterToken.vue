@@ -5,14 +5,16 @@
     ref="characterDiv"
   >
     <ConfirmPopup></ConfirmPopup>
-    <img
-      class="character-image"
-      :style="{
-        width: totalCharacters === 8 ? '8rem' : '7rem',
-        'outline-color': primaryColor,
-      }"
-      :src="props.image.src"
-    />
+    <div>
+      <img
+        class="character-image"
+        :style="{
+          width: totalCharacters === 8 ? '8rem' : '7rem',
+          'outline-color': primaryColor,
+        }"
+        :src="props.image.src"
+      />
+    </div>
     <div
       class="character-color"
       :style="{
@@ -23,8 +25,14 @@
       v-on:click="openPopup()"
     >
       <div class="character-icon">
-        <i v-if="props.discarded" class="fa fa-xmark" />
-        <i v-else-if="props.unavailable" class="fa fa-question" />
+        <i v-if="props.status === 'DISCARDED'" class="fa fa-xmark" />
+        <i v-else-if="props.status === 'UNAVAILABLE'" class="fa fa-question" />
+        <i
+          v-else-if="props.status === 'SELECTED'"
+          class="fa fa-check"
+          :style="{ color: secondaryColor }"
+        />
+        <i v-else-if="props.status === 'SKIPPED'" class="fa fa-forward" />
       </div>
     </div>
     <div
@@ -60,8 +68,7 @@ const props = defineProps({
   character: Object,
   image: Object,
   totalCharacters: Number,
-  discarded: Boolean,
-  unavailable: Boolean,
+  status: String,
 });
 const emit = defineEmits(["select"]);
 const characterDiv = ref();
@@ -71,20 +78,29 @@ const selectable = computed(() => {
 });
 
 const primaryColor = computed(() => {
-  return !selectable.value
+  return props.status === "DISCARDED"
     ? COLORS["DISABLED"].PRIMARY
     : COLORS[props.character.districtTypeBonus]?.PRIMARY || "#9FA8DA";
 });
 
 const secondaryColor = computed(() => {
-  return !selectable.value
+  return props.status === "DISCARDED"
     ? COLORS["DISABLED"].SECONDARY
     : COLORS[props.character.districtTypeBonus]?.SECONDARY || "#121212";
 });
 
 const characterColor = computed(() => {
-  if (!selectable.value) return "#121212";
-  return "transparent";
+  switch (props.status) {
+    case "DISCARDED":
+      return "#121212";
+    case "UNAVAILABLE":
+    case "SKIPPED":
+      return COLORS[props.character.districtTypeBonus]?.SECONDARY || "#121212";
+    case "SELECTED":
+      return COLORS[props.character.districtTypeBonus]?.PRIMARY || "#9FA8DA";
+    default:
+      return "transparent";
+  }
 });
 
 const openPopup = () => {

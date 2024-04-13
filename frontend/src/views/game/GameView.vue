@@ -19,8 +19,10 @@
   <CharacterList
     :characters="charactersInGame"
     :card-images="cardStore.getCharacterImages"
+    :selected="gameStore.getGameState?.currentCharacter"
     :discarded="gameStore.getGameState?.discardedCharacters"
     :unavailable="gameStore.getGameState?.unavailableCharacters"
+    :skipped="gameStore.getGameState?.skippedCharacters"
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
@@ -57,9 +59,9 @@ const stompClient = ref();
 
 const connected = ref(false);
 
-// const onTurn = computed(() => {
-//   return gameStore.getGameState?.currentPlayer === stateStore.getUser.id;
-// });
+const onTurn = computed(() => {
+  return gameStore.getGameState?.currentPlayer === stateStore.getUser.id;
+});
 
 const cardsInHand = computed(() => {
   let hand = [];
@@ -87,7 +89,7 @@ const currentMessage = computed(() => {
       ? "Válassz karaktert!"
       : gameStore.getGameDetails?.members.find(
           (m) => m.id === gameStore.getGameState?.currentPlayer
-        ).displayName + " választ karaktert!";
+        ).displayName + " választ karaktert.";
   }
   return "";
 });
@@ -102,7 +104,20 @@ onMounted(async () => {
 });
 
 function handleGameUpdate(update) {
-  console.log(update);
+  switch (update.type) {
+    case "NEXT_PLAYER": {
+      gameStore.getGameState.currentPlayer = update.change;
+      break;
+    }
+    case "PLAYER_TURN": {
+      gameStore.getGameState.currentPlayer = stateStore.getUser.id;
+      gameStore.getGameState.unavailableCharacters = update.change;
+      break;
+    }
+    default: {
+      console.log(update);
+    }
+  }
 }
 
 function connect() {

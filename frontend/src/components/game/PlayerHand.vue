@@ -34,7 +34,7 @@
           v-for="(card, i) in cards"
           :card="card"
           :order="i"
-          :image="cardImages[i]"
+          :image="cardImages[card.id - 1]"
           :key="i"
           :hidden="!displayedCards.includes(card)"
           @drag-begin="isDragging = true"

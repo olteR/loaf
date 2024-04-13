@@ -40,6 +40,7 @@ export const useGameStore = defineStore("game", () => {
   async function selectCharacter(code, character) {
     try {
       await axios.get(urls.select(code) + "?character=" + character);
+      gameState.value.currentCharacter = character;
     } catch (error) {
       handleError(error);
     }

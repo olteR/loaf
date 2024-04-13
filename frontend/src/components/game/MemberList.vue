@@ -48,9 +48,9 @@ const props = defineProps({
 
 const playingMembers = computed(() => {
   let pm = [];
-  props.members?.forEach((m) => {
-    let p = props.players?.find((p) => p.userId === m.id);
-    if (p) {
+  props.players?.forEach((p) => {
+    let m = props.members?.find((m) => p.userId === m.id);
+    if (m) {
       pm.push({
         id: m.id,
         name: m.name,

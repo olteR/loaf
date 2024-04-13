@@ -51,4 +51,8 @@ public class JwtHandler {
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
+
+    public String getUserIdFromToken(String token) {
+        return String.valueOf(getAllClaimsFromToken(token).get("uid"));
+    }
 }

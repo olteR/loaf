@@ -95,18 +95,7 @@ public class LobbyService {
         log.info(user.getName() + " joining lobby " + lobby.getName());
 
         validateJoin(lobby, user);
-
-
-        lobby
-            .getMembers()
-            .forEach(
-                m -> {
-                    log.info("Broadcasting join to " + m.getName());
-                    simpMessagingTemplate.convertAndSendToUser(
-                        m.getName(),
-                        "/topic/lobby/update",
-                        new LobbyUpdateDto(LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user)));
-                });
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
 
         members.add(user);
         lobby.setMembers(members);
@@ -139,21 +128,10 @@ public class LobbyService {
 
         playerRepository.saveAll(
             playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), leavingPlayer.getOrder()).stream()
-                .peek(p -> {
-                    p.setOrder(p.getOrder() - 1);
-                }).toList());
+                .peek(p -> p.setOrder(p.getOrder() - 1)).toList());
         playerRepository.delete(leavingPlayer);
 
-        lobby
-            .getMembers()
-            .forEach(
-                m -> {
-                    log.info("Broadcasting leave to " + m.getName());
-                    simpMessagingTemplate.convertAndSendToUser(
-                        m.getName(),
-                        "/topic/lobby/update",
-                        new LobbyUpdateDto(LobbyUpdateTypeEnum.LEAVE, user.getId()));
-                });
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.LEAVE, user.getId());
     }
 
     public void kickMember(UserEntity user, LobbyMemberInteractionDto req) {
@@ -171,19 +149,10 @@ public class LobbyService {
 
         playerRepository.saveAll(
             playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), kickedPlayer.getOrder()).stream()
-                .peek(p -> {
-                    p.setOrder(p.getOrder() - 1);
-                }).toList());
+                .peek(p -> p.setOrder(p.getOrder() - 1)).toList());
         playerRepository.delete(kickedPlayer);
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.KICK, req.getMemberId());
 
-        members.forEach(
-            m -> {
-                log.info("Broadcasting kick to " + m.getName());
-                simpMessagingTemplate.convertAndSendToUser(
-                    m.getName(),
-                    "/topic/lobby/update",
-                    new LobbyUpdateDto(LobbyUpdateTypeEnum.KICK, req.getMemberId()));
-            });
         members.removeIf(m -> Objects.equals(m.getId(), req.getMemberId()));
         lobby.setMembers(members);
         lobbyRepository.save(lobby);
@@ -199,17 +168,8 @@ public class LobbyService {
 
         validateOwnerRequest(lobby, user);
         validateContainment(lobby, req.getMemberId());
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.OWNER, req.getMemberId());
 
-        lobby
-            .getMembers()
-            .forEach(
-                m -> {
-                    log.info("Broadcasting promotion to " + m.getName());
-                    simpMessagingTemplate.convertAndSendToUser(
-                        m.getName(),
-                        "/topic/lobby/update",
-                        new LobbyUpdateDto(LobbyUpdateTypeEnum.OWNER, req.getMemberId()));
-                });
         lobby.setOwner(req.getMemberId());
         lobbyRepository.save(lobby);
     }
@@ -224,6 +184,7 @@ public class LobbyService {
 
         validateOwnerRequest(lobby, user);
         lobbyRepository.delete(lobby);
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.DELETE, null);
     }
 
     public void startGame(String code, UserEntity user) {
@@ -235,19 +196,20 @@ public class LobbyService {
         validateOwnerRequest(lobby, user);
         gameService.startGame(lobby);
         lobby.setStatus(LobbyStatusEnum.ONGOING);
+        broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.START, null);
 
+        lobbyRepository.save(lobby);
+    }
+
+    private void broadcastOnWebsocket(LobbyEntity lobby, LobbyUpdateTypeEnum updateType, Object change) {
         lobby
             .getMembers()
             .forEach(
                 m -> {
-                    log.info("Broadcasting start to " + m.getName());
-                    simpMessagingTemplate.convertAndSendToUser(
-                        m.getName(),
-                        "/topic/lobby/update",
-                        new LobbyUpdateDto(LobbyUpdateTypeEnum.START, null));
+                    log.info("Broadcasting " + updateType.getValue() + " to " + m.getId());
+                    simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",
+                        new LobbyUpdateDto(updateType, change));
                 });
-
-        lobbyRepository.save(lobby);
     }
 
     private void validateOwnerRequest(LobbyEntity lobby, UserEntity user) {

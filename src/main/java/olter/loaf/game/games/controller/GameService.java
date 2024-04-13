@@ -9,6 +9,8 @@ import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameStateResponse;
+import olter.loaf.game.games.dto.GameUpdateDto;
+import olter.loaf.game.games.dto.GameUpdateTypeEnum;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.games.exception.NotInGameException;
@@ -26,9 +28,11 @@ import olter.loaf.lobby.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
 import olter.loaf.lobby.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
@@ -41,6 +45,7 @@ public class GameService {
     private final LobbyRepository lobbyRepository;
     private final LogRepository logRepository;
     private final GameMapper gameMapper;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
@@ -109,22 +114,13 @@ public class GameService {
             playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
 
-        List<Integer> unavailableCharacters = new ArrayList<>();
-        if (game.getPhase() == GamePhaseEnum.SELECTION && game.getCurrentPlayer().equals(loggedInUser.getId())) {
-            unavailableCharacters.add(game.getDownwardDiscard());
-            unavailableCharacters.addAll(game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(
-                Objects::nonNull).toList());
-        }
-
         game.getPlayers().forEach(p -> {
-            if (!p.getIsRevealed()) {
+            if (!p.getIsRevealed() && !p.getUserId().equals(loggedInUser.getId())) {
                 p.setCurrentCharacter(null);
             }
         });
 
         GameStateResponse response = gameMapper.entitiesToStateResponse(game, player);
-        response.setUnavailableCharacters(unavailableCharacters);
-
         return response;
     }
 
@@ -134,14 +130,38 @@ public class GameService {
             gameRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
 
-        game.getPlayers().stream().filter(p -> p.getUserId().equals(loggedInUser.getId())).findFirst()
-            .orElseThrow(() -> new NotInGameException(game.getId(),
-                loggedInUser.getId())).setCurrentCharacter(selectedCharacter);
         validateSelectionTurn(game, loggedInUser.getId());
-        setNextPlayer(game);
-        gameRepository.save(game);
+        PlayerEntity currentPlayer =
+            game.getPlayers().stream().filter(p -> p.getUserId().equals(loggedInUser.getId())).findFirst()
+                .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
+        currentPlayer.setCurrentCharacter(selectedCharacter);
+        currentPlayer.setSkippedCharacters(IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
+            !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
+                !selectedCharacter.equals(c) && !currentPlayer.getUnavailableCharacters().contains(c)
+        ).toList());
 
-        // TODO: BROADCAST ON WS
+        setNextPlayer(game);
+        game
+            .getPlayers()
+            .forEach(
+                p -> {
+                    log.info("Broadcasting next player to " + p.getUserId());
+                    if (game.getCurrentPlayer().equals(p.getUserId())) {
+                        List<Integer> unavailableCharacters = new ArrayList<>(
+                            game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(
+                                Objects::nonNull).toList());
+                        unavailableCharacters.add(game.getDownwardDiscard());
+                        p.setUnavailableCharacters(unavailableCharacters);
+                        simpMessagingTemplate.convertAndSendToUser(
+                            String.valueOf(p.getUserId()), "/topic/game/update",
+                            new GameUpdateDto(GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
+                    } else {
+                        simpMessagingTemplate.convertAndSendToUser(
+                            String.valueOf(p.getUserId()), "/topic/game/update",
+                            new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer()));
+                    }
+                });
+        gameRepository.save(game);
 
         LogEntity log = new LogEntity();
         log.setGameId(game.getId());

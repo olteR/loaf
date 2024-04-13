@@ -16,9 +16,10 @@ public class GameStateResponse {
     private Integer turn;
     private GamePhaseEnum phase;
     private Integer gold;
-    private Long currentCharacter;
+    private Integer currentCharacter;
     private List<Long> hand;
     private List<Integer> discardedCharacters;
     private List<Integer> unavailableCharacters;
+    private List<Integer> skippedCharacters;
     private List<PublicPlayerResponse> players;
 }
