@@ -9,15 +9,12 @@ export const useGameStore = defineStore("game", () => {
 
   const urls = {
     details: (code) => `${baseUrl}/api/game/${code}/details`,
-    state: (code) => `${baseUrl}/api/game/${code}/state`,
     select: (code) => `${baseUrl}/api/game/${code}/select`,
   };
 
   const gameDetails = ref();
-  const gameState = ref();
 
   const getGameDetails = computed(() => gameDetails.value);
-  const getGameState = computed(() => gameState.value);
 
   async function fetchGameDetails(code) {
     try {
@@ -28,19 +25,13 @@ export const useGameStore = defineStore("game", () => {
     }
   }
 
-  async function fetchGameState(code) {
-    try {
-      const response = await axios.get(urls.state(code));
-      gameState.value = response.data;
-    } catch (error) {
-      handleError(error);
-    }
-  }
-
   async function selectCharacter(code, character) {
     try {
-      await axios.get(urls.select(code) + "?character=" + character);
-      gameState.value.currentCharacter = character;
+      const response = await axios.get(
+        urls.select(code) + "?character=" + character
+      );
+      gameDetails.value.currentCharacter = character;
+      gameDetails.value.skippedCharacters = response.data;
     } catch (error) {
       handleError(error);
     }
@@ -56,9 +47,7 @@ export const useGameStore = defineStore("game", () => {
   }
 
   return {
-    getGameState: getGameState,
     getGameDetails: getGameDetails,
-    fetchGameState,
     fetchGameDetails,
     selectCharacter,
   };

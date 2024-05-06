@@ -3,6 +3,8 @@ package olter.loaf.game.games.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.cards.model.CharacterEntity;
+import olter.loaf.game.cards.model.CharacterRepository;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
@@ -15,7 +17,6 @@ import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.exception.NotOnTurnException;
-import olter.loaf.game.games.model.GameCharacterEmbeddable;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
@@ -32,6 +33,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -49,6 +51,7 @@ public class GameService {
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
+    private final CharacterRepository characterRepository;
 
     public GameEntity createGameForLobby(LobbyEntity lobby) {
         log.info("Creating game for lobby " + lobby.getCode());
@@ -74,7 +77,7 @@ public class GameService {
         int gameSize = lobby.getMembers().size();
 
         if (game.getCrownedPlayer() == null) {
-            game.setCrownedPlayer(lobby.getMembers().get(r.nextInt(lobby.getMembers().size())).getId());
+            game.setCrownedPlayer(game.getPlayers().get(r.nextInt(lobby.getMembers().size())));
         }
 
         game.setTurn(1);
@@ -94,19 +97,7 @@ public class GameService {
     }
 
     public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
-        log.info("Getting lobby " + code + " for " + loggedInUser.getName());
-        LobbyEntity lobby =
-            lobbyRepository
-                .findFirstByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
-        if (!lobby.getMembers().contains(loggedInUser)) {
-            throw new NotInLobbyException(lobby.getId(), loggedInUser.getId());
-        }
-        return gameMapper.lobbyToDetailsResponse(lobby);
-    }
-
-    public GameStateResponse getGameState(String code, UserEntity loggedInUser) {
-        log.info("Getting " + code + " state for " + loggedInUser.getName());
+        log.info("Getting game details of " + code + " for " + loggedInUser.getName());
         GameEntity game =
             gameRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
@@ -120,11 +111,10 @@ public class GameService {
             }
         });
 
-        GameStateResponse response = gameMapper.entitiesToStateResponse(game, player);
-        return response;
+        return gameMapper.entitiesToDetailsResponse(game, player);
     }
 
-    public void selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
+    public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
         log.info("Selecting character " + selectedCharacter + " for " + loggedInUser.getName() + " in game " + code);
         GameEntity game =
             gameRepository.findByCode(code)
@@ -134,11 +124,13 @@ public class GameService {
         PlayerEntity currentPlayer =
             game.getPlayers().stream().filter(p -> p.getUserId().equals(loggedInUser.getId())).findFirst()
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
-        currentPlayer.setCurrentCharacter(selectedCharacter);
-        currentPlayer.setSkippedCharacters(IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
+        List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
             !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
                 !selectedCharacter.equals(c) && !currentPlayer.getUnavailableCharacters().contains(c)
-        ).toList());
+        ).collect(Collectors.toList());
+
+        currentPlayer.setCurrentCharacter(selectedCharacter);
+        currentPlayer.setSkippedCharacters(skippedCharacters);
 
         setNextPlayer(game);
         game
@@ -167,11 +159,12 @@ public class GameService {
         log.setGameId(game.getId());
         log.setUserId(loggedInUser.getId());
         log.setTarget(String.valueOf(
-            game.getCharacters().stream().filter(c -> c.getNumber().equals(selectedCharacter)).findFirst()
-                .orElseThrow(() -> new CorruptedGameException(game.getId())).getCharacterId()));
+            game.getCharacters().stream().filter(c -> c.equals(selectedCharacter.longValue())).findFirst()
+                .orElseThrow(() -> new CorruptedGameException(game.getId()))));
         log.setTurn(game.getTurn());
         log.setLogType(LogTypeEnum.SELECT_CHARACTER);
         logRepository.save(log);
+        return skippedCharacters;
     }
 
     private List<Long> drawFromDeck(GameEntity game, int cardCount) {
@@ -224,28 +217,39 @@ public class GameService {
             .toList();
     }
 
-    private List<GameCharacterEmbeddable> getDefaultCharacters(boolean hasEightMaxPlayers) {
-        return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
-                if (!hasEightMaxPlayers) {
-                    return c.getConfigValue() != 9;
-                }
-                return true;
-            })
-            .map(gameMapper::configToCharacterEmbeddable)
-            .toList();
+    private List<CharacterEntity> getDefaultCharacters(boolean hasEightMaxPlayers) {
+        return characterRepository.findAllByIdIn(
+            configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
+                    if (!hasEightMaxPlayers) {
+                        return c.getConfigValue() != 9;
+                    }
+                    return true;
+                })
+                .map(ConfigEntity::getConfigId)
+                .toList());
     }
 
     private void setNextPlayer(GameEntity game) {
         PlayerEntity currentPlayer =
-            game.getPlayers().stream().filter(p -> p.getUserId().equals(game.getCurrentPlayer())).findFirst()
+            game.getPlayers().stream().filter(p -> p.getUserId().equals(game.getCurrentPlayer().getUserId()))
+                .findFirst()
                 .orElseThrow(() -> new CorruptedGameException(game.getId()));
 
         if (currentPlayer.getOrder() < game.getPlayers().size()) {
-            game.setCurrentPlayer(game.getPlayers().get(game.getPlayers().indexOf(currentPlayer) + 1).getUserId());
+            game.setCurrentPlayer(game.getPlayers().get(game.getPlayers().indexOf(currentPlayer) + 1));
         } else {
-            game.setCurrentPlayer(game.getPlayers().get(0).getUserId());
             switch (game.getPhase()) {
-                case SELECTION -> game.setPhase(GamePhaseEnum.TURN);
+                case SELECTION -> {
+                    Integer firstChar =
+                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).min(Integer::compareTo).get();
+                    PlayerEntity nextPlayer =
+                        game.getPlayers().stream().filter(p -> p.getCurrentCharacter().equals(firstChar)).findFirst()
+                            .orElseThrow(() -> new CorruptedGameException(game.getId()));
+
+                    nextPlayer.setIsRevealed(true);
+                    game.setCurrentPlayer(nextPlayer);
+                    game.setPhase(GamePhaseEnum.TURN);
+                }
                 case TURN -> game.setPhase(GamePhaseEnum.SELECTION);
                 case END_TURN -> game.setPhase(GamePhaseEnum.ENDED);
             }

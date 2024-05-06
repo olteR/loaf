@@ -12,4 +12,6 @@ public interface PlayerRepository extends JpaRepository<PlayerEntity, Long> {
     List<PlayerEntity> findAllByGame(GameEntity game);
 
     List<PlayerEntity> findAllByGameAndOrderGreaterThan(GameEntity game, Integer gt);
+
+    List<PlayerEntity> findAllByIdIn(List<Long> ids);
 }

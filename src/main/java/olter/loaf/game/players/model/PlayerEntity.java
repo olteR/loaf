@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.games.model.GameEntity;
+import org.hibernate.annotations.Formula;
 
 import java.util.List;
 
@@ -24,6 +25,12 @@ public class PlayerEntity extends BaseEntity {
 
     @Column(name = "player_order")
     private Integer order;
+
+    @Formula("(SELECT u.name FROM users u WHERE u.id = user_id)")
+    private String name;
+
+    @Formula("(SELECT u.display_name FROM users u WHERE u.id = user_id)")
+    private String displayName;
 
     @ElementCollection
     @CollectionTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"))

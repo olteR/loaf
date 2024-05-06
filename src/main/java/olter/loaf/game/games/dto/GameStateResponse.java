@@ -11,8 +11,8 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class GameStateResponse {
-    private Long crownedPlayer;
-    private Long currentPlayer;
+    private PublicPlayerResponse crownedPlayer;
+    private PublicPlayerResponse currentPlayer;
     private Integer turn;
     private GamePhaseEnum phase;
     private Integer gold;

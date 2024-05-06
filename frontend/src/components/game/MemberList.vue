@@ -1,12 +1,12 @@
 <template>
   <div class="members">
     <Card
-      v-for="(member, i) in playingMembers"
-      :key="member.id"
+      v-for="(player, i) in players"
+      :key="player.id"
       class="ml-2 mb-1"
       :class="{
-        crowned: member.id === props.crownedPlayer,
-        'on-turn': member.id === props.currentPlayer,
+        crowned: player.id === props.crownedPlayer.id,
+        'on-turn': player.id === props.currentPlayer.id,
       }"
     >
       <template #content>
@@ -15,17 +15,17 @@
           <span class="mr-1"
             ><Chip style="color: inherit">
               <i class="fa fa-coins mr-1" />
-              {{ member.gold }}
+              {{ player.gold }}
             </Chip></span
           >
           <span class="mr-1"
             ><Chip style="color: inherit">
               <i class="fa fa-hand mr-1" />
-              {{ member.handSize }}
+              {{ player.handSize }}
             </Chip></span
           >
-          <span>{{ member.displayName }}</span>
-          <div v-if="member.id === props.crownedPlayer" class="crowned-icon">
+          <span>{{ player.displayName }}</span>
+          <div v-if="player.id === props.crownedPlayer.id" class="crowned-icon">
             <i class="fa fa-crown" />
           </div>
         </div>
@@ -35,34 +35,13 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import Card from "primevue/card";
 import Chip from "primevue/chip";
 
 const props = defineProps({
-  members: Array,
   players: Array,
-  crownedPlayer: Number,
-  currentPlayer: Number,
-});
-
-const playingMembers = computed(() => {
-  let pm = [];
-  props.players?.forEach((p) => {
-    let m = props.members?.find((m) => p.userId === m.id);
-    if (m) {
-      pm.push({
-        id: m.id,
-        name: m.name,
-        displayName: m.displayName,
-        currentCharacter: p.currentCharacter,
-        districts: p.districts,
-        gold: p.gold,
-        handSize: p.handSize,
-      });
-    }
-  });
-  return pm;
+  crownedPlayer: Object,
+  currentPlayer: Object,
 });
 </script>
 

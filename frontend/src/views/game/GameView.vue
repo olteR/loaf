@@ -4,25 +4,24 @@
     <template #content>
       <div class="columns-2 text-center select-none">
         <div>
-          <i class="fa fa-coins"></i> {{ gameStore.getGameState?.gold }}
+          <i class="fa fa-coins"></i> {{ gameStore.getGameDetails?.gold }}
         </div>
         <div><i class="fa fa-star"></i> 0</div>
       </div>
     </template>
   </Card>
   <MemberList
-    :members="gameStore.getGameDetails?.members"
-    :players="gameStore.getGameState?.players"
-    :crownedPlayer="gameStore.getGameState?.crownedPlayer"
-    :currentPlayer="gameStore.getGameState?.currentPlayer"
+    :players="gameStore.getGameDetails?.players"
+    :crownedPlayer="gameStore.getGameDetails?.crownedPlayer"
+    :currentPlayer="gameStore.getGameDetails?.currentPlayer"
   ></MemberList>
   <CharacterList
-    :characters="charactersInGame"
+    :characters="gameStore.getGameDetails?.characters"
     :card-images="cardStore.getCharacterImages"
-    :selected="gameStore.getGameState?.currentCharacter"
-    :discarded="gameStore.getGameState?.discardedCharacters"
-    :unavailable="gameStore.getGameState?.unavailableCharacters"
-    :skipped="gameStore.getGameState?.skippedCharacters"
+    :selected="gameStore.getGameDetails?.currentCharacter"
+    :discarded="gameStore.getGameDetails?.discardedCharacters"
+    :unavailable="gameStore.getGameDetails?.unavailableCharacters"
+    :skipped="gameStore.getGameDetails?.skippedCharacters"
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
@@ -60,12 +59,12 @@ const stompClient = ref();
 const connected = ref(false);
 
 const onTurn = computed(() => {
-  return gameStore.getGameState?.currentPlayer === stateStore.getUser.id;
+  return gameStore.getGameDetails?.currentPlayer === stateStore.getUser.id;
 });
 
 const cardsInHand = computed(() => {
   let hand = [];
-  gameStore.getGameState?.hand.forEach((card) => {
+  gameStore.getGameDetails?.hand.forEach((card) => {
     hand.push(
       cardStore.getCards.districts.find((district) => district.id === card)
     );
@@ -73,23 +72,22 @@ const cardsInHand = computed(() => {
   return hand;
 });
 
-const charactersInGame = computed(() => {
-  let characters = [];
-  gameStore.getGameDetails?.characters.forEach((card) => {
-    characters.push(
-      cardStore.getCards.characters.find((character) => character.id === card)
-    );
-  });
-  return characters;
-});
-
 const currentMessage = computed(() => {
-  if (gameStore.getGameState?.phase === "SELECTION") {
-    return stateStore.getUser.id === gameStore.getGameState?.currentPlayer
+  if (gameStore.getGameDetails?.phase === "SELECTION") {
+    return onTurn.value
       ? "Válassz karaktert!"
-      : gameStore.getGameDetails?.members.find(
-          (m) => m.id === gameStore.getGameState?.currentPlayer
-        ).displayName + " választ karaktert.";
+      : gameStore.getGameDetails?.currentPlayer.displayName +
+          " választ karaktert.";
+  } else if (gameStore.getGameDetails?.phase === "TURN") {
+    return onTurn.value
+      ? "Te vagy körön!"
+      : "A(z) " +
+          gameStore.getGameDetails?.characters[
+            gameStore.getGameDetails?.currentPlayer.currentCharacter - 1
+          ].name +
+          " (" +
+          gameStore.getGameDetails?.currentPlayer.displayName +
+          ") van körön.";
   }
   return "";
 });
@@ -98,7 +96,6 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGameDetails(lobbyCode);
-  await gameStore.fetchGameState(lobbyCode);
   connect();
   stateStore.setLoading(false);
 });
@@ -106,12 +103,12 @@ onMounted(async () => {
 function handleGameUpdate(update) {
   switch (update.type) {
     case "NEXT_PLAYER": {
-      gameStore.getGameState.currentPlayer = update.change;
+      gameStore.getGameDetails.currentPlayer = update.change;
       break;
     }
     case "PLAYER_TURN": {
-      gameStore.getGameState.currentPlayer = stateStore.getUser.id;
-      gameStore.getGameState.unavailableCharacters = update.change;
+      gameStore.getGameDetails.currentPlayer = stateStore.getUser.id;
+      gameStore.getGameDetails.unavailableCharacters = update.change;
       break;
     }
     default: {

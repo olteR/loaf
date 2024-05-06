@@ -10,7 +10,10 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class PublicPlayerResponse {
+    private Long id;
     private Long userId;
+    private String name;
+    private String displayName;
     private Integer gold;
     private Integer handSize;
     private List<PlayerDistrictResponse> districts;

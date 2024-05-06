@@ -7,5 +7,5 @@ import java.util.Optional;
 public interface LobbyRepository extends JpaRepository<LobbyEntity, Long> {
     boolean existsByCode(String code);
 
-    Optional<LobbyEntity> findFirstByCode(String code);
+    Optional<LobbyEntity> findByCode(String code);
 }

@@ -39,7 +39,7 @@ public class LobbyService {
     public LobbyDetailsResponse getLobby(String code, UserEntity loggedInUser) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(code)
+                .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         log.info("Getting lobby " + lobby.getName() + " for " + loggedInUser.getName());
         validateContainment(lobby, loggedInUser.getId());
@@ -89,7 +89,7 @@ public class LobbyService {
     public LobbyDetailsResponse joinLobby(String code, UserEntity user) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(code)
+                .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         List<UserEntity> members = lobby.getMembers();
         log.info(user.getName() + " joining lobby " + lobby.getName());
@@ -113,7 +113,7 @@ public class LobbyService {
     public void leaveLobby(String code, UserEntity user) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(code)
+                .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         List<UserEntity> members = lobby.getMembers();
         PlayerEntity leavingPlayer = playerRepository.findByUserIdAndGame(user.getId(), lobby.getGame())
@@ -137,7 +137,7 @@ public class LobbyService {
     public void kickMember(UserEntity user, LobbyMemberInteractionDto req) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(req.getCode())
+                .findByCode(req.getCode())
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
         List<UserEntity> members = lobby.getMembers();
@@ -161,7 +161,7 @@ public class LobbyService {
     public void promoteMember(UserEntity user, LobbyMemberInteractionDto req) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(req.getCode())
+                .findByCode(req.getCode())
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
         log.info("Promoting member " + req.getMemberId() + " in lobby " + req.getCode());
@@ -177,7 +177,7 @@ public class LobbyService {
     public void deleteLobby(String code, UserEntity user) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(code)
+                .findByCode(code)
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         log.info("Deleting lobby " + code);
@@ -190,7 +190,7 @@ public class LobbyService {
     public void startGame(String code, UserEntity user) {
         LobbyEntity lobby =
             lobbyRepository
-                .findFirstByCode(code)
+                .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
 
         validateOwnerRequest(lobby, user);

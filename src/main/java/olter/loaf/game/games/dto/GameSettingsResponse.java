@@ -3,6 +3,7 @@ package olter.loaf.game.games.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import olter.loaf.game.cards.dto.CharacterResponse;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GameSettingsResponse {
     private Long crownedPlayer;
-    private List<Long> characters;
+    private List<CharacterResponse> characters;
     private List<Long> uniqueDistricts;
 }
