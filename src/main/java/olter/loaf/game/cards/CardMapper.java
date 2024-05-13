@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface CardMapper {
-    CharacterResponse entityToListResponse(CharacterEntity entity);
+    CharacterResponse entityToResponse(CharacterEntity entity);
 
-    DistrictResponse entityToListResponse(DistrictEntity entity);
+    DistrictResponse entityToResponse(DistrictEntity entity);
 }

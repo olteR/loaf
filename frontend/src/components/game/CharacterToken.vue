@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="props.character"
-    :class="{ 'character-div': selectable }"
+    :class="{ 'character-div': props.status === CHAR_STATUS.SELECTABLE }"
     ref="characterDiv"
   >
     <ConfirmPopup></ConfirmPopup>
@@ -25,10 +25,13 @@
       v-on:click="openPopup()"
     >
       <div class="character-icon">
-        <i v-if="props.status === 'DISCARDED'" class="fa fa-xmark" />
-        <i v-else-if="props.status === 'UNAVAILABLE'" class="fa fa-question" />
+        <i v-if="props.status === CHAR_STATUS.DISCARDED" class="fa fa-xmark" />
         <i
-          v-else-if="props.status === 'SELECTED'"
+          v-else-if="props.status === CHAR_STATUS.UNAVAILABLE"
+          class="fa fa-question"
+        />
+        <i
+          v-else-if="props.status === CHAR_STATUS.SELECTED"
           class="fa fa-check"
           :style="{ color: secondaryColor }"
         />
@@ -60,7 +63,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useConfirm } from "primevue/useconfirm";
-import { COLORS } from "@/utils/const";
+import { CHAR_STATUS, COLORS } from "@/utils/const";
 import ConfirmPopup from "primevue/confirmpopup";
 
 const confirm = useConfirm();
@@ -73,30 +76,26 @@ const props = defineProps({
 const emit = defineEmits(["select"]);
 const characterDiv = ref();
 
-const selectable = computed(() => {
-  return !props.discarded && !props.unavailable;
-});
-
 const primaryColor = computed(() => {
-  return props.status === "DISCARDED"
-    ? COLORS["DISABLED"].PRIMARY
+  return props.status === CHAR_STATUS.DISCARDED
+    ? COLORS.DISABLED.PRIMARY
     : COLORS[props.character.districtTypeBonus]?.PRIMARY || "#9FA8DA";
 });
 
 const secondaryColor = computed(() => {
-  return props.status === "DISCARDED"
-    ? COLORS["DISABLED"].SECONDARY
+  return props.status === CHAR_STATUS.DISCARDED
+    ? COLORS.DISABLED.SECONDARY
     : COLORS[props.character.districtTypeBonus]?.SECONDARY || "#121212";
 });
 
 const characterColor = computed(() => {
   switch (props.status) {
-    case "DISCARDED":
+    case CHAR_STATUS.DISCARDED:
       return "#121212";
-    case "UNAVAILABLE":
-    case "SKIPPED":
+    case CHAR_STATUS.UNAVAILABLE:
+    case CHAR_STATUS.SKIPPED:
       return COLORS[props.character.districtTypeBonus]?.SECONDARY || "#121212";
-    case "SELECTED":
+    case CHAR_STATUS.SELECTED:
       return COLORS[props.character.districtTypeBonus]?.PRIMARY || "#9FA8DA";
     default:
       return "transparent";
@@ -104,7 +103,7 @@ const characterColor = computed(() => {
 });
 
 const openPopup = () => {
-  if (selectable.value) {
+  if (props.status === CHAR_STATUS.SELECTABLE) {
     confirm.require({
       target: characterDiv.value,
       message: `Kiválasztod a(z) ${props.character.name} karaktert?`,

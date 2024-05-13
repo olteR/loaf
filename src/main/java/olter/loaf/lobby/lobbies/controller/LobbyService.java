@@ -41,7 +41,7 @@ public class LobbyService {
             lobbyRepository
                 .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
-        log.info("Getting lobby " + lobby.getName() + " for " + loggedInUser.getName());
+        log.info("Getting lobby {} for {}", lobby.getName(), loggedInUser.getName());
         validateContainment(lobby, loggedInUser.getId());
         LobbyDetailsResponse response = lobbyMapper.entityToDetailsResponse(lobby);
         response.setMembers(userRepository.getLobbyMembers(lobby.getCode()));
@@ -49,7 +49,7 @@ public class LobbyService {
     }
 
     public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
-        log.info("Getting lobbies for " + loggedInUser.getName());
+        log.info("Getting lobbies for {}", loggedInUser.getName());
         return lobbyRepository.findAll().stream()
             .filter(l -> !l.getMembers().contains(loggedInUser))
             .map(lobbyMapper::entityToListResponse)
@@ -57,7 +57,7 @@ public class LobbyService {
     }
 
     public List<LobbyListResponse> getMyGames(UserEntity loggedInUser) {
-        log.info("Getting games for " + loggedInUser.getName());
+        log.info("Getting games for {}", loggedInUser.getName());
         return lobbyRepository.findAll().stream()
             .filter(l -> l.getMembers().contains(loggedInUser))
             .map(lobbyMapper::entityToListResponse)
@@ -65,7 +65,7 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse createLobby(LobbyCreationRequest request, UserEntity creator) {
-        log.info(request.getName() + " creating lobby...");
+        log.info("{} creating lobby...", request.getName());
         LobbyEntity lobby = new LobbyEntity();
         lobbyMapper.map(request, lobby);
         lobby.setOwner(creator.getId());
@@ -74,7 +74,7 @@ public class LobbyService {
 
         while (lobby.getCode() == null || lobbyRepository.existsByCode(lobby.getCode())) {
             lobby.setCode(generateLobbyCode());
-            log.info(request.getName() + "Lobby code generated: " + lobby.getCode());
+            log.info("{}Lobby code generated: {}", request.getName(), lobby.getCode());
         }
 
         if (request.getSecured() != null && request.getSecured()) {
@@ -92,7 +92,7 @@ public class LobbyService {
                 .findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
         List<UserEntity> members = lobby.getMembers();
-        log.info(user.getName() + " joining lobby " + lobby.getName());
+        log.info("{} joining lobby {}", user.getName(), lobby.getName());
 
         validateJoin(lobby, user);
         broadcastOnWebsocket(lobby, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
@@ -118,7 +118,7 @@ public class LobbyService {
         List<UserEntity> members = lobby.getMembers();
         PlayerEntity leavingPlayer = playerRepository.findByUserIdAndGame(user.getId(), lobby.getGame())
             .orElseThrow(() -> new NotInLobbyException(lobby.getId(), user.getId()));
-        log.info(user.getName() + " leaving lobby " + lobby.getName());
+        log.info("{} leaving lobby {}", user.getName(), lobby.getName());
 
         validateProgress(lobby);
 
@@ -143,7 +143,7 @@ public class LobbyService {
         List<UserEntity> members = lobby.getMembers();
         PlayerEntity kickedPlayer = playerRepository.findByUserIdAndGame(req.getMemberId(), lobby.getGame())
             .orElseThrow(() -> new NotInLobbyException(lobby.getId(), req.getMemberId()));
-        log.info("Kicking member " + req.getMemberId() + " from lobby " + req.getCode());
+        log.info("Kicking member {} from lobby {}", req.getMemberId(), req.getCode());
 
         validateOwnerRequest(lobby, user);
 
@@ -164,7 +164,7 @@ public class LobbyService {
                 .findByCode(req.getCode())
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), req.getCode()));
-        log.info("Promoting member " + req.getMemberId() + " in lobby " + req.getCode());
+        log.info("Promoting member {} in lobby {}", req.getMemberId(), req.getCode());
 
         validateOwnerRequest(lobby, user);
         validateContainment(lobby, req.getMemberId());
@@ -180,7 +180,7 @@ public class LobbyService {
                 .findByCode(code)
                 .orElseThrow(
                     () -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
-        log.info("Deleting lobby " + code);
+        log.info("Deleting lobby {}", code);
 
         validateOwnerRequest(lobby, user);
         lobbyRepository.delete(lobby);
@@ -206,7 +206,7 @@ public class LobbyService {
             .getMembers()
             .forEach(
                 m -> {
-                    log.info("Broadcasting " + updateType.getValue() + " to " + m.getId());
+                    log.info("Broadcasting {} to {}", updateType.getValue(), m.getId());
                     simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",
                         new LobbyUpdateDto(updateType, change));
                 });

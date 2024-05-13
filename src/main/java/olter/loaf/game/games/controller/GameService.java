@@ -3,14 +3,17 @@ package olter.loaf.game.games.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.cards.CardMapper;
+import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.CharacterRepository;
+import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.cards.model.DistrictRepository;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.GameDetailsResponse;
-import olter.loaf.game.games.dto.GameStateResponse;
 import olter.loaf.game.games.dto.GameUpdateDto;
 import olter.loaf.game.games.dto.GameUpdateTypeEnum;
 import olter.loaf.game.games.exception.CorruptedGameException;
@@ -20,14 +23,11 @@ import olter.loaf.game.games.exception.NotOnTurnException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
-import olter.loaf.game.logs.model.LogEntity;
-import olter.loaf.game.logs.model.LogRepository;
-import olter.loaf.game.logs.model.LogTypeEnum;
+import olter.loaf.game.games.model.ResourceTypeEnum;
+import olter.loaf.game.logs.controller.LogService;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
-import olter.loaf.lobby.lobbies.exception.NotInLobbyException;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
-import olter.loaf.lobby.lobbies.model.LobbyRepository;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -44,17 +44,18 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
-    private final LobbyRepository lobbyRepository;
-    private final LogRepository logRepository;
+    private final LogService logService;
     private final GameMapper gameMapper;
+    private final CardMapper cardMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final Integer STARTING_GOLD = 2;
     private final Integer STARTING_CARDS = 4;
     private final CharacterRepository characterRepository;
+    private final DistrictRepository districtRepository;
 
     public GameEntity createGameForLobby(LobbyEntity lobby) {
-        log.info("Creating game for lobby " + lobby.getCode());
+        log.info("Creating game for lobby {}", lobby.getCode());
         GameEntity game = new GameEntity();
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
@@ -71,7 +72,7 @@ public class GameService {
 
 
     public void startGame(LobbyEntity lobby) {
-        log.info("Starting game for lobby " + lobby.getCode());
+        log.info("Starting game for lobby {}", lobby.getCode());
         Random r = new Random();
         GameEntity game = lobby.getGame();
         int gameSize = lobby.getMembers().size();
@@ -97,7 +98,7 @@ public class GameService {
     }
 
     public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
-        log.info("Getting game details of " + code + " for " + loggedInUser.getName());
+        log.info("Getting game details of {} for {}", code, loggedInUser.getName());
         GameEntity game =
             gameRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
@@ -115,30 +116,29 @@ public class GameService {
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
-        log.info("Selecting character " + selectedCharacter + " for " + loggedInUser.getName() + " in game " + code);
+        log.info("Selecting character {} for {} in game {}", selectedCharacter, loggedInUser.getName(), code);
         GameEntity game =
             gameRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
 
-        validateSelectionTurn(game, loggedInUser.getId());
-        PlayerEntity currentPlayer =
-            game.getPlayers().stream().filter(p -> p.getUserId().equals(loggedInUser.getId())).findFirst()
-                .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
+        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.SELECTION);
         List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
             !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
-                !selectedCharacter.equals(c) && !currentPlayer.getUnavailableCharacters().contains(c)
+                !selectedCharacter.equals(c) && !game.getCurrentPlayer().getUnavailableCharacters().contains(c)
         ).collect(Collectors.toList());
 
-        currentPlayer.setCurrentCharacter(selectedCharacter);
-        currentPlayer.setSkippedCharacters(skippedCharacters);
+        game.getCurrentPlayer().setCurrentCharacter(selectedCharacter);
+        game.getCurrentPlayer().setSkippedCharacters(skippedCharacters);
+
+        logService.logCharacterSelection(game, game.getCurrentPlayer());
 
         setNextPlayer(game);
         game
             .getPlayers()
             .forEach(
                 p -> {
-                    log.info("Broadcasting next player to " + p.getUserId());
-                    if (game.getCurrentPlayer().equals(p.getUserId())) {
+                    log.info("Broadcasting next player to {}", p.getUserId());
+                    if (game.getCurrentPlayer().getId().equals(p.getId())) {
                         List<Integer> unavailableCharacters = new ArrayList<>(
                             game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(
                                 Objects::nonNull).toList());
@@ -154,34 +154,46 @@ public class GameService {
                     }
                 });
         gameRepository.save(game);
-
-        LogEntity log = new LogEntity();
-        log.setGameId(game.getId());
-        log.setUserId(loggedInUser.getId());
-        log.setTarget(String.valueOf(
-            game.getCharacters().stream().filter(c -> c.equals(selectedCharacter.longValue())).findFirst()
-                .orElseThrow(() -> new CorruptedGameException(game.getId()))));
-        log.setTurn(game.getTurn());
-        log.setLogType(LogTypeEnum.SELECT_CHARACTER);
-        logRepository.save(log);
         return skippedCharacters;
     }
 
-    private List<Long> drawFromDeck(GameEntity game, int cardCount) {
-        List<Long> drawnCards = new ArrayList<>();
+    public List<DistrictResponse> gatherResources(String code, ResourceTypeEnum resource, UserEntity loggedInUser) {
+        log.info("Selecting resource {} for {} in game {}", resource, loggedInUser.getName(), code);
+        GameEntity game =
+            gameRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
+
+        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.RESOURCE);
+        if (resource.equals(ResourceTypeEnum.GOLD)) {
+            game.getCurrentPlayer().setGold(game.getCurrentPlayer().getGold() + 2);
+            game.setPhase(GamePhaseEnum.TURN);
+            gameRepository.save(game);
+        }
+        else if (resource.equals(ResourceTypeEnum.CARDS)) {
+            game.getCurrentPlayer().setDrawnCards(drawFromDeck(game, 2));
+            gameRepository.save(game);
+            return game.getCurrentPlayer().getDrawnCards().stream().map(cardMapper::entityToResponse).toList();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
+        List<DistrictEntity> drawnCards = new ArrayList<>();
         for (int i = 0; i < cardCount; i++) {
             drawnCards.add(game.getDeck().remove(0));
         }
         return drawnCards;
     }
 
-    private List<Long> assembleDeck(List<Long> uniqueDistricts) {
+    private List<DistrictEntity> assembleDeck(List<Long> uniqueDistricts) {
+        Map<Long, DistrictEntity> districts =
+            districtRepository.findAll().stream().collect(Collectors.toMap(DistrictEntity::getId, d -> d));
         return shuffleDeck(
-            Stream.concat(assembleBaseDeck().stream(), uniqueDistricts.stream()).toList());
+            Stream.concat(assembleBaseDeck().stream(), uniqueDistricts.stream()).map(districts::get).toList());
     }
 
-    private List<Long> shuffleDeck(List<Long> cards) {
-        List<Long> deck = new ArrayList<>(cards);
+    private List<DistrictEntity> shuffleDeck(List<DistrictEntity> cards) {
+        List<DistrictEntity> deck = new ArrayList<>(cards);
         Collections.shuffle(deck);
         return deck;
     }
@@ -230,16 +242,12 @@ public class GameService {
     }
 
     private void setNextPlayer(GameEntity game) {
-        PlayerEntity currentPlayer =
-            game.getPlayers().stream().filter(p -> p.getUserId().equals(game.getCurrentPlayer().getUserId()))
-                .findFirst()
-                .orElseThrow(() -> new CorruptedGameException(game.getId()));
-
-        if (currentPlayer.getOrder() < game.getPlayers().size()) {
-            game.setCurrentPlayer(game.getPlayers().get(game.getPlayers().indexOf(currentPlayer) + 1));
-        } else {
-            switch (game.getPhase()) {
-                case SELECTION -> {
+        switch (game.getPhase()) {
+            case SELECTION -> {
+                if (game.getCurrentPlayer().getOrder() < game.getPlayers().size()) {
+                    game.setCurrentPlayer(
+                        game.getPlayers().get(game.getPlayers().indexOf(game.getCurrentPlayer()) + 1));
+                } else {
                     Integer firstChar =
                         game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).min(Integer::compareTo).get();
                     PlayerEntity nextPlayer =
@@ -248,19 +256,18 @@ public class GameService {
 
                     nextPlayer.setIsRevealed(true);
                     game.setCurrentPlayer(nextPlayer);
-                    game.setPhase(GamePhaseEnum.TURN);
+                    game.setPhase(GamePhaseEnum.RESOURCE);
                 }
-                case TURN -> game.setPhase(GamePhaseEnum.SELECTION);
-                case END_TURN -> game.setPhase(GamePhaseEnum.ENDED);
             }
+            default -> log.warn("Unhandled phase {}", game.getPhase());
         }
     }
 
-    private void validateSelectionTurn(GameEntity game, Long userId) {
-        if (!Objects.equals(game.getPhase(), GamePhaseEnum.SELECTION)) {
+    private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
+        if (!Objects.equals(game.getPhase(), phase)) {
             throw new InvalidPhaseActionException(game.getId());
         }
-        if (!Objects.equals(game.getCurrentPlayer(), userId)) {
+        if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
             throw new NotOnTurnException(game.getId(), userId);
         }
     }

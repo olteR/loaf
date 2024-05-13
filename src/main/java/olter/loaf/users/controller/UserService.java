@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
-        log.info(user.getName() + " logging in");
+        log.info("{} logging in", user.getName());
         return new LoginResponse(
             user.getId(),
             user.getName(),

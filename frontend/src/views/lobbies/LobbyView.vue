@@ -99,7 +99,6 @@
         </template>
       </Card>
     </div>
-
     <LobbySettings
       :is-owner="isOwner"
       :settings="lobbyStore.getLobby?.gameSettings"

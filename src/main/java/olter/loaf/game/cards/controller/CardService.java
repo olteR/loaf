@@ -21,19 +21,19 @@ public class CardService {
     private final CardMapper cardMapper;
 
     public List<CharacterResponse> getAllCharacters() {
-        return characterRepository.findAll().stream().map(cardMapper::entityToListResponse).toList();
+        return characterRepository.findAll().stream().map(cardMapper::entityToResponse).toList();
     }
 
     public List<DistrictResponse> getAllDistricts() {
-        return districtRepository.findAll().stream().map(cardMapper::entityToListResponse).toList();
+        return districtRepository.findAll().stream().map(cardMapper::entityToResponse).toList();
     }
 
     public CardsResponse getAllCards() {
         CardsResponse response = new CardsResponse();
         response.setCharacters(
-            characterRepository.findAll().stream().map(cardMapper::entityToListResponse).toList());
+            characterRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
         response.setDistricts(
-            districtRepository.findAll().stream().map(cardMapper::entityToListResponse).toList());
+            districtRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
         return response;
     }
 }

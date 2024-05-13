@@ -4,51 +4,53 @@
       <h1 class="text-4xl text-center select-none">
         új felhasználó létrehozása.
       </h1>
-      <span class="p-float-label m-8">
-        <InputText
-          id="name"
-          type="text"
-          v-model="userForm.name"
-          class="w-full"
-        />
-        <label for="name">felhasználónév</label>
-      </span>
-      <span class="p-float-label m-8">
-        <InputText
-          id="name"
-          type="text"
-          v-model="userForm.email"
-          class="w-full"
-        />
-        <label for="name">e-mail</label>
-      </span>
-      <span class="p-float-label m-8">
-        <Password
-          id="password"
-          v-model="userForm.password"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-        />
-        <label for="password">jelszó</label>
-      </span>
-      <div class="grid grid-cols-1 sm:grid-cols-2">
-        <div class="mx-8 mb-4">
-          <Button
-            label="vissza a bejelentkezéshez"
-            class="p-button-danger w-full sm:w-auto"
-            icon="pi pi-chevron-left"
-            @click="router.push('/login')"
+      <form>
+        <span class="p-float-label m-8">
+          <InputText
+            id="name"
+            type="text"
+            v-model="userForm.name"
+            class="w-full"
           />
-        </div>
-        <div class="mx-8">
-          <Button
-            label="regisztráció"
-            class="float-right p-button-success w-full sm:w-auto"
-            @click="console.log('pog')"
+          <label for="name">felhasználónév</label>
+        </span>
+        <span class="p-float-label m-8">
+          <InputText
+            id="email"
+            type="email"
+            v-model="userForm.email"
+            class="w-full"
           />
+          <label for="name">e-mail</label>
+        </span>
+        <span class="p-float-label m-8">
+          <Password
+            id="password"
+            v-model="userForm.password"
+            :feedback="false"
+            toggleMask
+            class="w-full"
+          />
+          <label for="password">jelszó</label>
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2">
+          <div class="mx-8 mb-4">
+            <Button
+              label="vissza a bejelentkezéshez"
+              class="p-button-danger w-full sm:w-auto"
+              icon="pi pi-chevron-left"
+              @click="router.push('/login')"
+            />
+          </div>
+          <div class="mx-8">
+            <Button
+              type="submit"
+              label="regisztráció"
+              class="float-right p-button-success w-full sm:w-auto"
+            />
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>

@@ -10,6 +10,7 @@ export const useGameStore = defineStore("game", () => {
   const urls = {
     details: (code) => `${baseUrl}/api/game/${code}/details`,
     select: (code) => `${baseUrl}/api/game/${code}/select`,
+    resource: (code) => `${baseUrl}/api/game/${code}/resource`,
   };
 
   const gameDetails = ref();
@@ -37,6 +38,17 @@ export const useGameStore = defineStore("game", () => {
     }
   }
 
+  async function gatherResources(code, resource) {
+    try {
+      const response = await axios.get(
+        urls.resource(code) + "?type=" + resource
+      );
+      gameDetails.value.drawnCards = response.data;
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
   function handleError(error) {
     toast.add({
       severity: "error",
@@ -50,5 +62,6 @@ export const useGameStore = defineStore("game", () => {
     getGameDetails: getGameDetails,
     fetchGameDetails,
     selectCharacter,
+    gatherResources,
   };
 });

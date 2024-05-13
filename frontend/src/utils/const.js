@@ -86,3 +86,36 @@ export const CARD_POS = {
   26: "24%",
   27: "20%",
 };
+
+export const RESOURCE = {
+  GOLD: "GOLD",
+  CARDS: "CARDS",
+};
+
+export const GAME_PHASE = {
+  SELECTION: "SELECTION",
+  RESOURCE: "RESOURCE",
+  TURN: "TURN",
+};
+
+export const CHAR_STATUS = {
+  SELECTABLE: "SELECTABLE",
+  ON_TURN: "ON_TURN",
+  SELECTED: "SELECTED",
+  DISCARDED: "DISCARDED",
+  UNAVAILABLE: "UNAVAILABLE",
+  SKIPPED: "SKIPPED",
+};
+
+export const GAME_MODAL = {
+  RESOURCE: "RESOURCE",
+  CARDS: "CARDS",
+};
+
+export const DISTRICT_TYPE = {
+  NOBLE: "NOBLE",
+  RELIGIOUS: "RELIGIOUS",
+  TRADE: "TRADE",
+  MILITARY: "MILITARY",
+  UNIQUE: "UNIQUE",
+};

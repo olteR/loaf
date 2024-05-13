@@ -2,30 +2,32 @@
   <div class="flex h-screen">
     <div class="m-auto justify-items-center">
       <h1 class="text-9xl text-center select-none">loaf.</h1>
-      <span class="p-float-label m-8">
-        <InputText id="name" type="text" v-model="name" class="w-full" />
-        <label for="name">felhasználónév</label>
-      </span>
-      <span class="p-float-label m-8">
-        <Password
-          id="password"
-          v-model="password"
-          :feedback="false"
-          toggleMask
-          class="w-full"
+      <form @submit.prevent="loginUser()">
+        <span class="p-float-label m-8">
+          <InputText id="name" type="text" v-model="name" class="w-full" />
+          <label for="name">felhasználónév</label>
+        </span>
+        <span class="p-float-label m-8">
+          <Password
+            id="password"
+            v-model="password"
+            :feedback="false"
+            toggleMask
+            class="w-full"
+          />
+          <label for="password">jelszó</label>
+        </span>
+        <Button
+          type="submit"
+          label="bejelentkezés"
+          class="p-button-primary ml-8"
         />
-        <label for="password">jelszó</label>
-      </span>
-      <Button
-        label="bejelentkezés"
-        class="p-button-primary ml-8"
-        @click="loginUser()"
-      />
-      <Button
-        label="regisztráció"
-        class="float-right p-button-secondary mr-8"
-        @click="router.push('/register')"
-      />
+        <Button
+          label="regisztráció"
+          class="float-right p-button-secondary mr-8"
+          @click="router.push('/register')"
+        />
+      </form>
     </div>
   </div>
 </template>

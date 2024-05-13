@@ -26,6 +26,7 @@
       <div class="mt-2 select-none">{{ district.name }}</div>
       <div class="ml-auto mr-4 my-auto">
         <i
+          v-if="district.type === DISTRICT_TYPE.UNIQUE"
           class="fa fa-circle-question"
           v-tooltip="{ value: district.cardText, escape: false }"
         />
@@ -36,7 +37,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS } from "@/utils/const";
+import { COLORS, DISTRICT_TYPE } from "@/utils/const";
 
 const props = defineProps({
   district: Object,

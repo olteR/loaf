@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum GamePhaseEnum {
     NOT_STARTED("NOT_STARTED"),
     SELECTION("SELECTION"),
+    RESOURCE("RESOURCE"),
     TURN("TURN"),
     END_TURN("END_TURN"),
     ENDED("ENDED");

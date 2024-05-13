@@ -1,21 +1,17 @@
 package olter.loaf.game.games;
 
-import olter.loaf.game.config.model.ConfigEntity;
-import olter.loaf.game.games.dto.*;
-import olter.loaf.game.games.model.GameCharacterEmbeddable;
+import olter.loaf.game.cards.model.CharacterEntity;
+import olter.loaf.game.games.dto.GameDetailsResponse;
+import olter.loaf.game.games.dto.GameSettingsResponse;
+import olter.loaf.game.games.dto.PlayerDistrictResponse;
+import olter.loaf.game.games.dto.PublicPlayerResponse;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.model.DistrictEmbeddable;
 import olter.loaf.game.players.model.PlayerEntity;
-import olter.loaf.lobby.lobbies.model.LobbyEntity;
-import olter.loaf.users.model.UserEntity;
 import olter.loaf.users.model.UserRepository;
-import org.apache.catalina.User;
-import org.mapstruct.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring", uses = UserRepository.class)
 public interface GameMapper {
@@ -24,20 +20,18 @@ public interface GameMapper {
     GameDetailsResponse entitiesToDetailsResponse(GameEntity game, PlayerEntity player);
 
     @Mapping(target = "crownedPlayer", qualifiedByName = "playerToId")
+    @Mapping(target = "characters", qualifiedByName = "characterToId")
     GameSettingsResponse entityToSettingsResponse(GameEntity entity);
-
-    @Mapping(target = "handSize", expression = "java(player.getHand().size())")
-    PublicPlayerResponse playerEntityToResponse(PlayerEntity player);
-
-    PlayerDistrictResponse playerDistrictToResponse(DistrictEmbeddable districtEmbeddable);
-
-    @Mapping(target = "characterId", source = "configId")
-    @Mapping(target = "number", source = "configValue")
-    GameCharacterEmbeddable configToCharacterEmbeddable(ConfigEntity config);
 
     @Named("playerToId")
     default Long playerToId(PlayerEntity player) {
         if (player == null) return null;
         return player.getUserId();
+    }
+
+    @Named("characterToId")
+    default Long characterToId(CharacterEntity character) {
+        if (character == null) return null;
+        return character.getId();
     }
 }

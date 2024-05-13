@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.cards.dto.CharacterResponse;
+import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.games.model.GamePhaseEnum;
 
 import java.util.List;
@@ -19,7 +20,8 @@ public class GameDetailsResponse {
     private GamePhaseEnum phase;
     private Integer gold;
     private Integer currentCharacter;
-    private List<Long> hand;
+    private List<DistrictResponse> hand;
+    private List<DistrictResponse> drawnCards;
     private List<Integer> discardedCharacters;
     private List<Integer> unavailableCharacters;
     private List<Integer> skippedCharacters;

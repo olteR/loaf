@@ -12,6 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GameSettingsResponse {
     private Long crownedPlayer;
-    private List<CharacterResponse> characters;
+    private List<Long> characters;
     private List<Long> uniqueDistricts;
 }

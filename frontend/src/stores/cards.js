@@ -21,18 +21,20 @@ export const useCardStore = defineStore("card", () => {
 
   async function fetchCards() {
     try {
-      const response = await axios.get(urls.cards);
-      cards.value = response.data;
-      cards.value.characters.forEach((character) => {
-        let img = new Image();
-        img.src = `${window.location.origin}/src/assets/characters/${character.id}.jpg`;
-        characterImages.value.push(img);
-      });
-      cards.value.districts.forEach((district) => {
-        let img = new Image();
-        img.src = `${window.location.origin}/src/assets/districts/${district.id}.jpg`;
-        districtImages.value.push(img);
-      });
+      if (cards.value.length === 0) {
+        const response = await axios.get(urls.cards);
+        cards.value = response.data;
+        cards.value.characters.forEach((character) => {
+          let img = new Image();
+          img.src = `${window.location.origin}/src/assets/characters/${character.id}.jpg`;
+          characterImages.value.push(img);
+        });
+        cards.value.districts.forEach((district) => {
+          let img = new Image();
+          img.src = `${window.location.origin}/src/assets/districts/${district.id}.jpg`;
+          districtImages.value.push(img);
+        });
+      }
     } catch (error) {
       toast.add({
         severity: "error",

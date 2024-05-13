@@ -22,31 +22,56 @@
     :discarded="gameStore.getGameDetails?.discardedCharacters"
     :unavailable="gameStore.getGameDetails?.unavailableCharacters"
     :skipped="gameStore.getGameDetails?.skippedCharacters"
+    :current-character="
+      gameStore.getGameDetails?.currentPlayer.currentCharacter
+    "
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
-    :cards="cardsInHand"
+    :cards="gameStore.getGameDetails?.hand"
     :card-images="cardStore.getDistrictImages"
   ></PlayerHand>
   <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
     >Játék bezárása</Button
   >
+  <Dialog
+    :closable="false"
+    v-model:visible="currentModal"
+    modal
+    :header="modalHeader"
+  >
+    <ResourceSelectModal
+      v-if="currentModal === GAME_MODAL.RESOURCE"
+      @gather="(resource) => gatherResources(resource)"
+    />
+    <CardSelectModal
+      v-else-if="currentModal === GAME_MODAL.CARDS"
+      :cards="gameStore.getGameDetails?.drawnCards"
+    />
+  </Dialog>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import SockJS from "sockjs-client/dist/sockjs";
+import Stomp from "webstomp-client";
 import { useRouter } from "vue-router";
+
 import { useStateStore } from "@/stores/state";
 import { useCardStore } from "@/stores/cards";
 import { useGameStore } from "@/stores/games";
-import Button from "primevue/button";
-import Card from "primevue/card";
+
 import CharacterList from "@/components/game/CharacterList.vue";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
-import SockJS from "sockjs-client/dist/sockjs";
-import Stomp from "webstomp-client";
+import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
+
+import Button from "primevue/button";
+import Card from "primevue/card";
+import Dialog from "primevue/dialog";
+import { GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
+import CardSelectModal from "@/components/game/CardSelectModal.vue";
 
 const router = useRouter();
 const stateStore = useStateStore();
@@ -55,47 +80,64 @@ const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
 const socket = ref();
 const stompClient = ref();
+const currentModal = ref();
 
 const connected = ref(false);
 
 const onTurn = computed(() => {
-  return gameStore.getGameDetails?.currentPlayer === stateStore.getUser.id;
-});
-
-const cardsInHand = computed(() => {
-  let hand = [];
-  gameStore.getGameDetails?.hand.forEach((card) => {
-    hand.push(
-      cardStore.getCards.districts.find((district) => district.id === card)
-    );
-  });
-  return hand;
+  return (
+    gameStore.getGameDetails?.currentPlayer.userId === stateStore.getUser.id
+  );
 });
 
 const currentMessage = computed(() => {
-  if (gameStore.getGameDetails?.phase === "SELECTION") {
-    return onTurn.value
-      ? "Válassz karaktert!"
-      : gameStore.getGameDetails?.currentPlayer.displayName +
-          " választ karaktert.";
-  } else if (gameStore.getGameDetails?.phase === "TURN") {
-    return onTurn.value
-      ? "Te vagy körön!"
-      : "A(z) " +
-          gameStore.getGameDetails?.characters[
-            gameStore.getGameDetails?.currentPlayer.currentCharacter - 1
-          ].name +
-          " (" +
-          gameStore.getGameDetails?.currentPlayer.displayName +
-          ") van körön.";
+  switch (gameStore.getGameDetails?.phase) {
+    case GAME_PHASE.SELECTION:
+      return onTurn.value
+        ? "Válassz karaktert!"
+        : gameStore.getGameDetails?.currentPlayer.displayName +
+            " választ karaktert.";
+    case GAME_PHASE.RESOURCE:
+      return onTurn.value
+        ? "Gyűjts nyersanyagot!"
+        : gameStore.getGameDetails?.currentPlayer.displayName +
+            " gyűjt nyersanyagot.";
+    case GAME_PHASE.TURN:
+      return onTurn.value
+        ? "Te vagy körön!"
+        : "A(z) " +
+            gameStore.getGameDetails?.characters[
+              gameStore.getGameDetails?.currentPlayer.currentCharacter - 1
+            ].name +
+            " (" +
+            gameStore.getGameDetails?.currentPlayer.displayName +
+            ") van körön.";
+    default:
+      return "";
   }
-  return "";
+});
+
+const modalHeader = computed(() => {
+  switch (currentModal.value) {
+    case GAME_MODAL.RESOURCE:
+      return "Válassz nyersanyagot!";
+    case GAME_MODAL.CARDS:
+      return "Válassz kártyát!";
+    default:
+      return "";
+  }
 });
 
 onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGameDetails(lobbyCode);
+  if (gameStore.getGameDetails?.phase === GAME_PHASE.RESOURCE) {
+    currentModal.value =
+      gameStore.getGameDetails?.drawnCards.length === 0
+        ? GAME_MODAL.RESOURCE
+        : GAME_MODAL.CARDS;
+  }
   connect();
   stateStore.setLoading(false);
 });
@@ -114,6 +156,13 @@ function handleGameUpdate(update) {
     default: {
       console.log(update);
     }
+  }
+}
+
+async function gatherResources(resource) {
+  await gameStore.gatherResources(lobbyCode, resource);
+  if (resource === RESOURCE.CARDS) {
+    currentModal.value = GAME_MODAL.CARDS;
   }
 }
 
