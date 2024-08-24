@@ -4,7 +4,7 @@
       <h1 class="text-4xl text-center select-none">
         új felhasználó létrehozása.
       </h1>
-      <form>
+      <form @submit.prevent="registerUser()">
         <span class="p-float-label m-8">
           <InputText
             id="name"
@@ -58,6 +58,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useStateStore } from "@/stores/state";
+import { useUserStore } from "@/stores/users";
 import { useRouter } from "vue-router";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
@@ -65,6 +66,7 @@ import Button from "primevue/button";
 
 const router = useRouter();
 const stateStore = useStateStore();
+const userStore = useUserStore();
 const userForm = ref({
   name: null,
   email: null,
@@ -76,6 +78,11 @@ onMounted(() => {
     router.push("/lobbies");
   }
 });
+
+async function registerUser() {
+  await userStore.registerUser(userForm.value);
+  await router.push("/login");
+}
 </script>
 
 <style scoped>

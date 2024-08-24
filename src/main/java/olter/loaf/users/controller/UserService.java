@@ -6,6 +6,8 @@ import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.common.security.JwtHandler;
 import olter.loaf.common.security.dto.LoginRequest;
 import olter.loaf.common.security.dto.LoginResponse;
+import olter.loaf.users.UserMapper;
+import olter.loaf.users.dto.RegisterRequest;
 import olter.loaf.users.model.UserEntity;
 import olter.loaf.users.model.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import java.util.Map;
 @Slf4j
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtHandler jwtHandler;
 
@@ -44,6 +47,12 @@ public class UserService implements UserDetailsService {
             user.getId(),
             user.getName(),
             jwtHandler.generateJwt(user.getName(), Map.of("uid", user.getId())));
+    }
+
+    public void registerUser(RegisterRequest registerRequest) {
+        UserEntity user = userMapper.registerRequestToEntity(registerRequest);
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        userRepository.save(user);
     }
 
     public UserEntity getLoggedInUser(String name) {

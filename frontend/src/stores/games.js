@@ -1,61 +1,38 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import { useToast } from "primevue/usetoast";
-import axios from "axios";
+import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
 
 export const useGameStore = defineStore("game", () => {
-  const baseUrl = window.location.origin;
-  const toast = useToast();
-
-  const urls = {
-    details: (code) => `${baseUrl}/api/game/${code}/details`,
-    select: (code) => `${baseUrl}/api/game/${code}/select`,
-    resource: (code) => `${baseUrl}/api/game/${code}/resource`,
-  };
+  const urls = storeUrls({
+    details: (code) => `game/${code}/details`,
+    select: (code) => `game/${code}/select`,
+    resource: (code) => `game/${code}/resource`,
+  });
 
   const gameDetails = ref();
 
   const getGameDetails = computed(() => gameDetails.value);
 
   async function fetchGameDetails(code) {
-    try {
-      const response = await axios.get(urls.details(code));
-      gameDetails.value = response.data;
-    } catch (error) {
-      handleError(error);
-    }
+    const response = await storeRequest(urls.details(code), REQ_TYPE.GET);
+    gameDetails.value = response.data;
   }
 
   async function selectCharacter(code, character) {
-    try {
-      const response = await axios.get(
-        urls.select(code) + "?character=" + character
-      );
-      gameDetails.value.currentCharacter = character;
-      gameDetails.value.skippedCharacters = response.data;
-    } catch (error) {
-      handleError(error);
-    }
+    const response = await storeRequest(
+      urls.select(code) + "?character=" + character,
+      REQ_TYPE.GET
+    );
+    gameDetails.value.currentCharacter = character;
+    gameDetails.value.skippedCharacters = response.data;
   }
 
   async function gatherResources(code, resource) {
-    try {
-      const response = await axios.get(
-        urls.resource(code) + "?type=" + resource
-      );
-      gameDetails.value.drawnCards = response.data;
-    } catch (error) {
-      handleError(error);
-    }
-  }
-
-  function handleError(error) {
-    toast.add({
-      severity: "error",
-      summary: "hiba.",
-      detail: error,
-      life: 3000,
-    });
+    const response = await storeRequest(
+      urls.resource(code) + "?type=" + resource,
+      REQ_TYPE.GET
+    );
+    gameDetails.value.drawnCards = response.data;
   }
 
   return {

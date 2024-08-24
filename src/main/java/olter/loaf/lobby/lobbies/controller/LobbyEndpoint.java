@@ -36,7 +36,7 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().body(lobbyService.getLobby(code, user));
     }
 
-    @GetMapping("/lobby/{code}/start")
+    @PostMapping("/lobby/{code}/start")
     public ResponseEntity<Void> startGame(
         @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
         lobbyService.startGame(code, user);

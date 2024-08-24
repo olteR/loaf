@@ -4,14 +4,14 @@ import { useToast } from "primevue/usetoast";
 import axios from "axios";
 import router from "@/router";
 import jwtDecode from "jwt-decode";
+import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
 
 export const useStateStore = defineStore("state", () => {
-  const baseUrl = window.location.origin;
   const toast = useToast();
 
-  const urls = {
-    login: `${baseUrl}/api/auth/login`,
-  };
+  const urls = storeUrls({
+    login: `auth/login`,
+  });
 
   const user = ref();
   const jwt = ref(
@@ -38,23 +38,14 @@ export const useStateStore = defineStore("state", () => {
   const getLoading = computed(() => loading.value);
 
   async function loginUser(login) {
-    try {
-      const response = await axios.post(urls.login, login);
-      await handleLoginResponse(response);
-      toast.add({
-        severity: "success",
-        summary: "siker.",
-        detail: "sikeres bejelentkezés.",
-        life: 3000,
-      });
-    } catch (error) {
-      toast.add({
-        severity: "error",
-        summary: "hiba.",
-        detail: error,
-        life: 3000,
-      });
-    }
+    const response = await storeRequest(urls.login, REQ_TYPE.POST, login);
+    await handleLoginResponse(response);
+    toast.add({
+      severity: "success",
+      summary: "siker.",
+      detail: "sikeres bejelentkezés.",
+      life: 3000,
+    });
   }
 
   async function logoutUser() {
