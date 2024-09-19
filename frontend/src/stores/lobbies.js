@@ -1,16 +1,17 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import router from "@/router";
-import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
+import { REQ_TYPE, useRequestStore } from "@/stores/request";
 
 export const useLobbyStore = defineStore("lobby", () => {
+  const requestStore = useRequestStore();
   const lobby = ref();
   const lobbies = ref([]);
 
   const getLobby = computed(() => lobby.value);
   const getLobbies = computed(() => lobbies.value);
 
-  const urls = storeUrls({
+  const urls = requestStore.urls({
     join: (code) => `lobby/${code}/join`,
     leave: (code) => `lobby/${code}/leave`,
     kick: `lobby/kick`,
@@ -23,7 +24,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   });
 
   async function fetchLobby(code) {
-    const response = await storeRequest(
+    const response = await requestStore.request(
       urls.lobby.concat("/").concat(code),
       REQ_TYPE.GET
     );
@@ -31,54 +32,61 @@ export const useLobbyStore = defineStore("lobby", () => {
   }
 
   async function fetchLobbies() {
-    const response = await storeRequest(urls.lobbies, REQ_TYPE.GET);
+    const response = await requestStore.request(urls.lobbies, REQ_TYPE.GET);
     lobbies.value = response.data;
   }
 
   async function fetchMyGames() {
-    const response = await storeRequest(urls.myGames, REQ_TYPE.GET);
+    const response = await requestStore.request(urls.myGames, REQ_TYPE.GET);
     lobbies.value = response.data;
   }
 
   async function createLobby(request) {
-    const response = await storeRequest(urls.lobby, REQ_TYPE.POST, request);
+    const response = await requestStore.request(
+      urls.lobby,
+      REQ_TYPE.POST,
+      request
+    );
     lobby.value = response.data;
     await router.push("/lobby/".concat(lobby.value.code));
   }
 
   async function deleteLobby(code) {
-    await storeRequest(urls.delete(code), REQ_TYPE.DELETE);
+    await requestStore.request(urls.delete(code), REQ_TYPE.DELETE);
     lobby.value = null;
   }
 
   async function joinLobby(code) {
-    const response = await storeRequest(urls.join(code), REQ_TYPE.PATCH);
+    const response = await requestStore.request(
+      urls.join(code),
+      REQ_TYPE.PATCH
+    );
     lobby.value = response.data;
     await router.push("/lobby/".concat(lobby.value.code));
   }
 
   async function leaveLobby(code) {
-    await storeRequest(urls.leave(code), REQ_TYPE.POST);
+    await requestStore.request(urls.leave(code), REQ_TYPE.POST);
     lobby.value = null;
     await router.push("/my-games");
   }
 
   async function kickMember(code, id) {
-    await storeRequest(urls.kick, REQ_TYPE.POST, {
+    await requestStore.request(urls.kick, REQ_TYPE.POST, {
       code: code,
       memberId: id,
     });
   }
 
   async function promoteMember(code, id) {
-    await storeRequest(urls.promote, REQ_TYPE.POST, {
+    await requestStore.request(urls.promote, REQ_TYPE.POST, {
       code: code,
       memberId: id,
     });
   }
 
   async function startGame(code) {
-    await storeRequest(urls.start(code), REQ_TYPE.POST);
+    await requestStore.request(urls.start(code), REQ_TYPE.POST);
   }
 
   return {

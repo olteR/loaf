@@ -50,6 +50,7 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerUser(RegisterRequest registerRequest) {
+        log.info("Registering user with name {}", registerRequest.getUsername());
         UserEntity user = userMapper.registerRequestToEntity(registerRequest);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userRepository.save(user);

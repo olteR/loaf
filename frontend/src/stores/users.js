@@ -1,13 +1,23 @@
 import { defineStore } from "pinia";
-import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
+import { REQ_TYPE, useRequestStore } from "@/stores/request";
+import { useToast } from "primevue/usetoast";
 
 export const useUserStore = defineStore("user", () => {
-  const urls = storeUrls({
+  const requestStore = useRequestStore();
+  const toast = useToast();
+
+  const urls = requestStore.urls({
     register: "auth/register",
   });
 
   async function registerUser(user) {
-    await storeRequest(urls.register, REQ_TYPE.POST, user);
+    await requestStore.request(urls.register, REQ_TYPE.POST, user);
+    toast.add({
+      severity: "success",
+      summary: "siker.",
+      detail: "sikeres regisztráció.",
+      life: 3000,
+    });
   }
 
   return {

@@ -4,12 +4,13 @@ import { useToast } from "primevue/usetoast";
 import axios from "axios";
 import router from "@/router";
 import jwtDecode from "jwt-decode";
-import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
+import { REQ_TYPE, useRequestStore } from "@/stores/request";
 
 export const useStateStore = defineStore("state", () => {
+  const requestStore = useRequestStore();
   const toast = useToast();
 
-  const urls = storeUrls({
+  const urls = requestStore.urls({
     login: `auth/login`,
   });
 
@@ -38,7 +39,12 @@ export const useStateStore = defineStore("state", () => {
   const getLoading = computed(() => loading.value);
 
   async function loginUser(login) {
-    const response = await storeRequest(urls.login, REQ_TYPE.POST, login);
+    const response = await requestStore.request(
+      urls.login,
+      REQ_TYPE.POST,
+      login,
+      toast
+    );
     await handleLoginResponse(response);
     toast.add({
       severity: "success",

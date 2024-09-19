@@ -9,7 +9,7 @@
           <InputText
             id="name"
             type="text"
-            v-model="userForm.name"
+            v-model="userForm.username"
             class="w-full"
           />
           <label for="name">felhasználónév</label>
@@ -68,7 +68,7 @@ const router = useRouter();
 const stateStore = useStateStore();
 const userStore = useUserStore();
 const userForm = ref({
-  name: null,
+  username: null,
   email: null,
   password: null,
 });

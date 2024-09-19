@@ -1,9 +1,10 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import { REQ_TYPE, storeRequest, storeUrls } from "@/stores/storeUtils";
+import { REQ_TYPE, useRequestStore } from "@/stores/request";
 
 export const useCardStore = defineStore("card", () => {
-  const urls = storeUrls({
+  const requestStore = useRequestStore();
+  const urls = requestStore.urls({
     cards: "game/cards",
   });
 
@@ -17,7 +18,7 @@ export const useCardStore = defineStore("card", () => {
 
   async function fetchCards() {
     if (cards.value.length === 0) {
-      const response = await storeRequest(urls.cards, REQ_TYPE.GET);
+      const response = await requestStore.request(urls.cards, REQ_TYPE.GET);
       cards.value = response.data;
       cards.value.characters.forEach((character) => {
         let img = new Image();
