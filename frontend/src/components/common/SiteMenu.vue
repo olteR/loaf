@@ -6,7 +6,7 @@
       </div>
     </template>
     <template #item="{ item }">
-      <span :class="{ 'lg:invisible': item.phone }">
+      <span>
         <Button class="menubutton" @click="router.push(item.route)">
           <div
             class="menulabel"
@@ -60,12 +60,6 @@ const menuItems = ref([
     label: "szabályok",
     route: "/rules",
     icon: "fa fa-circle-info",
-  },
-  {
-    label: "profil",
-    route: "/profile",
-    icon: "fa fa-user",
-    phone: true,
   },
 ]);
 </script>

@@ -6,9 +6,9 @@ export const useUserStore = defineStore("user", () => {
   const requestStore = useRequestStore();
   const toast = useToast();
 
-  const urls = requestStore.urls({
+  const urls = {
     register: "auth/register",
-  });
+  };
 
   async function registerUser(user) {
     await requestStore.request(urls.register, REQ_TYPE.POST, user);

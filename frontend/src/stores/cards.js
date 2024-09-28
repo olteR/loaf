@@ -4,9 +4,9 @@ import { REQ_TYPE, useRequestStore } from "@/stores/request";
 
 export const useCardStore = defineStore("card", () => {
   const requestStore = useRequestStore();
-  const urls = requestStore.urls({
+  const urls = {
     cards: "game/cards",
-  });
+  };
 
   const cards = ref([]);
   const characterImages = ref([]);

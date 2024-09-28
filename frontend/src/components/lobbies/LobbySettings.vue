@@ -5,7 +5,7 @@
         <div class="inline-flex w-full">
           <h1 class="text-4xl">Játék beállításai</h1>
           <div class="ml-auto" v-if="isOwner">
-            <Button>Mentés</Button>
+            <Button :loading="loading">Mentés</Button>
           </div>
         </div>
       </template>
@@ -16,7 +16,9 @@
               <div class="inline-flex w-full">
                 <div class="text-2xl mb-4">Karakterek</div>
                 <div class="ml-auto mb-4" v-if="isOwner">
-                  <Button @click="characterSettingsVisible = true"
+                  <Button
+                    :loading="loading"
+                    @click="characterSettingsVisible = true"
                     >Módosítás</Button
                   >
                 </div>
@@ -35,7 +37,9 @@
               <div class="inline-flex w-full">
                 <div class="text-2xl mb-4">Egyedi kerületek</div>
                 <div class="ml-auto mb-4" v-if="isOwner">
-                  <Button @click="districtSettingsVisible = true"
+                  <Button
+                    :loading="loading"
+                    @click="districtSettingsVisible = true"
                     >Módosítás</Button
                   >
                 </div>
@@ -102,6 +106,7 @@ const props = defineProps({
   settings: Object,
   players: Array,
   cards: Object,
+  loading: Boolean,
 });
 
 const selectedCrowned = ref();

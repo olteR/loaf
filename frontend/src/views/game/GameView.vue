@@ -16,14 +16,10 @@
     :currentPlayer="gameStore.getGameDetails?.currentPlayer"
   ></MemberList>
   <CharacterList
-    :characters="gameStore.getGameDetails?.characters"
+    :details="gameStore.getGameDetails"
     :card-images="cardStore.getCharacterImages"
-    :selected="gameStore.getGameDetails?.currentCharacter"
-    :discarded="gameStore.getGameDetails?.discardedCharacters"
-    :unavailable="gameStore.getGameDetails?.unavailableCharacters"
-    :skipped="gameStore.getGameDetails?.skippedCharacters"
-    :current-character="
-      gameStore.getGameDetails?.currentPlayer.currentCharacter
+    :can-select="
+      onTurn && gameStore.getGameDetails?.phase === GAME_PHASE.SELECTION
     "
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
@@ -70,7 +66,7 @@ import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
-import { GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
+import { GAME_MODAL, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
 
 const router = useRouter();
@@ -144,11 +140,12 @@ onMounted(async () => {
 
 function handleGameUpdate(update) {
   switch (update.type) {
-    case "NEXT_PLAYER": {
-      gameStore.getGameDetails.currentPlayer = update.change;
+    case GAME_UPDATE.NEXT_PLAYER: {
+      gameStore.getGameDetails.currentPlayer =
+        gameStore.getGameDetails?.players.find((p) => p.id === update.change);
       break;
     }
-    case "PLAYER_TURN": {
+    case GAME_UPDATE.PLAYER_TURN: {
       gameStore.getGameDetails.currentPlayer = stateStore.getUser.id;
       gameStore.getGameDetails.unavailableCharacters = update.change;
       break;

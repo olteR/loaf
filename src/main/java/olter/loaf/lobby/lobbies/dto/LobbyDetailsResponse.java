@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.games.dto.GameSettingsResponse;
+import olter.loaf.lobby.lobbies.model.LobbyStatusEnum;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class LobbyDetailsResponse {
     private Boolean secured;
     private Integer maxMembers;
     private Long owner;
+    private LobbyStatusEnum status;
     private List<LobbyMemberResponse> members;
     private GameSettingsResponse gameSettings;
 }

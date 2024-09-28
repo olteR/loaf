@@ -105,6 +105,7 @@ public class LobbyService {
         p.setUserId(user.getId());
         p.setOrder(lobby.getMembers().size());
         p.setGame(lobby.getGame());
+        p.setIsRevealed(false);
         playerRepository.save(p);
 
         return lobbyMapper.entityToDetailsResponse(lobby);

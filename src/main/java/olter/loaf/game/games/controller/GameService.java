@@ -66,6 +66,7 @@ public class GameService {
         p.setUserId(lobby.getOwner());
         p.setOrder(1);
         p.setGame(game);
+        p.setIsRevealed(false);
         playerRepository.save(p);
         return game;
     }
@@ -78,8 +79,9 @@ public class GameService {
         int gameSize = lobby.getMembers().size();
 
         if (game.getCrownedPlayer() == null) {
-            game.setCrownedPlayer(game.getPlayers().get(r.nextInt(lobby.getMembers().size())));
+            game.setCrownedPlayer(game.getPlayers().get(r.nextInt(gameSize)));
         }
+        Map<Integer, Integer> orderMap = assembleOrderMap(game.getCrownedPlayer().getOrder(), gameSize);
 
         game.setTurn(1);
         game.setPhase(GamePhaseEnum.SELECTION);
@@ -94,6 +96,10 @@ public class GameService {
         playerRepository.saveAll(playerRepository.findAllByGame(game).stream().peek(p -> {
             p.setGold(STARTING_GOLD);
             p.setHand(drawFromDeck(game, STARTING_CARDS));
+            p.setOrder(orderMap.get(p.getOrder()));
+            if (p.getId().equals(game.getCurrentPlayer().getId())) {
+                p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(game.getDownwardDiscard())));
+            }
         }).toList());
     }
 
@@ -112,7 +118,7 @@ public class GameService {
             }
         });
 
-        return gameMapper.entitiesToDetailsResponse(game, player);
+        return gameMapper.entityToDetailsResponse(game, player);
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
@@ -150,7 +156,7 @@ public class GameService {
                     } else {
                         simpMessagingTemplate.convertAndSendToUser(
                             String.valueOf(p.getUserId()), "/topic/game/update",
-                            new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer()));
+                            new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
                     }
                 });
         gameRepository.save(game);
@@ -168,8 +174,7 @@ public class GameService {
             game.getCurrentPlayer().setGold(game.getCurrentPlayer().getGold() + 2);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
-        }
-        else if (resource.equals(ResourceTypeEnum.CARDS)) {
+        } else if (resource.equals(ResourceTypeEnum.CARDS)) {
             game.getCurrentPlayer().setDrawnCards(drawFromDeck(game, 2));
             gameRepository.save(game);
             return game.getCurrentPlayer().getDrawnCards().stream().map(cardMapper::entityToResponse).toList();
@@ -270,5 +275,19 @@ public class GameService {
         if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
             throw new NotOnTurnException(game.getId(), userId);
         }
+    }
+
+    private Map<Integer, Integer> assembleOrderMap(Integer startingOrder, Integer players) {
+        int orderCounter = startingOrder;
+        Map<Integer, Integer> orderMap = new HashMap<>();
+        for (int i = 1; i <= players; i++) {
+            orderMap.put(orderCounter, i);
+            if (orderCounter == players) {
+                orderCounter = 1;
+            } else {
+                orderCounter++;
+            }
+        }
+        return orderMap;
     }
 }

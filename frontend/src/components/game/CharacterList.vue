@@ -1,16 +1,17 @@
 <template>
-  <div v-if="characters">
+  <div v-if="details?.characters">
     <div class="characters">
       <div
-        v-for="character in props.characters"
+        v-for="character in details?.characters"
         :key="character"
         class="inline-flex"
       >
         <CharacterToken
           :character="character"
           :image="cardImages[character.id - 1]"
-          :total-characters="characters?.length"
+          :total-characters="details?.characters?.length"
           :status="getStatus(character.number)"
+          :can-select="canSelect"
           @select="(number) => emit('select', number)"
         ></CharacterToken>
       </div>
@@ -23,22 +24,22 @@ import CharacterToken from "@/components/game/CharacterToken.vue";
 import { CHAR_STATUS } from "@/utils/const";
 
 const props = defineProps({
-  characters: Array,
+  details: Object,
   cardImages: Array,
-  selected: Number,
-  discarded: Array,
-  unavailable: Array,
-  skipped: Array,
-  currentCharacter: Number,
+  canSelect: Boolean,
 });
 const emit = defineEmits(["select"]);
 
 function getStatus(number) {
-  if (number === props.currentCharacter) return CHAR_STATUS.ON_TURN;
-  if (number === props.selected) return CHAR_STATUS.SELECTED;
-  if (props.discarded?.includes(number)) return CHAR_STATUS.DISCARDED;
-  if (props.unavailable?.includes(number)) return CHAR_STATUS.UNAVAILABLE;
-  if (props.skipped?.includes(number)) return CHAR_STATUS.SKIPPED;
+  if (number === props.details?.currentPlayer?.currentCharacter)
+    return CHAR_STATUS.ON_TURN;
+  if (number === props.details?.currentCharacter) return CHAR_STATUS.SELECTED;
+  if (props.details?.discardedCharacters?.includes(number))
+    return CHAR_STATUS.DISCARDED;
+  if (props.details?.unavailableCharacters?.includes(number))
+    return CHAR_STATUS.UNAVAILABLE;
+  if (props.details?.skippedCharacters?.includes(number))
+    return CHAR_STATUS.SKIPPED;
   return CHAR_STATUS.SELECTABLE;
 }
 </script>

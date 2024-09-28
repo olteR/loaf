@@ -58,6 +58,7 @@
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
                     icon="fa fa-star"
+                    :loading="starting"
                     @click="
                       lobbyStore.promoteMember(lobbyCode, slotProps.data.id)
                     "
@@ -66,6 +67,7 @@
                     v-tooltip.bottom="'Eltávolítás a lobbiból'"
                     class="ml-2 p-button-danger"
                     icon="fa fa-x"
+                    :loading="starting"
                     @click="lobbyStore.kickMember(lobbyCode, slotProps.data.id)"
                   />
                 </div>
@@ -78,6 +80,7 @@
             <Button
               v-if="isOwner"
               class="p-button-danger mr-2"
+              :loading="starting"
               @click="openDeleteModal($event)"
             >
               Játék törlése
@@ -85,13 +88,16 @@
             <Button
               v-else
               class="p-button-danger mr-2"
+              :loading="starting"
               @click="lobbyStore.leaveLobby(lobbyCode)"
             >
               Játék elhagyása
             </Button>
             <Button
-              @click="start()"
+              v-if="isOwner"
               :disabled="lobbyStore.getLobby.members?.length < 2"
+              :loading="starting"
+              @click="start()"
             >
               Játék indítása
             </Button>
@@ -104,6 +110,7 @@
       :settings="lobbyStore.getLobby?.gameSettings"
       :players="lobbyStore.getLobby?.members"
       :cards="cardStore.getCards"
+      :loading="starting"
     />
   </div>
 </template>
@@ -124,6 +131,7 @@ import ConfirmDialog from "primevue/confirmpopup";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import LobbySettings from "@/components/lobbies/LobbySettings.vue";
+import { LOBBY_STATUS } from "@/utils/const";
 
 const router = useRouter();
 const confirm = useConfirm();
@@ -136,6 +144,7 @@ const socket = ref();
 const stompClient = ref();
 
 const connected = ref(false);
+const starting = ref(false);
 
 const isOwner = computed(
   () => stateStore.getUser.id === lobbyStore.getLobby?.owner
@@ -145,6 +154,9 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await lobbyStore.fetchLobby(lobbyCode);
   await cardStore.fetchCards();
+  if (lobbyStore.getLobby?.status === LOBBY_STATUS.ONGOING) {
+    await router.push("/game/" + lobbyCode);
+  }
   stateStore.getBreadcrumbs.push({
     name: "lobby",
     label: lobbyStore.getLobby.name,
@@ -178,10 +190,23 @@ const errorCallback = function (error) {
   setTimeout(connect, 5000);
 };
 
-function start() {
+async function start() {
+  toast.add({
+    severity: "info",
+    summary: "Játék indítása...",
+    detail: `A játék hamarosan elindul...`,
+    life: 3000,
+  });
   stompClient.value.disconnect();
-  lobbyStore.startGame(lobbyCode);
-  router.push("/game/" + lobbyCode);
+  starting.value = true;
+  await lobbyStore.startGame(lobbyCode);
+  toast.add({
+    severity: "success",
+    summary: "Indítás sikeres!",
+    detail: `Jó játékot!`,
+    life: 3000,
+  });
+  await router.push("/game/" + lobbyCode);
 }
 
 const openDeleteModal = (event) => {

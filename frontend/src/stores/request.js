@@ -13,17 +13,9 @@ export const REQ_TYPE = {
 export const useRequestStore = defineStore("request", () => {
   const toast = useToast();
 
-  const urls = (urls) => {
-    const baseUrl = window.location.origin;
-    Object.keys(urls).forEach(function (key) {
-      urls[key] = `${baseUrl}/api/${urls[key]}`;
-    });
-    return urls;
-  };
-
   async function request(url, method, payload) {
     try {
-      return await axios[method](url, payload);
+      return await axios[method](`/api/${url}`, payload);
     } catch (error) {
       toast.add({
         severity: "error",
@@ -35,7 +27,6 @@ export const useRequestStore = defineStore("request", () => {
   }
 
   return {
-    urls,
     request,
   };
 });

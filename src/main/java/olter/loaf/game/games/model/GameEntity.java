@@ -42,7 +42,7 @@ public class GameEntity extends BaseEntity {
     @JoinColumn(name = "current_player", referencedColumnName = "id")
     private PlayerEntity currentPlayer;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")

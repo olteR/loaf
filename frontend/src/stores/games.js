@@ -4,11 +4,11 @@ import { REQ_TYPE, useRequestStore } from "@/stores/request";
 
 export const useGameStore = defineStore("game", () => {
   const requestStore = useRequestStore();
-  const urls = requestStore.urls({
+  const urls = {
     details: (code) => `game/${code}/details`,
     select: (code) => `game/${code}/select`,
     resource: (code) => `game/${code}/resource`,
-  });
+  };
 
   const gameDetails = ref();
 

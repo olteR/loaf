@@ -72,6 +72,7 @@ const props = defineProps({
   image: Object,
   totalCharacters: Number,
   status: String,
+  canSelect: Boolean,
 });
 const emit = defineEmits(["select"]);
 const characterDiv = ref();
@@ -103,7 +104,7 @@ const characterColor = computed(() => {
 });
 
 const openPopup = () => {
-  if (props.status === CHAR_STATUS.SELECTABLE) {
+  if (props.status === CHAR_STATUS.SELECTABLE && props.canSelect) {
     confirm.require({
       target: characterDiv.value,
       message: `Kiválasztod a(z) ${props.character.name} karaktert?`,

@@ -10,9 +10,9 @@ export const useStateStore = defineStore("state", () => {
   const requestStore = useRequestStore();
   const toast = useToast();
 
-  const urls = requestStore.urls({
+  const urls = {
     login: `auth/login`,
-  });
+  };
 
   const user = ref();
   const jwt = ref(

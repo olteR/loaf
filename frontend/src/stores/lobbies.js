@@ -11,7 +11,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   const getLobby = computed(() => lobby.value);
   const getLobbies = computed(() => lobbies.value);
 
-  const urls = requestStore.urls({
+  const urls = {
     join: (code) => `lobby/${code}/join`,
     leave: (code) => `lobby/${code}/leave`,
     kick: `lobby/kick`,
@@ -21,7 +21,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     lobbies: `lobbies`,
     start: (code) => `lobby/${code}/start`,
     delete: (code) => `lobby/${code}/delete`,
-  });
+  };
 
   async function fetchLobby(code) {
     const response = await requestStore.request(
@@ -57,6 +57,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   }
 
   async function joinLobby(code) {
+    console.log(urls);
     const response = await requestStore.request(
       urls.join(code),
       REQ_TYPE.PATCH
