@@ -182,6 +182,10 @@ public class GameService {
         return Collections.emptyList();
     }
 
+    public void buildDistrict(String code, UserEntity loggedInUser) {
+
+    }
+
     private List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
         List<DistrictEntity> drawnCards = new ArrayList<>();
         for (int i = 0; i < cardCount; i++) {

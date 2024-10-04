@@ -23,6 +23,8 @@ public class PlayerEntity extends BaseEntity {
     private Integer gold;
     private Integer currentCharacter;
     private Boolean isRevealed;
+    private Boolean isKilled;
+    private Boolean isRobbed;
 
     @Column(name = "player_order")
     private Integer order;

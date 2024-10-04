@@ -37,4 +37,12 @@ public class GameEndpoint {
                                                                   UserEntity user) {
         return ResponseEntity.ok().body(gameService.gatherResources(code, type, user));
     }
+
+    @GetMapping("game/{code}/build")
+    public ResponseEntity<List<DistrictResponse>> buildDistrict(@PathVariable String code,
+                                                                @RequestParam ResourceTypeEnum type,
+                                                                @SecurityAnnotations.GetLoggedInUser
+                                                                UserEntity user) {
+        return ResponseEntity.ok().body(gameService.gatherResources(code, type, user));
+    }
 }

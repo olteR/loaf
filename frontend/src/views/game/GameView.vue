@@ -15,6 +15,7 @@
     :crownedPlayer="gameStore.getGameDetails?.crownedPlayer"
     :currentPlayer="gameStore.getGameDetails?.currentPlayer"
   ></MemberList>
+  <ActionButtons v-if="onTurn"></ActionButtons>
   <CharacterList
     :details="gameStore.getGameDetails"
     :card-images="cardStore.getCharacterImages"
@@ -68,6 +69,7 @@ import Card from "primevue/card";
 import Dialog from "primevue/dialog";
 import { GAME_MODAL, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
+import ActionButtons from "@/components/game/ActionButtons.vue";
 
 const router = useRouter();
 const stateStore = useStateStore();
@@ -160,6 +162,8 @@ async function gatherResources(resource) {
   await gameStore.gatherResources(lobbyCode, resource);
   if (resource === RESOURCE.CARDS) {
     currentModal.value = GAME_MODAL.CARDS;
+  } else {
+    currentModal.value = null;
   }
 }
 
