@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.games.exception.InvalidTransactionException;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
@@ -23,8 +24,6 @@ public class PlayerEntity extends BaseEntity {
     private Integer gold;
     private Integer currentCharacter;
     private Boolean isRevealed;
-    private Boolean isKilled;
-    private Boolean isRobbed;
 
     @Column(name = "player_order")
     private Integer order;
@@ -63,4 +62,19 @@ public class PlayerEntity extends BaseEntity {
         joinColumns = @JoinColumn(name = "player_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> drawnCards;
+
+    public void giveGold(Integer gold) {
+        this.gold += gold;
+    }
+
+    public void takeGold(Integer gold) {
+        if (gold > this.gold) {
+            throw new InvalidTransactionException(this.getId());
+        }
+        this.gold -= gold;
+    }
+
+    public void giveCards(List<DistrictEntity> cards) {
+        this.hand.addAll(cards);
+    }
 }

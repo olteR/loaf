@@ -39,10 +39,11 @@ public class GameEndpoint {
     }
 
     @GetMapping("game/{code}/build")
-    public ResponseEntity<List<DistrictResponse>> buildDistrict(@PathVariable String code,
-                                                                @RequestParam ResourceTypeEnum type,
+    public ResponseEntity<Void> buildDistrict(@PathVariable String code,
+                                                                @RequestParam Long district,
                                                                 @SecurityAnnotations.GetLoggedInUser
                                                                 UserEntity user) {
-        return ResponseEntity.ok().body(gameService.gatherResources(code, type, user));
+        gameService.buildDistrict(code, district, user);
+        return ResponseEntity.ok().build();
     }
 }

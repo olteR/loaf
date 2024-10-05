@@ -8,7 +8,7 @@ public enum GamePhaseEnum {
     SELECTION("SELECTION"),
     RESOURCE("RESOURCE"),
     TURN("TURN"),
-    END_TURN("END_TURN"),
+    FINAL_TURN("FINAL_TURN"),
     ENDED("ENDED");
 
     private final String value;

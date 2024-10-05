@@ -20,6 +20,9 @@ import java.util.List;
 public class GameEntity extends BaseEntity {
     private Integer turn;
     private Integer downwardDiscard;
+    private Integer killedCharacter;
+    private Integer robbedCharacter;
+    private Integer bewitchedCharacter;
 
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;

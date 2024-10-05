@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,4 +27,9 @@ public class CharacterEntity {
 
     @Enumerated(EnumType.STRING)
     private DistrictTypeEnum districtTypeBonus;
+
+    @ElementCollection
+    @CollectionTable(name = "character_abilities", joinColumns = @JoinColumn(name = "character_id"))
+    @Enumerated(EnumType.STRING)
+    List<AbilityEnum> abilites;
 }

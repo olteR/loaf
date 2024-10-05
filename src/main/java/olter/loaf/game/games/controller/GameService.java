@@ -29,6 +29,7 @@ import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
 import olter.loaf.users.model.UserEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -44,15 +45,19 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final ConfigRepository configRepository;
+    private final CharacterRepository characterRepository;
+    private final DistrictRepository districtRepository;
     private final LogService logService;
     private final GameMapper gameMapper;
     private final CardMapper cardMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    private final Integer STARTING_GOLD = 2;
-    private final Integer STARTING_CARDS = 4;
-    private final CharacterRepository characterRepository;
-    private final DistrictRepository districtRepository;
+    @Value("${loaf.config.starting-gold}")
+    private Integer STARTING_GOLD;
+    @Value("${loaf.config.starting-cards}")
+    private Integer STARTING_CARDS;
+    @Value("${loaf.config.resource-gold}")
+    private Integer RESOURCE_GOLD;
 
     public GameEntity createGameForLobby(LobbyEntity lobby) {
         log.info("Creating game for lobby {}", lobby.getCode());
@@ -105,9 +110,8 @@ public class GameService {
 
     public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
         log.info("Getting game details of {} for {}", code, loggedInUser.getName());
-        GameEntity game =
-            gameRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
+        GameEntity game = findGame(code);
+
         PlayerEntity player =
             playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
                 .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
@@ -123,11 +127,9 @@ public class GameService {
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
         log.info("Selecting character {} for {} in game {}", selectedCharacter, loggedInUser.getName(), code);
-        GameEntity game =
-            gameRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
-
+        GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.SELECTION);
+
         List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
             !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
                 !selectedCharacter.equals(c) && !game.getCurrentPlayer().getUnavailableCharacters().contains(c)
@@ -165,13 +167,11 @@ public class GameService {
 
     public List<DistrictResponse> gatherResources(String code, ResourceTypeEnum resource, UserEntity loggedInUser) {
         log.info("Selecting resource {} for {} in game {}", resource, loggedInUser.getName(), code);
-        GameEntity game =
-            gameRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
-
+        GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.RESOURCE);
+
         if (resource.equals(ResourceTypeEnum.GOLD)) {
-            game.getCurrentPlayer().setGold(game.getCurrentPlayer().getGold() + 2);
+            game.getCurrentPlayer().giveGold(RESOURCE_GOLD);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
@@ -182,8 +182,15 @@ public class GameService {
         return Collections.emptyList();
     }
 
-    public void buildDistrict(String code, UserEntity loggedInUser) {
+    public void buildDistrict(String code, Long districtId, UserEntity loggedInUser) {
+        log.info("User {} building district {} in game {}", loggedInUser.getName(), districtId, code);
+        GameEntity game = findGame(code);
+        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
+    }
 
+    private GameEntity findGame(String code) {
+        return gameRepository.findByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
     }
 
     private List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
