@@ -17,7 +17,11 @@
       />
     </div>
     <div class="col-span-3 ml-auto" style="margin-right: -1.25rem">
-      <Button :disabled="selectedCount !== MAX_UNIQUE_DISTRICTS">Mentés</Button>
+      <Button
+        :disabled="selectedCount !== MAX_UNIQUE_DISTRICTS"
+        @click="saveDistricts"
+        >Mentés</Button
+      >
     </div>
   </div>
 </template>
@@ -35,6 +39,8 @@ const props = defineProps({
   selectedDistricts: Array,
 });
 
+const emit = defineEmits(["save"]);
+
 const selectedCount = computed(
   () => toggleValues.value.filter((v) => v).length
 );
@@ -49,6 +55,13 @@ function toggle(index) {
   if (selectedCount.value < MAX_UNIQUE_DISTRICTS || toggleValues.value[index]) {
     toggleValues.value[index] = !toggleValues.value[index];
   }
+}
+
+function saveDistricts() {
+  emit(
+    "save",
+    props.districts.filter((district, ind) => toggleValues.value[ind])
+  );
 }
 </script>
 

@@ -19,10 +19,12 @@ import olter.loaf.lobby.lobbies.model.LobbyStatusEnum;
 import olter.loaf.users.UserMapper;
 import olter.loaf.users.model.UserEntity;
 import olter.loaf.users.model.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -40,6 +42,9 @@ public class LobbyService {
     private final GameService gameService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${loaf.config.unique-districts}")
+    private Integer UNIQUE_DISTRICTS;
 
     public LobbyDetailsResponse getLobby(String code, UserEntity loggedInUser) {
         LobbyEntity lobby = findLobby(code);
@@ -171,6 +176,28 @@ public class LobbyService {
         validateOwnerRequest(lobby, user);
         broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DELETE, null);
         lobbyRepository.delete(lobby);
+    }
+
+    public void updateCharacters(UserEntity user, LobbySettingDto req) {
+        LobbyEntity lobby = findLobby(req.getCode());
+        log.info("Updating characters in lobby {}", req.getCode());
+        validateOwnerRequest(lobby, user);
+
+        GameEntity game = lobby.getGame();
+    }
+
+    public void updateDistricts(UserEntity user, LobbySettingDto req) {
+        LobbyEntity lobby = findLobby(req.getCode());
+        log.info("Updating districts in lobby {}", req.getCode());
+        validateOwnerRequest(lobby, user);
+
+        if (new HashSet<>(req.getIds()).size() != UNIQUE_DISTRICTS) {
+            throw new InvalidDistrictsException(req.getCode());
+        }
+        GameEntity game = lobby.getGame();
+        game.setUniqueDistricts(req.getIds());
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DISTRICTS, req.getIds());
+        gameRepository.save(game);
     }
 
     public void crownMember(UserEntity user, LobbyMemberInteractionDto req) {

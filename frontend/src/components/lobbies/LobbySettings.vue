@@ -85,6 +85,7 @@
       <DistrictSettingModal
         :districts="cards.districts.filter((d) => d.type === 'UNIQUE')"
         :selected-districts="settings.uniqueDistricts"
+        @save="(d) => saveDistricts(d)"
       />
     </Dialog>
   </div>
@@ -109,7 +110,7 @@ const props = defineProps({
   loading: Boolean,
 });
 
-const emit = defineEmits(["crown"]);
+const emit = defineEmits(["characters", "districts", "crown"]);
 
 const selectedCrowned = ref();
 const characterSettingsVisible = ref(false);
@@ -128,6 +129,11 @@ onMounted(() => {
       )
     : playerSelect.value[0];
 });
+
+function saveDistricts(districts) {
+  emit("districts", districts);
+  districtSettingsVisible.value = false;
+}
 </script>
 
 <style scoped>

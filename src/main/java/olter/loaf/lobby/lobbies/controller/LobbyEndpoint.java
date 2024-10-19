@@ -2,10 +2,7 @@ package olter.loaf.lobby.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
-import olter.loaf.lobby.lobbies.dto.LobbyCreationRequest;
-import olter.loaf.lobby.lobbies.dto.LobbyDetailsResponse;
-import olter.loaf.lobby.lobbies.dto.LobbyListResponse;
-import olter.loaf.lobby.lobbies.dto.LobbyMemberInteractionDto;
+import olter.loaf.lobby.lobbies.dto.*;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +66,24 @@ public class LobbyEndpoint {
         @SecurityAnnotations.GetLoggedInUser UserEntity user,
         @RequestBody LobbyMemberInteractionDto req) {
         lobbyService.kickMember(user, req);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("lobby/characters")
+    public ResponseEntity<Void> updateCharacters(
+        @SecurityAnnotations.GetLoggedInUser UserEntity user,
+        @RequestBody LobbySettingDto req
+    ) {
+        lobbyService.updateCharacters(user, req);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("lobby/districts")
+    public ResponseEntity<Void> updateDistricts(
+        @SecurityAnnotations.GetLoggedInUser UserEntity user,
+        @RequestBody LobbySettingDto req
+    ) {
+        lobbyService.updateDistricts(user, req);
         return ResponseEntity.ok().build();
     }
 

@@ -19,6 +19,8 @@ export const useLobbyStore = defineStore("lobby", () => {
     leave: (code) => `lobby/${code}/leave`,
     promote: `lobby/promote`,
     kick: `lobby/kick`,
+    characters: `lobby/characters`,
+    districts: `lobby/districts`,
     crown: `lobby/crown`,
     start: (code) => `lobby/${code}/start`,
     delete: (code) => `lobby/${code}/delete`,
@@ -82,6 +84,20 @@ export const useLobbyStore = defineStore("lobby", () => {
     });
   }
 
+  async function updateCharacters(code, characters) {
+    await requestStore.request(urls.characters, REQ_TYPE.POST, {
+      code: code,
+      ids: characters,
+    });
+  }
+
+  async function updateDistricts(code, districts) {
+    await requestStore.request(urls.districts, REQ_TYPE.POST, {
+      code: code,
+      ids: districts,
+    });
+  }
+
   async function crownMember(code, id) {
     await requestStore.request(urls.crown, REQ_TYPE.POST, {
       code: code,
@@ -109,6 +125,8 @@ export const useLobbyStore = defineStore("lobby", () => {
     leaveLobby,
     promoteMember,
     kickMember,
+    updateCharacters,
+    updateDistricts,
     crownMember,
     startGame,
     deleteLobby,

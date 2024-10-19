@@ -110,6 +110,7 @@
         :players="lobbyStore.getLobby?.members"
         :cards="cardStore.getCards"
         :loading="starting"
+        @districts="(districts) => updateDistricts(districts)"
         @crown="(player) => crownPlayer(player)"
       />
     </div>
@@ -208,6 +209,13 @@ async function start() {
   });
 }
 
+async function updateDistricts(districts) {
+  await lobbyStore.updateDistricts(
+    lobbyCode,
+    districts.map((district) => district.id)
+  );
+}
+
 async function crownPlayer(player) {
   await lobbyStore.crownMember(lobbyCode, player.id);
 }
@@ -292,6 +300,10 @@ function handleLobbyUpdate(update) {
           life: 3000,
         });
       }
+      break;
+    }
+    case "DISTRICTS": {
+      lobbyStore.getLobby.gameSettings.uniqueDistricts = update.change;
       break;
     }
     case "CROWN": {
