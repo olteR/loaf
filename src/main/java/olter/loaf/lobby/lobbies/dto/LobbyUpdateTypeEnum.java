@@ -6,9 +6,11 @@ import lombok.Getter;
 public enum LobbyUpdateTypeEnum {
     JOIN("JOIN"),
     LEAVE("LEAVE"),
-    KICK("KICK"),
-    SETTINGS("SETTINGS"),
     OWNER("OWNER"),
+    KICK("KICK"),
+    CHARACTERS("CHARACTERS"),
+    DISTRICTS("DISTRICTS"),
+    CROWN("CROWN"),
     DELETE("DELETE"),
     START("START");
 

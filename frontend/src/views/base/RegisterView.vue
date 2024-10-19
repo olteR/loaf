@@ -11,6 +11,7 @@
             type="text"
             v-model="userForm.username"
             class="w-full"
+            required
           />
           <label for="name">felhasználónév</label>
         </span>
@@ -20,6 +21,7 @@
             type="email"
             v-model="userForm.email"
             class="w-full"
+            required
           />
           <label for="name">e-mail</label>
         </span>
@@ -30,6 +32,7 @@
             :feedback="false"
             toggleMask
             class="w-full"
+            required
           />
           <label for="password">jelszó</label>
         </span>

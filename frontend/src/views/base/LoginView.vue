@@ -4,7 +4,13 @@
       <h1 class="text-9xl text-center select-none">loaf.</h1>
       <form @submit.prevent="loginUser()">
         <span class="p-float-label m-8">
-          <InputText id="name" type="text" v-model="name" class="w-full" />
+          <InputText
+            id="name"
+            type="text"
+            v-model="name"
+            class="w-full"
+            required
+          />
           <label for="name">felhasználónév</label>
         </span>
         <span class="p-float-label m-8">
@@ -14,6 +20,7 @@
             :feedback="false"
             toggleMask
             class="w-full"
+            required
           />
           <label for="password">jelszó</label>
         </span>

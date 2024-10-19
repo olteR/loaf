@@ -6,6 +6,7 @@
           id="name"
           v-model="lobbyForm.name"
           class="w-full"
+          required
         ></InputText>
         <label for="name">név</label>
       </div>
@@ -18,6 +19,7 @@
           :feedback="false"
           toggleMask
           class="w-full"
+          :required="lobbyForm.secured"
         ></Password>
         <label for="password">jelszó</label>
       </div>

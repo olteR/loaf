@@ -2,6 +2,7 @@
   <div
     v-if="character"
     class="list-card"
+    :class="isBig ? 'big-character' : 'small-character'"
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
@@ -9,7 +10,7 @@
     }"
   >
     <div
-      class="district-cost"
+      class="character-number"
       :style="{
         background: secondaryColor,
         'outline-color': primaryColor,
@@ -23,7 +24,7 @@
         'background-color': secondaryColor,
       }"
     >
-      <div class="text-4xl mt-3 select-none">
+      <div class="mt-3 select-none" :class="{ 'text-4xl': isBig }">
         {{ character.name }}
       </div>
       <div class="ml-auto mr-4 my-auto">
@@ -45,6 +46,7 @@ import { COLORS, CARD_POS } from "@/utils/const";
 
 const props = defineProps({
   character: Object,
+  isBig: Boolean,
 });
 
 const imageSource = computed(
@@ -74,10 +76,15 @@ const secondaryColor = computed(() => {
   margin-left: 1.25rem;
   background-position-y: center;
   background-size: cover;
-  height: 4.5rem;
   display: inline-flex;
   align-items: center;
   background-blend-mode: overlay;
+}
+.big-character {
+  height: 4.5rem;
+}
+.small-character {
+  height: 2.5rem;
 }
 .card-content {
   display: inline-flex;
@@ -88,7 +95,7 @@ const secondaryColor = computed(() => {
   font-weight: bold;
   margin-left: -1.25rem;
 }
-.district-cost {
+.character-number {
   z-index: 100;
   margin-left: -1.25rem;
   width: 2.5rem;

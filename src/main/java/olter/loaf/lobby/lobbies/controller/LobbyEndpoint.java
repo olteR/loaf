@@ -36,13 +36,6 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().body(lobbyService.getLobby(code, user));
     }
 
-    @PostMapping("/lobby/{code}/start")
-    public ResponseEntity<Void> startGame(
-        @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
-        lobbyService.startGame(code, user);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/lobby")
     public ResponseEntity<LobbyDetailsResponse> createLobby(
         @RequestBody LobbyCreationRequest request,
@@ -63,6 +56,14 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/lobby/promote")
+    public ResponseEntity<Void> promoteMember(
+        @SecurityAnnotations.GetLoggedInUser UserEntity user,
+        @RequestBody LobbyMemberInteractionDto req) {
+        lobbyService.promoteMember(user, req);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/lobby/kick")
     public ResponseEntity<Void> kickMember(
         @SecurityAnnotations.GetLoggedInUser UserEntity user,
@@ -71,11 +72,19 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/lobby/promote")
-    public ResponseEntity<Void> promoteMember(
+    @PostMapping("lobby/crown")
+    public ResponseEntity<Void> crownMember(
         @SecurityAnnotations.GetLoggedInUser UserEntity user,
-        @RequestBody LobbyMemberInteractionDto req) {
-        lobbyService.promoteMember(user, req);
+        @RequestBody LobbyMemberInteractionDto req
+    ) {
+        lobbyService.crownMember(user, req);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/lobby/{code}/start")
+    public ResponseEntity<Void> startGame(
+        @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user) {
+        lobbyService.startGame(code, user);
         return ResponseEntity.ok().build();
     }
 

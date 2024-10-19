@@ -16,7 +16,7 @@
         @click="toggle(ind)"
       />
     </div>
-    <div class="col-span-3">
+    <div class="col-span-3 ml-auto" style="margin-right: -1.25rem">
       <Button :disabled="selectedCount !== MAX_UNIQUE_DISTRICTS">Mentés</Button>
     </div>
   </div>

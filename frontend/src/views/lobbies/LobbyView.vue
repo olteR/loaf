@@ -104,14 +104,15 @@
           </div>
         </template>
       </Card>
+      <LobbySettings
+        :is-owner="isOwner"
+        :settings="lobbyStore.getLobby?.gameSettings"
+        :players="lobbyStore.getLobby?.members"
+        :cards="cardStore.getCards"
+        :loading="starting"
+        @crown="(player) => crownPlayer(player)"
+      />
     </div>
-    <LobbySettings
-      :is-owner="isOwner"
-      :settings="lobbyStore.getLobby?.gameSettings"
-      :players="lobbyStore.getLobby?.members"
-      :cards="cardStore.getCards"
-      :loading="starting"
-    />
   </div>
 </template>
 
@@ -197,7 +198,6 @@ async function start() {
     detail: `A játék hamarosan elindul...`,
     life: 3000,
   });
-  stompClient.value.disconnect();
   starting.value = true;
   await lobbyStore.startGame(lobbyCode);
   toast.add({
@@ -206,7 +206,10 @@ async function start() {
     detail: `Jó játékot!`,
     life: 3000,
   });
-  await router.push("/game/" + lobbyCode);
+}
+
+async function crownPlayer(player) {
+  await lobbyStore.crownMember(lobbyCode, player.id);
 }
 
 const openDeleteModal = (event) => {
@@ -214,10 +217,8 @@ const openDeleteModal = (event) => {
     target: event.currentTarget,
     message: "Biztosan kitörlöd a lobbit?",
     header: "Lobbi törlése",
-    accept: () => {
-      lobbyStore.deleteLobby(lobbyCode);
-      stompClient.value.disconnect();
-      router.push("/my-games");
+    accept: async () => {
+      await lobbyStore.deleteLobby(lobbyCode);
     },
     acceptClass: "p-button-danger",
     acceptLabel: "Igen",
@@ -254,6 +255,19 @@ function handleLobbyUpdate(update) {
       });
       break;
     }
+    case "OWNER": {
+      lobbyStore.getLobby.owner = update.change;
+      toast.add({
+        severity: "info",
+        summary: "Új lobbi tulajdonos!",
+        detail: `${
+          lobbyStore.getLobby.members.find((m) => m.id === update.change)
+            .displayName
+        } a lobbi új tulajdonosa.`,
+        life: 3000,
+      });
+      break;
+    }
     case "KICK": {
       const user = lobbyStore.getLobby.members.find(
         (m) => m.id === update.change
@@ -280,17 +294,8 @@ function handleLobbyUpdate(update) {
       }
       break;
     }
-    case "OWNER": {
-      lobbyStore.getLobby.owner = update.change;
-      toast.add({
-        severity: "info",
-        summary: "Új lobbi tulajdonos!",
-        detail: `${
-          lobbyStore.getLobby.members.find((m) => m.id === update.change)
-            .displayName
-        } a lobbi új tulajdonosa.`,
-        life: 3000,
-      });
+    case "CROWN": {
+      lobbyStore.getLobby.gameSettings.crownedPlayer = update.change;
       break;
     }
     case "START": {
@@ -303,6 +308,18 @@ function handleLobbyUpdate(update) {
       });
       stompClient.value.disconnect();
       router.push("/game/" + lobbyCode);
+      break;
+    }
+    case "DELETE": {
+      toast.add({
+        severity: "error",
+        summary: "Játék törölve!",
+        detail: "A lobbitulajdonos kitörölte a játékot!",
+        life: 3000,
+      });
+      stompClient.value.disconnect();
+      router.push("/my-games");
+      break;
     }
   }
 }

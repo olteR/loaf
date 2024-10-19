@@ -4,9 +4,6 @@
       <template #title>
         <div class="inline-flex w-full">
           <h1 class="text-4xl">Játék beállításai</h1>
-          <div class="ml-auto" v-if="isOwner">
-            <Button :loading="loading">Mentés</Button>
-          </div>
         </div>
       </template>
       <template #content>
@@ -25,10 +22,11 @@
               </div>
               <div class="margin-offset">
                 <div v-for="character in settings.characters" :key="character">
-                  <GameSettingCharacterList
+                  <GameSettingCharacterCard
                     :character="
                       cards.characters?.find((d) => d.id === character)
                     "
+                    is-big
                   />
                 </div>
               </div>
@@ -64,6 +62,8 @@
                 :options="playerSelect"
                 optionLabel="displayName"
                 class="w-full mt-1"
+                :disabled="!isOwner"
+                @change="(option) => emit('crown', option.value)"
               />
             </div>
           </div>
@@ -98,8 +98,8 @@ import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import CharacterSettingModal from "@/components/lobbies/CharacterSettingModal.vue";
 import DistrictSettingModal from "@/components/lobbies/DistrictSettingModal.vue";
+import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
 import GameSettingDistrictCard from "@/components/lobbies/GameSettingDistrictCard.vue";
-import GameSettingCharacterList from "@/components/lobbies/GameSettingCharacterList.vue";
 
 const props = defineProps({
   isOwner: Boolean,
@@ -108,6 +108,8 @@ const props = defineProps({
   cards: Object,
   loading: Boolean,
 });
+
+const emit = defineEmits(["crown"]);
 
 const selectedCrowned = ref();
 const characterSettingsVisible = ref(false);
@@ -120,8 +122,11 @@ const playerSelect = computed(() => {
 });
 
 onMounted(() => {
-  selectedCrowned.value =
-    props.settings?.crownedPlayer || playerSelect.value[0];
+  selectedCrowned.value = props.settings.crownedPlayer
+    ? props.players?.find(
+        (player) => player.id === props.settings.crownedPlayer
+      )
+    : playerSelect.value[0];
 });
 </script>
 

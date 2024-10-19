@@ -188,11 +188,13 @@ public class GameService {
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
     }
 
+    // Returns the game or throws an exception if it doesn't exist
     private GameEntity findGame(String code) {
         return gameRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
     }
 
+    // Removes n cards from the deck and returns them
     private List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
         List<DistrictEntity> drawnCards = new ArrayList<>();
         for (int i = 0; i < cardCount; i++) {
@@ -201,6 +203,7 @@ public class GameService {
         return drawnCards;
     }
 
+    // Assembles the starting deck with the given unique districts
     private List<DistrictEntity> assembleDeck(List<Long> uniqueDistricts) {
         Map<Long, DistrictEntity> districts =
             districtRepository.findAll().stream().collect(Collectors.toMap(DistrictEntity::getId, d -> d));
@@ -208,12 +211,14 @@ public class GameService {
             Stream.concat(assembleBaseDeck().stream(), uniqueDistricts.stream()).map(districts::get).toList());
     }
 
+    // Shuffles the deck
     private List<DistrictEntity> shuffleDeck(List<DistrictEntity> cards) {
         List<DistrictEntity> deck = new ArrayList<>(cards);
         Collections.shuffle(deck);
         return deck;
     }
 
+    // Assembles the starting deck without unique districts
     private List<Long> assembleBaseDeck() {
         List<Long> baseDeck = new ArrayList<>();
         configRepository
@@ -227,6 +232,7 @@ public class GameService {
         return baseDeck;
     }
 
+    // Discards random characters depending on game size
     private List<Integer> discardCharacters(int discardCount, int characters, List<Integer> excludes) {
         Random r = new Random();
         List<Integer> discardedCharacters = new ArrayList<>();
@@ -239,12 +245,14 @@ public class GameService {
         return discardedCharacters;
     }
 
+    // Returns the IDs of the districts recommended for the first game
     private List<Long> getDefaultUniqueDistricts() {
         return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT).stream()
             .map(ConfigEntity::getConfigId)
             .toList();
     }
 
+    // Returns the IDs of the characters recommended for the first game
     private List<CharacterEntity> getDefaultCharacters(boolean hasEightMaxPlayers) {
         return characterRepository.findAllByIdIn(
             configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
@@ -257,6 +265,7 @@ public class GameService {
                 .toList());
     }
 
+    // Ends the current player's turn and starts the next one's
     private void setNextPlayer(GameEntity game) {
         switch (game.getPhase()) {
             case SELECTION -> {
@@ -279,6 +288,7 @@ public class GameService {
         }
     }
 
+    // Validates if the game is in the given phase and the given player is on turn
     private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
         if (!Objects.equals(game.getPhase(), phase)) {
             throw new InvalidPhaseActionException(game.getId());
@@ -288,6 +298,7 @@ public class GameService {
         }
     }
 
+    // Returns a map that help reorder the players in case the crowned player changes
     private Map<Integer, Integer> assembleOrderMap(Integer startingOrder, Integer players) {
         int orderCounter = startingOrder;
         Map<Integer, Integer> orderMap = new HashMap<>();

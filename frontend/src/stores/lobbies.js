@@ -12,13 +12,14 @@ export const useLobbyStore = defineStore("lobby", () => {
   const getLobbies = computed(() => lobbies.value);
 
   const urls = {
-    join: (code) => `lobby/${code}/join`,
-    leave: (code) => `lobby/${code}/leave`,
-    kick: `lobby/kick`,
-    promote: `lobby/promote`,
     myGames: `my-games`,
     lobby: `lobby`,
     lobbies: `lobbies`,
+    join: (code) => `lobby/${code}/join`,
+    leave: (code) => `lobby/${code}/leave`,
+    promote: `lobby/promote`,
+    kick: `lobby/kick`,
+    crown: `lobby/crown`,
     start: (code) => `lobby/${code}/start`,
     delete: (code) => `lobby/${code}/delete`,
   };
@@ -51,11 +52,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     await router.push("/lobby/".concat(lobby.value.code));
   }
 
-  async function deleteLobby(code) {
-    await requestStore.request(urls.delete(code), REQ_TYPE.DELETE);
-    lobby.value = null;
-  }
-
   async function joinLobby(code) {
     console.log(urls);
     const response = await requestStore.request(
@@ -72,6 +68,13 @@ export const useLobbyStore = defineStore("lobby", () => {
     await router.push("/my-games");
   }
 
+  async function promoteMember(code, id) {
+    await requestStore.request(urls.promote, REQ_TYPE.POST, {
+      code: code,
+      memberId: id,
+    });
+  }
+
   async function kickMember(code, id) {
     await requestStore.request(urls.kick, REQ_TYPE.POST, {
       code: code,
@@ -79,8 +82,8 @@ export const useLobbyStore = defineStore("lobby", () => {
     });
   }
 
-  async function promoteMember(code, id) {
-    await requestStore.request(urls.promote, REQ_TYPE.POST, {
+  async function crownMember(code, id) {
+    await requestStore.request(urls.crown, REQ_TYPE.POST, {
       code: code,
       memberId: id,
     });
@@ -90,6 +93,11 @@ export const useLobbyStore = defineStore("lobby", () => {
     await requestStore.request(urls.start(code), REQ_TYPE.POST);
   }
 
+  async function deleteLobby(code) {
+    await requestStore.request(urls.delete(code), REQ_TYPE.DELETE);
+    lobby.value = null;
+  }
+
   return {
     getLobby,
     getLobbies,
@@ -97,11 +105,12 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchLobbies,
     fetchMyGames,
     createLobby,
-    deleteLobby,
     joinLobby,
     leaveLobby,
-    kickMember,
     promoteMember,
+    kickMember,
+    crownMember,
     startGame,
+    deleteLobby,
   };
 });
