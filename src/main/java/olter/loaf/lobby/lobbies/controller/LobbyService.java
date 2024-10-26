@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.games.controller.GameService;
-import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
@@ -210,7 +209,8 @@ public class LobbyService {
             game.setCrownedPlayer(null);
         } else {
             game.setCrownedPlayer(game.getPlayers().stream()
-                .filter(player -> Objects.equals(player.getUserId(), req.getMemberId())).findFirst()
+                .filter(player -> Objects.equals(player.getUserId(), req.getMemberId()))
+                .findFirst()
                 .orElseThrow(() -> new NotInGameException(game.getId(), req.getMemberId())));
         }
         broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, req.getMemberId());

@@ -63,7 +63,8 @@ public enum AbilityEnum {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 3 || target > game.getCharacters()
-                .size() && game.getKilledCharacter() == target.intValue() || game.getBewitchedCharacter() == target.intValue()) {
+                .size() && game.getKilledCharacter() == target.intValue() ||
+                game.getBewitchedCharacter() == target.intValue()) {
                 throw new InvalidTargetException(target, THIEF);
             }
             game.setRobbedCharacter(target.intValue());
@@ -151,6 +152,7 @@ public enum AbilityEnum {
                 game.getCurrentPlayer().giveGold(1);
             }
         }
+
         @Override
         public void useAbility(GameEntity game, List<Long> targets) {
             if (targets.get(0).equals(game.getCurrentPlayer().getId())) {

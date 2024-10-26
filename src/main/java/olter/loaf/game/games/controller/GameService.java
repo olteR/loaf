@@ -131,8 +131,18 @@ public class GameService {
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.SELECTION);
 
         List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
-            !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
-                !selectedCharacter.equals(c) && !game.getCurrentPlayer().getUnavailableCharacters().contains(c)
+            !game.getDownwardDiscard()
+                .equals(
+                    c) &&
+                !game.getUpwardDiscard()
+                    .contains(
+                        c) &&
+                !selectedCharacter.equals(
+                    c) &&
+                !game.getCurrentPlayer()
+                    .getUnavailableCharacters()
+                    .contains(
+                        c)
         ).collect(Collectors.toList());
 
         game.getCurrentPlayer().setCurrentCharacter(selectedCharacter);

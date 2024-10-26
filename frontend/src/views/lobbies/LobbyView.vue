@@ -95,7 +95,7 @@
             </Button>
             <Button
               v-if="isOwner"
-              :disabled="lobbyStore.getLobby.members?.length < 2"
+              :disabled="lobbyStore.getLobby.members?.length < 4"
               :loading="starting"
               @click="start()"
             >

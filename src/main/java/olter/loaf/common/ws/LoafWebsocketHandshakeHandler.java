@@ -23,7 +23,8 @@ public class LoafWebsocketHandshakeHandler extends DefaultHandshakeHandler {
     protected Principal determineUser(
         ServerHttpRequest request,
         WebSocketHandler webSocketHandler,
-        Map<String, Object> attributes) {
+        Map<String, Object> attributes
+    ) {
         if (!request.getURI().getQuery().isBlank()) {
             String user = jwtHandler.getUserIdFromToken(request.getURI().getQuery());
             log.info("Websocket authenticated for user: {}", user);

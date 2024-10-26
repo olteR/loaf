@@ -23,7 +23,8 @@ public class JwtFilter extends HttpFilter {
 
     @Override
     public void doFilter(
-        HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+    )
         throws ServletException, IOException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
