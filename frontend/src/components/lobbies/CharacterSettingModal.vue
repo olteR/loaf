@@ -25,12 +25,12 @@ import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterC
 
 const toggleValues = ref({});
 
+const emit = defineEmits(["save"]);
+
 const props = defineProps({
   characters: Array,
   selectedCharacters: Array,
 });
-
-const emit = defineEmits(["save"]);
 
 const sortedCharacters = computed(() => {
   let chars = props.characters;

@@ -19,15 +19,15 @@
   <CharacterList
     :details="gameStore.getGameDetails"
     :card-images="cardStore.getCharacterImages"
-    :can-select="
-      onTurn && gameStore.getGameDetails?.phase === GAME_PHASE.SELECTION
-    "
+    :can-select="canSelect"
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
     :cards="gameStore.getGameDetails?.hand"
     :card-images="cardStore.getDistrictImages"
+    :can-build="canBuild"
+    @build="(cost, cardIndex) => buildDistrict(cost, cardIndex)"
   ></PlayerHand>
   <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
     >Játék bezárása</Button
@@ -70,12 +70,16 @@ import Dialog from "primevue/dialog";
 import { GAME_MODAL, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
 import ActionButtons from "@/components/game/ActionButtons.vue";
+import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
+const toast = useToast();
+
 const stateStore = useStateStore();
 const cardStore = useCardStore();
 const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
+
 const socket = ref();
 const stompClient = ref();
 const currentModal = ref();
@@ -86,6 +90,16 @@ const onTurn = computed(() => {
   return (
     gameStore.getGameDetails?.currentPlayer.userId === stateStore.getUser.id
   );
+});
+
+const canSelect = computed(() => {
+  return (
+    onTurn.value && gameStore.getGameDetails?.phase === GAME_PHASE.SELECTION
+  );
+});
+
+const canBuild = computed(() => {
+  return onTurn.value && gameStore.getGameDetails?.phase === GAME_PHASE.TURN;
 });
 
 const currentMessage = computed(() => {
@@ -164,6 +178,19 @@ async function gatherResources(resource) {
     currentModal.value = GAME_MODAL.CARDS;
   } else {
     currentModal.value = null;
+  }
+}
+
+async function buildDistrict(cost, cardIndex) {
+  if (cost < gameStore.getGameDetails.gold) {
+    toast.add({
+      severity: "warn",
+      summary: "Hiányzó arany",
+      detail: "Nincs elég aranyad, hogy megépítsd a kerületet!",
+      life: 3000,
+    });
+  } else {
+    await gameStore.buildDistrict(lobbyCode, cardIndex);
   }
 }
 

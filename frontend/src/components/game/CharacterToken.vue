@@ -67,6 +67,8 @@ import { CHAR_STATUS, COLORS } from "@/utils/const";
 import ConfirmPopup from "primevue/confirmpopup";
 
 const confirm = useConfirm();
+
+const emit = defineEmits(["select"]);
 const props = defineProps({
   character: Object,
   image: Object,
@@ -74,7 +76,7 @@ const props = defineProps({
   status: String,
   canSelect: Boolean,
 });
-const emit = defineEmits(["select"]);
+
 const characterDiv = ref();
 
 const primaryColor = computed(() => {

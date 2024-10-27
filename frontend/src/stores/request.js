@@ -19,7 +19,7 @@ export const useRequestStore = defineStore("request", () => {
     } catch (error) {
       toast.add({
         severity: "error",
-        summary: "hiba.",
+        summary: "Hiba",
         detail: error,
         life: 3000,
       });

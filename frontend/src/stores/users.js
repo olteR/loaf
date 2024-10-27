@@ -14,8 +14,8 @@ export const useUserStore = defineStore("user", () => {
     await requestStore.request(urls.register, REQ_TYPE.POST, user);
     toast.add({
       severity: "success",
-      summary: "siker.",
-      detail: "sikeres regisztráció.",
+      summary: "Siker",
+      detail: "Sikeres regisztráció!",
       life: 3000,
     });
   }

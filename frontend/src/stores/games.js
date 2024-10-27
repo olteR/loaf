@@ -39,10 +39,13 @@ export const useGameStore = defineStore("game", () => {
     gameDetails.value.drawnCards = response.data;
   }
 
+  async function buildDistrict(code, cardIndex) {}
+
   return {
     getGameDetails: getGameDetails,
     fetchGameDetails,
     selectCharacter,
     gatherResources,
+    buildDistrict,
   };
 });

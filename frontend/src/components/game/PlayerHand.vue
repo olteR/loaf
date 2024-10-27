@@ -1,7 +1,7 @@
 <template>
   <div v-if="cards">
     <Transition name="fade">
-      <div v-if="isDragging" class="card-dropper">
+      <div v-if="isDragging && canBuild" class="card-dropper" ref="cardDropper">
         <i class="fa fa-hammer text-9xl mt-12"></i>
         <p class="text-5xl mt-12">Kerület építése</p>
       </div>
@@ -38,7 +38,7 @@
           :key="i"
           :hidden="!displayedCards.includes(card)"
           @drag-begin="isDragging = true"
-          @drag-end="isDragging = false"
+          @drag-end="(c) => onDragEnd(c, card, i)"
         ></DistrictCard>
       </div>
       <button
@@ -56,11 +56,15 @@
 import DistrictCard from "@/components/game/DistrictCard.vue";
 import { computed, ref } from "vue";
 
+const emit = defineEmits(["build"]);
+
 const props = defineProps({
   cards: Array,
   cardImages: Array,
+  canBuild: Boolean,
 });
 
+const cardDropper = ref();
 const page = ref(0);
 const isDragging = ref(false);
 
@@ -72,6 +76,27 @@ const cardsWidth = computed(() => {
     10 * displayedCards.value.length - 3 * (displayedCards.value.length - 1)
   );
 });
+
+function onDragEnd(elem, card, ind) {
+  if (doElementsCollide(elem.value, cardDropper.value)) {
+    emit("build", ind, card.cost);
+  }
+  isDragging.value = false;
+}
+
+function doElementsCollide(elem1, elem2) {
+  if (elem1 && elem2) {
+    const rect1 = elem1?.getBoundingClientRect();
+    const rect2 = elem2?.getBoundingClientRect();
+    return !(
+      rect1.right < rect2.left ||
+      rect1.left > rect2.right ||
+      rect1.bottom < rect2.top ||
+      rect1.top > rect2.bottom
+    );
+  }
+  return false;
+}
 </script>
 
 <style scoped>

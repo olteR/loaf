@@ -34,12 +34,12 @@ import Button from "primevue/button";
 
 const toggleValues = ref([]);
 
+const emit = defineEmits(["save"]);
+
 const props = defineProps({
   districts: Array,
   selectedDistricts: Array,
 });
-
-const emit = defineEmits(["save"]);
 
 const selectedCount = computed(
   () => toggleValues.value.filter((v) => v).length

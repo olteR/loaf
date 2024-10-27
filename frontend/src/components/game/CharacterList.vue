@@ -23,12 +23,12 @@
 import CharacterToken from "@/components/game/CharacterToken.vue";
 import { CHAR_STATUS } from "@/utils/const";
 
+const emit = defineEmits(["select"]);
 const props = defineProps({
   details: Object,
   cardImages: Array,
   canSelect: Boolean,
 });
-const emit = defineEmits(["select"]);
 
 function getStatus(number) {
   if (number === props.details?.currentPlayer?.currentCharacter)

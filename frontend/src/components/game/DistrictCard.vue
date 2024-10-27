@@ -38,18 +38,18 @@ import { COLORS } from "@/utils/const";
 
 const emit = defineEmits(["drag-begin", "drag-end"]);
 
+const props = defineProps({
+  card: Object,
+  order: Number,
+  image: Object,
+});
+
 const districtCard = ref();
 const positions = ref({
   clientX: undefined,
   clientY: undefined,
   movementX: 0,
   movementY: 0,
-});
-
-const props = defineProps({
-  card: Object,
-  order: Number,
-  image: Object,
 });
 
 const primaryColor = computed(() => {
@@ -84,7 +84,7 @@ function elementDrag(event) {
 }
 
 function closeDragElement() {
-  emit("drag-end");
+  emit("drag-end", districtCard);
   document.onmouseup = null;
   document.onmousemove = null;
   const resetPos = districtCard.value.animate(

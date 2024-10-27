@@ -37,8 +37,8 @@ onMounted(() => {
       stateStore.logoutUser();
       toast.add({
         severity: "error",
-        summary: "login expired",
-        detail: "please log in again.",
+        summary: "Lejárt bejelentkezés",
+        detail: "Kérjük lépj be újra!",
         group: "bc",
         life: 3000,
       });

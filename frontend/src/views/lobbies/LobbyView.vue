@@ -196,7 +196,7 @@ const errorCallback = function (error) {
 async function start() {
   toast.add({
     severity: "info",
-    summary: "Játék indítása...",
+    summary: "Játék indítása",
     detail: `A játék hamarosan elindul...`,
     life: 3000,
   });
@@ -204,7 +204,7 @@ async function start() {
   await lobbyStore.startGame(lobbyCode);
   toast.add({
     severity: "success",
-    summary: "Indítás sikeres!",
+    summary: "Indítás sikeres",
     detail: `Jó játékot!`,
     life: 3000,
   });
@@ -249,8 +249,8 @@ function handleLobbyUpdate(update) {
       lobbyStore.getLobby.members.push(update.change);
       toast.add({
         severity: "success",
-        summary: "Felhasználó csatlakozott!",
-        detail: `${update.change.displayName} csatlakozott a lobbihoz.`,
+        summary: "Felhasználó csatlakozott",
+        detail: `${update.change.displayName} csatlakozott a lobbihoz!`,
         life: 3000,
       });
       break;
@@ -265,8 +265,8 @@ function handleLobbyUpdate(update) {
       );
       toast.add({
         severity: "warn",
-        summary: "Felhasználó kilépett!",
-        detail: `${user.displayName} elhagyta a lobbit.`,
+        summary: "Felhasználó kilépett",
+        detail: `${user.displayName} elhagyta a lobbit!`,
         life: 3000,
       });
       break;
@@ -275,11 +275,11 @@ function handleLobbyUpdate(update) {
       lobbyStore.getLobby.owner = update.change;
       toast.add({
         severity: "info",
-        summary: "Új lobbi tulajdonos!",
+        summary: "Új lobbi tulajdonos",
         detail: `${
           lobbyStore.getLobby.members.find((m) => m.id === update.change)
             .displayName
-        } a lobbi új tulajdonosa.`,
+        } a lobbi új tulajdonosa!`,
         life: 3000,
       });
       break;
@@ -296,15 +296,15 @@ function handleLobbyUpdate(update) {
         router.push("/my-games");
         toast.add({
           severity: "error",
-          summary: "Eltávolítva!",
-          detail: `A tulajdonos eltávolított a lobbiból.`,
+          summary: "Eltávolítva",
+          detail: `A tulajdonos eltávolított a lobbiból!`,
           life: 3000,
         });
       } else {
         toast.add({
           severity: "error",
-          summary: "Felhasználó eltávolítva!",
-          detail: `${user.displayName} eltávolítva a lobbiból.`,
+          summary: "Felhasználó eltávolítva",
+          detail: `${user.displayName} eltávolítva a lobbiból!`,
           life: 3000,
         });
       }
@@ -325,7 +325,7 @@ function handleLobbyUpdate(update) {
     case LOBBY_UPDATE.START: {
       toast.add({
         severity: "info",
-        summary: "A játék indul!",
+        summary: "A játék indul",
         detail:
           "A lobbitulajdonos elindította a játékot, ami rögtön kezdetét veszi!",
         life: 3000,
@@ -337,7 +337,7 @@ function handleLobbyUpdate(update) {
     case LOBBY_UPDATE.DELETE: {
       toast.add({
         severity: "error",
-        summary: "Játék törölve!",
+        summary: "Játék törölve",
         detail: "A lobbitulajdonos kitörölte a játékot!",
         life: 3000,
       });

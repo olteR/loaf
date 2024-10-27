@@ -48,8 +48,8 @@ export const useStateStore = defineStore("state", () => {
     await handleLoginResponse(response);
     toast.add({
       severity: "success",
-      summary: "siker.",
-      detail: "sikeres bejelentkezés.",
+      summary: "Siker",
+      detail: "Sikeres bejelentkezés!",
       life: 3000,
     });
   }

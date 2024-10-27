@@ -107,6 +107,8 @@ import DistrictSettingModal from "@/components/lobbies/DistrictSettingModal.vue"
 import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
 import GameSettingDistrictCard from "@/components/lobbies/GameSettingDistrictCard.vue";
 
+const emit = defineEmits(["characters", "districts", "crown"]);
+
 const props = defineProps({
   isOwner: Boolean,
   settings: Object,
@@ -114,8 +116,6 @@ const props = defineProps({
   cards: Object,
   loading: Boolean,
 });
-
-const emit = defineEmits(["characters", "districts", "crown"]);
 
 const selectedCrowned = ref();
 const characterSettingsVisible = ref(false);
