@@ -24,7 +24,7 @@
         <label for="password">jelszó</label>
       </div>
       <div class="grid grid-cols-1">
-        <label for="maxMembers" class="text-center">maximum játékosok</label>
+        <label for="maxMembers" class="text-center">maximum játékos</label>
         <InputNumber
           v-model="lobbyForm.maxMembers"
           id="maxMembers"
@@ -91,7 +91,7 @@ const lobbyForm = ref({
   password: null,
   hidden: false,
   secured: false,
-  maxMembers: MAX_LOBBY_PLAYERS - 1,
+  maxMembers: MAX_LOBBY_PLAYERS,
 });
 
 const securedOptions = ref([

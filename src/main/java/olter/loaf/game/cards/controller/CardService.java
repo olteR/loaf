@@ -30,10 +30,8 @@ public class CardService {
 
     public CardsResponse getAllCards() {
         CardsResponse response = new CardsResponse();
-        response.setCharacters(
-            characterRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
-        response.setDistricts(
-            districtRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
+        response.setCharacters(characterRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
+        response.setDistricts(districtRepository.findAll().stream().map(cardMapper::entityToResponse).toList());
         return response;
     }
 }

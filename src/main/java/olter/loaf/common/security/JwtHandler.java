@@ -24,15 +24,10 @@ public class JwtHandler {
     private static final SignatureAlgorithm ALGORITHM = SignatureAlgorithm.HS512;
 
     public String generateJwt(String username, Map<String, Object> data) {
-        JwtBuilder jwtBuilder =
-            Jwts.builder()
-                .addClaims(data)
-                .setNotBefore(Date.from(ZonedDateTime.now().toInstant()))
-                .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
-                .setExpiration(Date.from(ZonedDateTime.now().plusHours(24).toInstant()))
-                .setIssuer(ISSUER)
-                .setAudience(AUDIENCE)
-                .signWith(ALGORITHM, SECRET);
+        JwtBuilder jwtBuilder = Jwts.builder().addClaims(data).setNotBefore(Date.from(ZonedDateTime.now().toInstant()))
+            .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
+            .setExpiration(Date.from(ZonedDateTime.now().plusHours(24).toInstant())).setIssuer(ISSUER)
+            .setAudience(AUDIENCE).signWith(ALGORITHM, SECRET);
         if (!data.containsKey("sub")) {
             jwtBuilder.setSubject(username);
         }

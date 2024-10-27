@@ -4,12 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum GamePhaseEnum {
-    NOT_STARTED("NOT_STARTED"),
-    SELECTION("SELECTION"),
-    RESOURCE("RESOURCE"),
-    TURN("TURN"),
-    FINAL_TURN("FINAL_TURN"),
-    ENDED("ENDED");
+    NOT_STARTED("NOT_STARTED"), SELECTION("SELECTION"), RESOURCE("RESOURCE"), TURN("TURN"), FINAL_TURN(
+        "FINAL_TURN"), ENDED("ENDED");
 
     private final String value;
 

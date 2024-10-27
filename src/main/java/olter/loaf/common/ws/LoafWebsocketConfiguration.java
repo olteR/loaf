@@ -23,10 +23,6 @@ public class LoafWebsocketConfiguration implements WebSocketMessageBrokerConfigu
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry
-            .addEndpoint("/ws")
-            .setHandshakeHandler(handshakeHandler)
-            .setAllowedOriginPatterns("*")
-            .withSockJS();
+        registry.addEndpoint("/ws").setHandshakeHandler(handshakeHandler).setAllowedOriginPatterns("*").withSockJS();
     }
 }

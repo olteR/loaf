@@ -19,24 +19,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.sessionManagement()
-            .sessionCreationPolicy(STATELESS)
-            .and()
-            .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .authorizeHttpRequests()
-            .requestMatchers("/", "/api/auth/**", "ws/**")
-            .permitAll()
-            .anyRequest()
-            .authenticated()
-            .and()
-            .csrf()
-            .disable()
-            .formLogin()
-            .disable()
-            .httpBasic()
-            .disable()
-            .logout()
-            .disable();
+        http.sessionManagement().sessionCreationPolicy(STATELESS).and()
+            .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class).authorizeHttpRequests()
+            .requestMatchers("/", "/api/auth/**", "ws/**").permitAll().anyRequest().authenticated().and().csrf()
+            .disable().formLogin().disable().httpBasic().disable().logout().disable();
         return http.build();
     }
 }

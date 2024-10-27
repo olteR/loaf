@@ -110,6 +110,7 @@
         :players="lobbyStore.getLobby?.members"
         :cards="cardStore.getCards"
         :loading="starting"
+        @characters="(characters) => updateCharacters(characters)"
         @districts="(districts) => updateDistricts(districts)"
         @crown="(player) => crownPlayer(player)"
       />
@@ -133,7 +134,7 @@ import ConfirmDialog from "primevue/confirmpopup";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import LobbySettings from "@/components/lobbies/LobbySettings.vue";
-import { LOBBY_STATUS } from "@/utils/const";
+import { LOBBY_STATUS, LOBBY_UPDATE } from "@/utils/const";
 
 const router = useRouter();
 const confirm = useConfirm();
@@ -209,6 +210,13 @@ async function start() {
   });
 }
 
+async function updateCharacters(characters) {
+  await lobbyStore.updateCharacters(
+    lobbyCode,
+    characters.map((character) => character.id)
+  );
+}
+
 async function updateDistricts(districts) {
   await lobbyStore.updateDistricts(
     lobbyCode,
@@ -237,7 +245,7 @@ const openDeleteModal = (event) => {
 
 function handleLobbyUpdate(update) {
   switch (update.type) {
-    case "JOIN": {
+    case LOBBY_UPDATE.JOIN: {
       lobbyStore.getLobby.members.push(update.change);
       toast.add({
         severity: "success",
@@ -247,7 +255,7 @@ function handleLobbyUpdate(update) {
       });
       break;
     }
-    case "LEAVE": {
+    case LOBBY_UPDATE.LEAVE: {
       const user = lobbyStore.getLobby.members.find(
         (m) => m.id === update.change
       );
@@ -263,7 +271,7 @@ function handleLobbyUpdate(update) {
       });
       break;
     }
-    case "OWNER": {
+    case LOBBY_UPDATE.OWNER: {
       lobbyStore.getLobby.owner = update.change;
       toast.add({
         severity: "info",
@@ -276,7 +284,7 @@ function handleLobbyUpdate(update) {
       });
       break;
     }
-    case "KICK": {
+    case LOBBY_UPDATE.KICK: {
       const user = lobbyStore.getLobby.members.find(
         (m) => m.id === update.change
       );
@@ -302,15 +310,19 @@ function handleLobbyUpdate(update) {
       }
       break;
     }
-    case "DISTRICTS": {
+    case LOBBY_UPDATE.CHARACTERS: {
+      lobbyStore.getLobby.gameSettings.characters = update.change;
+      break;
+    }
+    case LOBBY_UPDATE.DISTRICTS: {
       lobbyStore.getLobby.gameSettings.uniqueDistricts = update.change;
       break;
     }
-    case "CROWN": {
+    case LOBBY_UPDATE.CROWN: {
       lobbyStore.getLobby.gameSettings.crownedPlayer = update.change;
       break;
     }
-    case "START": {
+    case LOBBY_UPDATE.START: {
       toast.add({
         severity: "info",
         summary: "A játék indul!",
@@ -322,7 +334,7 @@ function handleLobbyUpdate(update) {
       router.push("/game/" + lobbyCode);
       break;
     }
-    case "DELETE": {
+    case LOBBY_UPDATE.DELETE: {
       toast.add({
         severity: "error",
         summary: "Játék törölve!",

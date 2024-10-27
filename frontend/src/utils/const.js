@@ -23,8 +23,8 @@ export const BREADCRUMB = {
 };
 
 export const MAX_UNIQUE_DISTRICTS = 14;
-export const MIN_LOBBY_PLAYERS = 3;
-export const MAX_LOBBY_PLAYERS = 8;
+export const MIN_LOBBY_PLAYERS = 4;
+export const MAX_LOBBY_PLAYERS = 7;
 
 export const COLORS = {
   NOBLE: {
@@ -118,6 +118,18 @@ export const DISTRICT_TYPE = {
   TRADE: "TRADE",
   MILITARY: "MILITARY",
   UNIQUE: "UNIQUE",
+};
+
+export const LOBBY_UPDATE = {
+  JOIN: "JOIN",
+  LEAVE: "LEAVE",
+  OWNER: "OWNER",
+  KICK: "KICK",
+  CHARACTERS: "CHARACTERS",
+  DISTRICTS: "DISTRICTS",
+  CROWN: "CROWN",
+  START: "START",
+  DELETE: "DELETE",
 };
 
 export const GAME_UPDATE = {

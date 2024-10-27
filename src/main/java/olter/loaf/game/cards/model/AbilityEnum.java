@@ -13,44 +13,37 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, Long target) {
             getTypeGold(game, DistrictTypeEnum.NOBLE);
         }
-    },
-    NOBLE_CARDS("NOBLE_CARDS") {
+    }, NOBLE_CARDS("NOBLE_CARDS") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             getTypeCards(game, DistrictTypeEnum.NOBLE);
         }
-    },
-    RELIGIOUS_GOLD("RELIGIOUS_GOLD") {
+    }, RELIGIOUS_GOLD("RELIGIOUS_GOLD") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             getTypeGold(game, DistrictTypeEnum.RELIGIOUS);
         }
-    },
-    RELIGIOUS_CARDS("RELIGIOUS_CARDS") {
+    }, RELIGIOUS_CARDS("RELIGIOUS_CARDS") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             getTypeCards(game, DistrictTypeEnum.RELIGIOUS);
         }
-    },
-    TRADE_GOLD("TRADE_GOLD") {
+    }, TRADE_GOLD("TRADE_GOLD") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             getTypeGold(game, DistrictTypeEnum.TRADE);
         }
-    },
-    MILITARY_GOLD("MILITARY_GOLD") {
+    }, MILITARY_GOLD("MILITARY_GOLD") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             getTypeGold(game, DistrictTypeEnum.MILITARY);
         }
-    },
-    TAKE_CROWN("TAKE_CROWN") {
+    }, TAKE_CROWN("TAKE_CROWN") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             game.setCrownedPlayer(game.getCurrentPlayer());
         }
-    },
-    ASSASSIN("ASSASSIN") {
+    }, ASSASSIN("ASSASSIN") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 2 || target > game.getCharacters().size()) {
@@ -58,19 +51,16 @@ public enum AbilityEnum {
             }
             game.setKilledCharacter(target.intValue());
         }
-    },
-    THIEF("THIEF") {
+    }, THIEF("THIEF") {
         @Override
         public void useAbility(GameEntity game, Long target) {
-            if (target < 3 || target > game.getCharacters()
-                .size() && game.getKilledCharacter() == target.intValue() ||
+            if (target < 3 || target > game.getCharacters().size() && game.getKilledCharacter() == target.intValue() ||
                 game.getBewitchedCharacter() == target.intValue()) {
                 throw new InvalidTargetException(target, THIEF);
             }
             game.setRobbedCharacter(target.intValue());
         }
-    },
-    MAGICIAN_PLAYER("MAGICIAN_PLAYER") {
+    }, MAGICIAN_PLAYER("MAGICIAN_PLAYER") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target.equals(game.getCurrentPlayer().getId())) {
@@ -81,8 +71,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setHand(targetPlayer.getHand());
             targetPlayer.setHand(magicianHand);
         }
-    },
-    MAGICIAN_DECK("MAGICIAN_DECK") {
+    }, MAGICIAN_DECK("MAGICIAN_DECK") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             discardCard(game, target);
@@ -94,32 +83,27 @@ public enum AbilityEnum {
             targets.forEach(target -> discardCard(game, target));
             game.getCurrentPlayer().giveCards(drawFromDeck(game, targets.size()));
         }
-    },
-    MERCHANT("MERCHANT") {
+    }, MERCHANT("MERCHANT") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             game.getCurrentPlayer().giveGold(1);
         }
-    },
-    ARCHITECT("ARCHITECT") {
+    }, ARCHITECT("ARCHITECT") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             game.getCurrentPlayer().giveCards(drawFromDeck(game, 2));
         }
-    },
-    WARLORD("WARLORD") {
+    }, WARLORD("WARLORD") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             // TODO
         }
-    },
-    QUEEN("QUEEN") {
+    }, QUEEN("QUEEN") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             // TODO
         }
-    },
-    WITCH("WITCH") {
+    }, WITCH("WITCH") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 2 || target > game.getCharacters().size()) {
@@ -127,20 +111,17 @@ public enum AbilityEnum {
             }
             game.setKilledCharacter(target.intValue());
         }
-    },
-    SPY("SPY") {
+    }, SPY("SPY") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             // TODO
         }
-    },
-    WIZARD("WIZARD") {
+    }, WIZARD("WIZARD") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             // TODO
         }
-    },
-    EMPEROR("EMPEROR") {
+    }, EMPEROR("EMPEROR") {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target.equals(game.getCurrentPlayer().getId())) {
@@ -183,15 +164,14 @@ public enum AbilityEnum {
     }
 
     protected PlayerEntity findPlayer(GameEntity game, Long target, AbilityEnum ability) {
-        return game.getPlayers().stream()
-            .filter(player -> player.getId().equals(target)).findFirst()
+        return game.getPlayers().stream().filter(player -> player.getId().equals(target)).findFirst()
             .orElseThrow(() -> new InvalidTargetException(target, ability));
     }
 
     protected void discardCard(GameEntity game, Long target) {
-        game.getCurrentPlayer().getHand()
-            .remove(game.getCurrentPlayer().getHand().stream().filter(district -> district.getId().equals(target))
-                .findFirst().orElseThrow(() -> new InvalidTargetException(target, MAGICIAN_DECK)));
+        game.getCurrentPlayer().getHand().remove(
+            game.getCurrentPlayer().getHand().stream().filter(district -> district.getId().equals(target)).findFirst()
+                .orElseThrow(() -> new InvalidTargetException(target, MAGICIAN_DECK)));
     }
 
     protected List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
@@ -203,13 +183,14 @@ public enum AbilityEnum {
     }
 
     protected void getTypeGold(GameEntity game, DistrictTypeEnum type) {
-        game.getCurrentPlayer()
-            .giveGold(game.getCurrentPlayer().getDistricts().stream().filter(district -> district.getType() == type)
-                .toList().size());
+        game.getCurrentPlayer().giveGold(
+            game.getCurrentPlayer().getDistricts().stream().filter(district -> district.getType() == type).toList()
+                .size());
     }
 
     protected void getTypeCards(GameEntity game, DistrictTypeEnum type) {
-        game.getCurrentPlayer().giveCards(drawFromDeck(game, game.getCurrentPlayer().getDistricts().stream()
-            .filter(district -> district.getType() == type).toList().size()));
+        game.getCurrentPlayer().giveCards(drawFromDeck(game,
+            game.getCurrentPlayer().getDistricts().stream().filter(district -> district.getType() == type).toList()
+                .size()));
     }
 }

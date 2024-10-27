@@ -31,21 +31,14 @@ public class UserService implements UserDetailsService {
     private final JwtHandler jwtHandler;
 
     public LoginResponse loginUser(LoginRequest loginRequest) {
-        UserEntity user =
-            userRepository
-                .findByName(loginRequest.getName())
-                .orElseThrow(
-                    () ->
-                        new ResponseStatusException(
-                            HttpStatus.UNAUTHORIZED, "User not found with this name"));
+        UserEntity user = userRepository.findByName(loginRequest.getName())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found with this name"));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
         log.info("{} logging in", user.getName());
-        return new LoginResponse(
-            user.getId(),
-            user.getName(),
+        return new LoginResponse(user.getId(), user.getName(),
             jwtHandler.generateJwt(user.getName(), Map.of("uid", user.getId())));
     }
 
@@ -57,20 +50,14 @@ public class UserService implements UserDetailsService {
     }
 
     public UserEntity getLoggedInUser(String name) {
-        return userRepository
-            .findByName(name)
+        return userRepository.findByName(name)
             .orElseThrow(() -> new ResourceNotFoundException(UserEntity.class.getName(), name));
     }
 
     @Override
     public UserDetails loadUserByUsername(String name) {
-        return userEntityToUserDetails(
-            userRepository
-                .findByName(name)
-                .orElseThrow(
-                    () ->
-                        new ResponseStatusException(
-                            HttpStatus.UNAUTHORIZED, "User not found with this username")));
+        return userEntityToUserDetails(userRepository.findByName(name).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found with this username")));
     }
 
     private UserDetails userEntityToUserDetails(UserEntity userEntity) {

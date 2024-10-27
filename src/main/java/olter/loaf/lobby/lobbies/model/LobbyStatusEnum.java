@@ -4,9 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum LobbyStatusEnum {
-    CREATED("CREATED"),
-    ONGOING("ONGOING"),
-    ENDED("ENDED");
+    CREATED("CREATED"), ONGOING("ONGOING"), ENDED("ENDED");
 
     private final String value;
 

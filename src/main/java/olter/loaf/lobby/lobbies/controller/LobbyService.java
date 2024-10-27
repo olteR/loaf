@@ -3,6 +3,8 @@ package olter.loaf.lobby.lobbies.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
+import olter.loaf.game.cards.model.CharacterEntity;
+import olter.loaf.game.cards.model.CharacterRepository;
 import olter.loaf.game.games.controller.GameService;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
@@ -23,10 +25,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +35,7 @@ public class LobbyService {
     private final PlayerRepository playerRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final CharacterRepository characterRepository;
     private final LobbyMapper lobbyMapper;
     private final UserMapper userMapper;
     private final GameService gameService;
@@ -56,18 +56,14 @@ public class LobbyService {
 
     public List<LobbyListResponse> getLobbies(UserEntity loggedInUser) {
         log.info("Getting lobbies for {}", loggedInUser.getName());
-        return lobbyRepository.findAll().stream()
-            .filter(l -> !l.getMembers().contains(loggedInUser))
-            .map(lobbyMapper::entityToListResponse)
-            .toList();
+        return lobbyRepository.findAll().stream().filter(l -> !l.getMembers().contains(loggedInUser))
+            .map(lobbyMapper::entityToListResponse).toList();
     }
 
     public List<LobbyListResponse> getMyGames(UserEntity loggedInUser) {
         log.info("Getting games for {}", loggedInUser.getName());
-        return lobbyRepository.findAll().stream()
-            .filter(l -> l.getMembers().contains(loggedInUser))
-            .map(lobbyMapper::entityToListResponse)
-            .toList();
+        return lobbyRepository.findAll().stream().filter(l -> l.getMembers().contains(loggedInUser))
+            .map(lobbyMapper::entityToListResponse).toList();
     }
 
     public LobbyDetailsResponse createLobby(LobbyCreationRequest request, UserEntity creator) {
@@ -182,7 +178,18 @@ public class LobbyService {
         log.info("Updating characters in lobby {}", req.getCode());
         validateOwnerRequest(lobby, user);
 
+        List<CharacterEntity> characters = characterRepository.findAllByIdIn(req.getIds());
+        characters.sort(Comparator.comparing(CharacterEntity::getNumber));
+        for (int i = 0; i < characters.size(); i++) {
+            if (!characters.get(i).getNumber().equals(i + 1)) {
+                throw new InvalidCharactersException(req.getCode());
+            }
+        }
+
         GameEntity game = lobby.getGame();
+        game.setCharacters(characters);
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, req.getIds());
+        gameRepository.save(game);
     }
 
     public void updateDistricts(UserEntity user, LobbySettingDto req) {
@@ -208,10 +215,9 @@ public class LobbyService {
         if (req.getMemberId() == null) {
             game.setCrownedPlayer(null);
         } else {
-            game.setCrownedPlayer(game.getPlayers().stream()
-                .filter(player -> Objects.equals(player.getUserId(), req.getMemberId()))
-                .findFirst()
-                .orElseThrow(() -> new NotInGameException(game.getId(), req.getMemberId())));
+            game.setCrownedPlayer(
+                game.getPlayers().stream().filter(player -> Objects.equals(player.getUserId(), req.getMemberId()))
+                    .findFirst().orElseThrow(() -> new NotInGameException(game.getId(), req.getMemberId())));
         }
         broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, req.getMemberId());
         gameRepository.save(game);
@@ -230,19 +236,17 @@ public class LobbyService {
 
     // Returns the lobby or throws an exception if it doesn't exist
     private LobbyEntity findLobby(String code) {
-        return lobbyRepository
-            .findByCode(code)
+        return lobbyRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
     }
 
     // Broadcasts the update to all the members of the lobby
     private void broadcastOnWebsocket(List<UserEntity> members, LobbyUpdateTypeEnum updateType, Object change) {
-        members.forEach(
-            m -> {
-                log.info("Broadcasting {} to {}", updateType.getValue(), m.getId());
-                simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",
-                    new LobbyUpdateDto(updateType, change));
-            });
+        members.forEach(m -> {
+            log.info("Broadcasting {} to {}", updateType.getValue(), m.getId());
+            simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",
+                new LobbyUpdateDto(updateType, change));
+        });
     }
 
     // Validates if the given user is the owner and the game hasn't started yet

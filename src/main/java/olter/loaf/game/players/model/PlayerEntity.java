@@ -50,16 +50,12 @@ public class PlayerEntity extends BaseEntity {
     private GameEntity game;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "player_hand",
-        joinColumns = @JoinColumn(name = "player_id"),
+    @JoinTable(name = "player_hand", joinColumns = @JoinColumn(name = "player_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> hand;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "player_draw",
-        joinColumns = @JoinColumn(name = "player_id"),
+    @JoinTable(name = "player_draw", joinColumns = @JoinColumn(name = "player_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> drawnCards;
 

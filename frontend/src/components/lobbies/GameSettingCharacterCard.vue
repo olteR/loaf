@@ -46,6 +46,7 @@ import { COLORS, CARD_POS } from "@/utils/const";
 
 const props = defineProps({
   character: Object,
+  selected: Boolean,
   isBig: Boolean,
 });
 
@@ -54,16 +55,17 @@ const imageSource = computed(
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  return (
-    COLORS[props.character.districtTypeBonus]?.PRIMARY || COLORS.DEFAULT.PRIMARY
-  );
+  return props.selected
+    ? COLORS[props.character.districtTypeBonus]?.PRIMARY ??
+        COLORS.DEFAULT.PRIMARY
+    : COLORS.DISABLED.PRIMARY;
 });
 
 const secondaryColor = computed(() => {
-  return (
-    COLORS[props.character.districtTypeBonus]?.SECONDARY ||
-    COLORS.DEFAULT.SECONDARY
-  );
+  return props.selected
+    ? COLORS[props.character.districtTypeBonus]?.SECONDARY ??
+        COLORS.DEFAULT.SECONDARY
+    : COLORS.DISABLED.SECONDARY;
 });
 </script>
 

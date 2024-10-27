@@ -60,7 +60,7 @@ function toggle(index) {
 function saveDistricts() {
   emit(
     "save",
-    props.districts.filter((district, ind) => toggleValues.value[ind])
+    props.districts.filter((_, ind) => toggleValues.value[ind])
   );
 }
 </script>

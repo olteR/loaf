@@ -20,9 +20,7 @@ public class LoafWebsocketHandshakeHandler extends DefaultHandshakeHandler {
     private final JwtHandler jwtHandler;
 
     @Override
-    protected Principal determineUser(
-        ServerHttpRequest request,
-        WebSocketHandler webSocketHandler,
+    protected Principal determineUser(ServerHttpRequest request, WebSocketHandler webSocketHandler,
         Map<String, Object> attributes
     ) {
         if (!request.getURI().getQuery().isBlank()) {

@@ -26,6 +26,7 @@
                     :character="
                       cards.characters?.find((d) => d.id === character)
                     "
+                    selected
                     is-big
                   />
                 </div>
@@ -75,7 +76,11 @@
       modal
       header="Karakterek módosítása"
     >
-      <CharacterSettingModal :characters="cards.characters" />
+      <CharacterSettingModal
+        :characters="cards.characters"
+        :selected-characters="settings.characters"
+        @save="(c) => saveCharacters(c)"
+      />
     </Dialog>
     <Dialog
       v-model:visible="districtSettingsVisible"
@@ -133,6 +138,11 @@ onMounted(() => {
 function saveDistricts(districts) {
   emit("districts", districts);
   districtSettingsVisible.value = false;
+}
+
+function saveCharacters(characters) {
+  emit("characters", characters);
+  characterSettingsVisible.value = false;
 }
 </script>
 

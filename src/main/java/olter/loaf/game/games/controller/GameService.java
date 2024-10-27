@@ -112,9 +112,8 @@ public class GameService {
         log.info("Getting game details of {} for {}", code, loggedInUser.getName());
         GameEntity game = findGame(code);
 
-        PlayerEntity player =
-            playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
-                .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
+        PlayerEntity player = playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
+            .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
 
         game.getPlayers().forEach(p -> {
             if (!p.getIsRevealed() && !p.getUserId().equals(loggedInUser.getId())) {
@@ -130,20 +129,10 @@ public class GameService {
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.SELECTION);
 
-        List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(c ->
-            !game.getDownwardDiscard()
-                .equals(
-                    c) &&
-                !game.getUpwardDiscard()
-                    .contains(
-                        c) &&
-                !selectedCharacter.equals(
-                    c) &&
-                !game.getCurrentPlayer()
-                    .getUnavailableCharacters()
-                    .contains(
-                        c)
-        ).collect(Collectors.toList());
+        List<Integer> skippedCharacters = IntStream.rangeClosed(1, game.getCharacters().size()).boxed().filter(
+                c -> !game.getDownwardDiscard().equals(c) && !game.getUpwardDiscard().contains(c) &&
+                    !selectedCharacter.equals(c) && !game.getCurrentPlayer().getUnavailableCharacters().contains(c))
+            .collect(Collectors.toList());
 
         game.getCurrentPlayer().setCurrentCharacter(selectedCharacter);
         game.getCurrentPlayer().setSkippedCharacters(skippedCharacters);
@@ -151,26 +140,21 @@ public class GameService {
         logService.logCharacterSelection(game, game.getCurrentPlayer());
 
         setNextPlayer(game);
-        game
-            .getPlayers()
-            .forEach(
-                p -> {
-                    log.info("Broadcasting next player to {}", p.getUserId());
-                    if (game.getCurrentPlayer().getId().equals(p.getId())) {
-                        List<Integer> unavailableCharacters = new ArrayList<>(
-                            game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(
-                                Objects::nonNull).toList());
-                        unavailableCharacters.add(game.getDownwardDiscard());
-                        p.setUnavailableCharacters(unavailableCharacters);
-                        simpMessagingTemplate.convertAndSendToUser(
-                            String.valueOf(p.getUserId()), "/topic/game/update",
-                            new GameUpdateDto(GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
-                    } else {
-                        simpMessagingTemplate.convertAndSendToUser(
-                            String.valueOf(p.getUserId()), "/topic/game/update",
-                            new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
-                    }
-                });
+        game.getPlayers().forEach(p -> {
+            log.info("Broadcasting next player to {}", p.getUserId());
+            if (game.getCurrentPlayer().getId().equals(p.getId())) {
+                List<Integer> unavailableCharacters = new ArrayList<>(
+                    game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
+                        .toList());
+                unavailableCharacters.add(game.getDownwardDiscard());
+                p.setUnavailableCharacters(unavailableCharacters);
+                simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                    new GameUpdateDto(GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
+            } else {
+                simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                    new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
+            }
+        });
         gameRepository.save(game);
         return skippedCharacters;
     }
@@ -231,14 +215,11 @@ public class GameService {
     // Assembles the starting deck without unique districts
     private List<Long> assembleBaseDeck() {
         List<Long> baseDeck = new ArrayList<>();
-        configRepository
-            .findAllByType(ConfigTypeEnum.BASE_CARD)
-            .forEach(
-                configEntity -> {
-                    for (int i = 0; i < configEntity.getConfigValue(); ++i) {
-                        baseDeck.add(configEntity.getConfigId());
-                    }
-                });
+        configRepository.findAllByType(ConfigTypeEnum.BASE_CARD).forEach(configEntity -> {
+            for (int i = 0; i < configEntity.getConfigValue(); ++i) {
+                baseDeck.add(configEntity.getConfigId());
+            }
+        });
         return baseDeck;
     }
 
@@ -258,21 +239,18 @@ public class GameService {
     // Returns the IDs of the districts recommended for the first game
     private List<Long> getDefaultUniqueDistricts() {
         return configRepository.findAllByType(ConfigTypeEnum.DEFAULT_UNIQUE_DISTRICT).stream()
-            .map(ConfigEntity::getConfigId)
-            .toList();
+            .map(ConfigEntity::getConfigId).toList();
     }
 
     // Returns the IDs of the characters recommended for the first game
     private List<CharacterEntity> getDefaultCharacters(boolean hasEightMaxPlayers) {
         return characterRepository.findAllByIdIn(
             configRepository.findAllByType(ConfigTypeEnum.DEFAULT_CHARACTER).stream().filter(c -> {
-                    if (!hasEightMaxPlayers) {
-                        return c.getConfigValue() != 9;
-                    }
-                    return true;
-                })
-                .map(ConfigEntity::getConfigId)
-                .toList());
+                if (!hasEightMaxPlayers) {
+                    return c.getConfigValue() != 9;
+                }
+                return true;
+            }).map(ConfigEntity::getConfigId).toList());
     }
 
     // Ends the current player's turn and starts the next one's

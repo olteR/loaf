@@ -18,37 +18,29 @@ public class GameEndpoint {
     private final GameService gameService;
 
     @GetMapping("/game/{code}/details")
-    public ResponseEntity<GameDetailsResponse> getGameDetails(
-        @PathVariable String code,
+    public ResponseEntity<GameDetailsResponse> getGameDetails(@PathVariable String code,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(gameService.getGame(code, user));
     }
 
     @GetMapping("game/{code}/select")
-    public ResponseEntity<List<Integer>> selectCharacter(
-        @PathVariable String code, @RequestParam Integer character,
+    public ResponseEntity<List<Integer>> selectCharacter(@PathVariable String code, @RequestParam Integer character,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(gameService.selectCharacter(code, character, user));
     }
 
     @GetMapping("game/{code}/resource")
-    public ResponseEntity<List<DistrictResponse>> gatherResources(
-        @PathVariable String code,
-        @RequestParam ResourceTypeEnum type,
-        @SecurityAnnotations.GetLoggedInUser
-        UserEntity user
+    public ResponseEntity<List<DistrictResponse>> gatherResources(@PathVariable String code,
+        @RequestParam ResourceTypeEnum type, @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(gameService.gatherResources(code, type, user));
     }
 
     @GetMapping("game/{code}/build")
-    public ResponseEntity<Void> buildDistrict(
-        @PathVariable String code,
-        @RequestParam Long district,
-        @SecurityAnnotations.GetLoggedInUser
-        UserEntity user
+    public ResponseEntity<Void> buildDistrict(@PathVariable String code, @RequestParam Long district,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         gameService.buildDistrict(code, district, user);
         return ResponseEntity.ok().build();

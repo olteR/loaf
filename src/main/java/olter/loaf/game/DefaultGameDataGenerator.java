@@ -247,8 +247,8 @@ public class DefaultGameDataGenerator {
                 "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>", null,
                 List.of()), new CharacterEntity(16L, 7, "Navigátor",
                 "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t" +
-                    ".</p><p>Nem építhetsz semmilyen kerületet ebben a körben.</p>",
-                null, List.of()), new CharacterEntity(17L, 8, "Diplomata",
+                    ".</p><p>Nem építhetsz semmilyen kerületet ebben a körben.</p>", null, List.of()),
+            new CharacterEntity(17L, 8, "Diplomata",
                 "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> a városodban lévő minden egyes <span " +
                     "style=\"font-variant: small-caps\">katonai</span> <i class=\"fa fa-city\"></i> után.</p>",
                 DistrictTypeEnum.MILITARY, List.of(AbilityEnum.MILITARY_GOLD)),

@@ -36,9 +36,7 @@ public class LobbyEntity extends BaseEntity {
     private GameEntity game;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "lobby_users",
-        joinColumns = {@JoinColumn(name = "lobby_id")},
+    @JoinTable(name = "lobby_users", joinColumns = {@JoinColumn(name = "lobby_id")},
         inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private List<UserEntity> members;
 }
