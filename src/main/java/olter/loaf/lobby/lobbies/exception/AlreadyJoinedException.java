@@ -10,7 +10,7 @@ public class AlreadyJoinedException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> AlreadyJoinedException(Long lobbyId, Long userId) {
-        super("user " + userId + " already in lobby " + lobbyId);
+    public <T> AlreadyJoinedException(String code, Long userId) {
+        super("user " + userId + " already in lobby " + code);
     }
 }

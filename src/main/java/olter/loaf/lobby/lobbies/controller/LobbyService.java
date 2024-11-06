@@ -66,7 +66,7 @@ public class LobbyService {
             .map(lobbyMapper::entityToListResponse).toList();
     }
 
-    public LobbyDetailsResponse createLobby(LobbyCreationRequest request, UserEntity creator) {
+    public LobbyDetailsResponse createLobby(LobbyRequest request, UserEntity creator) {
         log.info("{} creating lobby...", request.getName());
         LobbyEntity lobby = new LobbyEntity();
         lobbyMapper.map(request, lobby);
@@ -76,13 +76,30 @@ public class LobbyService {
 
         while (lobby.getCode() == null || lobbyRepository.existsByCode(lobby.getCode())) {
             lobby.setCode(generateLobbyCode());
-            log.info("{}Lobby code generated: {}", request.getName(), lobby.getCode());
+            log.info("{} Lobby code generated: {}", request.getName(), lobby.getCode());
         }
 
         if (request.getSecured() != null && request.getSecured()) {
             lobby.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         lobby.setGame(gameService.createGameForLobby(lobby));
+        lobbyRepository.save(lobby);
+
+        return lobbyMapper.entityToDetailsResponse(lobby);
+    }
+
+    public LobbyDetailsResponse editLobby(LobbyRequest request, String code, UserEntity user) {
+        log.info("{} editing lobby {}...", request.getName(), code);
+        LobbyEntity lobby = findLobby(code);
+        validateOwnerRequest(lobby, user);
+        if (lobby.getMembers().size() > request.getMaxMembers()) {
+            throw new TooManyMembersException(code);
+        }
+
+        lobbyMapper.map(request, lobby);
+        if (request.getSecured() != null && request.getSecured()) {
+            lobby.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         lobbyRepository.save(lobby);
 
         return lobbyMapper.entityToDetailsResponse(lobby);
@@ -114,7 +131,7 @@ public class LobbyService {
         LobbyEntity lobby = findLobby(code);
         List<UserEntity> members = lobby.getMembers();
         PlayerEntity leavingPlayer = playerRepository.findByUserIdAndGame(user.getId(), lobby.getGame())
-            .orElseThrow(() -> new NotInLobbyException(lobby.getId(), user.getId()));
+            .orElseThrow(() -> new NotInLobbyException(code, user.getId()));
         log.info("{} leaving lobby {}", user.getName(), lobby.getName());
 
         validateProgress(lobby);
@@ -136,7 +153,7 @@ public class LobbyService {
         List<UserEntity> members = lobby.getMembers();
 
         PlayerEntity kickedPlayer = playerRepository.findByUserIdAndGame(req.getMemberId(), lobby.getGame())
-            .orElseThrow(() -> new NotInLobbyException(lobby.getId(), req.getMemberId()));
+            .orElseThrow(() -> new NotInLobbyException(req.getCode(), req.getMemberId()));
         log.info("Kicking member {} from lobby {}", req.getMemberId(), req.getCode());
 
         validateOwnerRequest(lobby, user);
@@ -217,7 +234,7 @@ public class LobbyService {
         } else {
             game.setCrownedPlayer(
                 game.getPlayers().stream().filter(player -> Objects.equals(player.getUserId(), req.getMemberId()))
-                    .findFirst().orElseThrow(() -> new NotInGameException(game.getId(), req.getMemberId())));
+                    .findFirst().orElseThrow(() -> new NotInGameException(req.getCode(), req.getMemberId())));
         }
         broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, req.getMemberId());
         gameRepository.save(game);
@@ -252,7 +269,7 @@ public class LobbyService {
     // Validates if the given user is the owner and the game hasn't started yet
     private void validateOwnerRequest(LobbyEntity lobby, UserEntity user) {
         if (!Objects.equals(lobby.getOwner(), user.getId())) {
-            throw new NoPrivilegeException(lobby.getId(), user.getId());
+            throw new NoPrivilegeException(lobby.getCode(), user.getId());
         }
         validateProgress(lobby);
     }
@@ -260,17 +277,17 @@ public class LobbyService {
     // Validates if the given user in the lobby
     private void validateContainment(LobbyEntity lobby, Long userId) {
         if (!lobby.getMembers().stream().map(UserEntity::getId).toList().contains(userId)) {
-            throw new NotInLobbyException(lobby.getId(), userId);
+            throw new NotInLobbyException(lobby.getCode(), userId);
         }
     }
 
     // Validates if the given user can join the lobby
     private void validateJoin(LobbyEntity lobby, UserEntity user) {
         if (lobby.getMembers().contains(user)) {
-            throw new AlreadyJoinedException(lobby.getId(), user.getId());
+            throw new AlreadyJoinedException(lobby.getCode(), user.getId());
         }
         if (lobby.getMaxMembers() == lobby.getMembers().size()) {
-            throw new LobbyFullException(lobby.getId());
+            throw new TooManyMembersException(lobby.getCode());
         }
         validateProgress(lobby);
     }
@@ -278,7 +295,7 @@ public class LobbyService {
     // Validates that the game hasn't started yet
     private void validateProgress(LobbyEntity lobby) {
         if (!Objects.equals(lobby.getStatus(), LobbyStatusEnum.CREATED)) {
-            throw new GameInProgressException(lobby.getId());
+            throw new GameInProgressException(lobby.getCode());
         }
     }
 

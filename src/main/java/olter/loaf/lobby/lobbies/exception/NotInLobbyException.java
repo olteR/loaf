@@ -10,7 +10,7 @@ public class NotInLobbyException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NotInLobbyException(Long lobbyId, Long userId) {
-        super("user " + userId + " unauthorized to access " + lobbyId);
+    public <T> NotInLobbyException(String code, Long userId) {
+        super("user " + userId + " unauthorized to access " + code);
     }
 }

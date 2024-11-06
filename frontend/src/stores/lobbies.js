@@ -28,7 +28,7 @@ export const useLobbyStore = defineStore("lobby", () => {
 
   async function fetchLobby(code) {
     const response = await requestStore.request(
-      urls.lobby.concat("/").concat(code),
+      `${urls.lobby}/${code}`,
       REQ_TYPE.GET
     );
     lobby.value = response.data;
@@ -51,7 +51,16 @@ export const useLobbyStore = defineStore("lobby", () => {
       request
     );
     lobby.value = response.data;
-    await router.push("/lobby/".concat(lobby.value.code));
+    await router.push(`/lobby/${lobby.value.code}`);
+  }
+
+  async function editLobby(request, code) {
+    const response = await requestStore.request(
+      `${urls.lobby}/${code}`,
+      REQ_TYPE.POST,
+      request
+    );
+    lobby.value = response.data;
   }
 
   async function joinLobby(code) {
@@ -61,7 +70,7 @@ export const useLobbyStore = defineStore("lobby", () => {
       REQ_TYPE.PATCH
     );
     lobby.value = response.data;
-    await router.push("/lobby/".concat(lobby.value.code));
+    await router.push(`/lobby/${lobby.value.code}`);
   }
 
   async function leaveLobby(code) {
@@ -121,6 +130,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchLobbies,
     fetchMyGames,
     createLobby,
+    editLobby,
     joinLobby,
     leaveLobby,
     promoteMember,

@@ -23,7 +23,7 @@ public class LogService {
         log.setUserId(player.getUserId());
         log.setTarget(String.valueOf(
             game.getCharacters().stream().filter(c -> c.getNumber().equals(player.getCurrentCharacter())).findFirst()
-                .orElseThrow(() -> new CorruptedGameException(game.getId())).getId()));
+                .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode())).getId()));
         log.setTurn(game.getTurn());
         log.setLogType(LogTypeEnum.SELECT_CHARACTER);
         logRepository.save(log);

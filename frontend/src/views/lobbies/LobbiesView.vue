@@ -12,7 +12,7 @@
             />
             <span class="p-float-label">
               <InputText id="search" type="text" v-model="search" />
-              <label for="search">keresés</label>
+              <label for="search">Keresés</label>
             </span>
             <span class="my-auto ml-8">
               <InputSwitch
@@ -61,7 +61,7 @@
           </div>
         </template>
       </Card>
-      <LobbyList :lobbies="lobbyStore.getLobbies" :type="'search'" />
+      <LobbyList :lobbies="visibleLobbies" :type="'search'" />
     </div>
     <Dialog
       v-model:visible="createModalVisible"
@@ -74,10 +74,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useLobbyStore } from "@/stores/lobbies";
 import { useStateStore } from "@/stores/state";
-import CreateLobbyModal from "@/components/lobbies/CreateLobbyModal.vue";
+import CreateLobbyModal from "@/components/lobbies/LobbyModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
@@ -94,6 +94,35 @@ const loading = ref(false);
 const search = ref();
 const showLocked = ref(true);
 const showFull = ref(true);
+
+const visibleLobbies = computed(() => {
+  let lobbies = lobbyStore.getLobbies ?? [];
+  if (!showLocked.value) {
+    lobbies = lobbies.filter((lobby) => !lobby.secured);
+  }
+  if (!showFull.value) {
+    lobbies = lobbies.filter(
+      (lobby) => lobby.members.length !== lobby.maxMembers
+    );
+  }
+  if (search.value) {
+    lobbies = lobbies.filter(
+      (lobby) =>
+        lobby.name
+          .toString()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .indexOf(
+            search.value
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase()
+          ) >= 0
+    );
+  }
+  return lobbies;
+});
 
 onMounted(async () => {
   stateStore.setLoading(true);

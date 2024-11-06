@@ -11,7 +11,7 @@
             class="w-full"
             required
           />
-          <label for="name">felhasználónév</label>
+          <label for="name">Felhasználónév</label>
         </span>
         <span class="p-float-label m-8">
           <Password
@@ -22,15 +22,15 @@
             class="w-full"
             required
           />
-          <label for="password">jelszó</label>
+          <label for="password">Jelszó</label>
         </span>
         <Button
           type="submit"
-          label="bejelentkezés"
+          label="Bejelentkezés"
           class="p-button-primary ml-8"
         />
         <Button
-          label="regisztráció"
+          label="Regisztráció"
           class="float-right p-button-secondary mr-8"
           @click="router.push('/register')"
         />

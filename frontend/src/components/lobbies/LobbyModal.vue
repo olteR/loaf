@@ -8,7 +8,7 @@
           class="w-full"
           required
         ></InputText>
-        <label for="name">név</label>
+        <label for="name">Név</label>
       </div>
 
       <div class="p-float-label">
@@ -21,10 +21,10 @@
           class="w-full"
           :required="lobbyForm.secured"
         ></Password>
-        <label for="password">jelszó</label>
+        <label for="password">Jelszó</label>
       </div>
       <div class="grid grid-cols-1">
-        <label for="maxMembers" class="text-center">maximum játékos</label>
+        <label for="maxMembers" class="text-center">Maximum játékos</label>
         <InputNumber
           v-model="lobbyForm.maxMembers"
           id="maxMembers"
@@ -63,7 +63,7 @@
         <Button
           type="submit"
           class="float-right p-button-success"
-          label="létrehozás"
+          :label="props.editedLobby?.id ? 'Szerkesztés' : 'Létrehozás'"
           icon="pi pi-check"
           :loading="loading"
         ></Button>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useLobbyStore } from "@/stores/lobbies";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
@@ -82,6 +82,10 @@ import Password from "primevue/password";
 import SelectButton from "primevue/selectbutton";
 import { MAX_LOBBY_PLAYERS, MIN_LOBBY_PLAYERS } from "@/utils/const";
 
+const props = defineProps({
+  editedLobby: Object,
+});
+
 const lobbyStore = useLobbyStore();
 const emit = defineEmits(["hide"]);
 const loading = ref(false);
@@ -89,25 +93,36 @@ const loading = ref(false);
 const lobbyForm = ref({
   name: null,
   password: null,
-  hidden: false,
   secured: false,
   maxMembers: MAX_LOBBY_PLAYERS,
 });
 
 const securedOptions = ref([
   {
-    label: "nyitott",
+    label: "Nyílt",
     value: false,
   },
   {
-    label: "védett",
+    label: "Védett",
     value: true,
   },
 ]);
 
+onMounted(() => {
+  if (props.editedLobby) {
+    lobbyForm.value.name = props.editedLobby.name;
+    lobbyForm.value.secured = props.editedLobby.secured;
+    lobbyForm.value.maxMembers = props.editedLobby.maxMembers;
+  }
+});
+
 async function createLobby() {
   loading.value = true;
-  await lobbyStore.createLobby(lobbyForm.value);
+  if (props.editedLobby?.id) {
+    await lobbyStore.editLobby(lobbyForm.value, props.editedLobby.code);
+  } else {
+    await lobbyStore.createLobby(lobbyForm.value);
+  }
   loading.value = false;
   emit("hide");
 }

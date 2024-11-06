@@ -10,7 +10,7 @@ public class NoPrivilegeException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NoPrivilegeException(Long lobbyId, Long userId) {
-        super(userId + " has owner privilege for lobby " + lobbyId);
+    public <T> NoPrivilegeException(String code, Long userId) {
+        super(userId + " has owner privilege for lobby " + code);
     }
 }

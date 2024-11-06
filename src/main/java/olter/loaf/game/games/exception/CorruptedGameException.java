@@ -10,7 +10,7 @@ public class CorruptedGameException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> CorruptedGameException(Long gameId) {
-        super("Corrupted data in game " + gameId);
+    public <T> CorruptedGameException(String code) {
+        super("Corrupted data in game " + code);
     }
 }

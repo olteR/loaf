@@ -2,10 +2,10 @@
   <div class="container mx-auto my-4">
     <Card class="p-4">
       <template #title>
-        <span class="text-5xl">profil</span>
+        <span class="text-5xl">Profil</span>
       </template>
       <template #content>
-        <Button label="kijelentkezés" @click="logoutUser()" />
+        <Button label="Kijelentkezés" @click="logoutUser()" />
       </template>
     </Card>
   </div>

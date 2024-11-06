@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LobbyCreationRequest {
+public class LobbyRequest {
     private String name;
     private String password;
     private Boolean hidden;

@@ -2,9 +2,21 @@
   <div>
     <div class="container mx-auto my-4" v-if="lobbyStore.getLobby">
       <Card>
-        <template #title
-          ><h1 class="text-4xl">{{ lobbyStore.getLobby.name }}</h1></template
-        >
+        <template #title>
+          <div class="inline-flex justify-between w-full">
+            <div>
+              <h1 class="text-4xl">{{ lobbyStore.getLobby.name }}</h1>
+            </div>
+            <div v-if="isOwner">
+              <Button
+                v-tooltip.bottom="'Lobbi beállításai'"
+                icon="fa fa-gear"
+                :loading="starting"
+                @click="editModalVisible = true"
+              />
+            </div>
+          </div>
+        </template>
         <template #content>
           <h2 class="text-2xl mb-2">
             Játékosok ({{ lobbyStore.getLobby.members?.length }}/{{
@@ -114,6 +126,13 @@
         @districts="(districts) => updateDistricts(districts)"
         @crown="(player) => crownPlayer(player)"
       />
+      <Dialog
+        v-model:visible="editModalVisible"
+        modal
+        header="Lobbi szerkesztése"
+      >
+        <CreateLobbyModal :edited-lobby="lobbyStore.getLobby" />
+      </Dialog>
     </div>
   </div>
 </template>
@@ -135,6 +154,8 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import LobbySettings from "@/components/lobbies/LobbySettings.vue";
 import { LOBBY_STATUS, LOBBY_UPDATE } from "@/utils/const";
+import CreateLobbyModal from "@/components/lobbies/LobbyModal.vue";
+import Dialog from "primevue/dialog";
 
 const router = useRouter();
 const confirm = useConfirm();
@@ -148,6 +169,7 @@ const stompClient = ref();
 
 const connected = ref(false);
 const starting = ref(false);
+const editModalVisible = ref(false);
 
 const isOwner = computed(
   () => stateStore.getUser.id === lobbyStore.getLobby?.owner

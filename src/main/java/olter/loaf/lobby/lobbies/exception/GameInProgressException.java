@@ -11,7 +11,7 @@ public class GameInProgressException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> GameInProgressException(Long lobbyId) {
-        super(lobbyId + " already in progress!");
+    public <T> GameInProgressException(String code) {
+        super(code + " already in progress!");
     }
 }

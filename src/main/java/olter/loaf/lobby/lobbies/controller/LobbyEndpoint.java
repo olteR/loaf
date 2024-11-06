@@ -35,10 +35,17 @@ public class LobbyEndpoint {
     }
 
     @PostMapping("/lobby")
-    public ResponseEntity<LobbyDetailsResponse> createLobby(@RequestBody LobbyCreationRequest request,
+    public ResponseEntity<LobbyDetailsResponse> createLobby(@RequestBody LobbyRequest request,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(lobbyService.createLobby(request, user));
+    }
+
+    @PostMapping("/lobby/{code}")
+    public ResponseEntity<LobbyDetailsResponse> editLobby(@RequestBody LobbyRequest request,
+        @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user
+    ) {
+        return ResponseEntity.ok().body(lobbyService.editLobby(request, code, user));
     }
 
     @PatchMapping("/lobby/{code}/join")

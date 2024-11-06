@@ -113,7 +113,7 @@ public class GameService {
         GameEntity game = findGame(code);
 
         PlayerEntity player = playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
-            .orElseThrow(() -> new NotInGameException(game.getId(), loggedInUser.getId()));
+            .orElseThrow(() -> new NotInGameException(code, loggedInUser.getId()));
 
         game.getPlayers().forEach(p -> {
             if (!p.getIsRevealed() && !p.getUserId().equals(loggedInUser.getId())) {
@@ -265,7 +265,7 @@ public class GameService {
                         game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).min(Integer::compareTo).get();
                     PlayerEntity nextPlayer =
                         game.getPlayers().stream().filter(p -> p.getCurrentCharacter().equals(firstChar)).findFirst()
-                            .orElseThrow(() -> new CorruptedGameException(game.getId()));
+                            .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()));
 
                     nextPlayer.setIsRevealed(true);
                     game.setCurrentPlayer(nextPlayer);
@@ -279,10 +279,10 @@ public class GameService {
     // Validates if the game is in the given phase and the given player is on turn
     private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
         if (!Objects.equals(game.getPhase(), phase)) {
-            throw new InvalidPhaseActionException(game.getId());
+            throw new InvalidPhaseActionException(game.getLobby().getCode());
         }
         if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
-            throw new NotOnTurnException(game.getId(), userId);
+            throw new NotOnTurnException(game.getLobby().getCode(), userId);
         }
     }
 

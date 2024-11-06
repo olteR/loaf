@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.Serial;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class LobbyFullException extends RuntimeException {
+public class TooManyMembersException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> LobbyFullException(Long lobbyId) {
-        super(lobbyId + " already full");
+    public <T> TooManyMembersException(String code) {
+        super(code + " has too many members for the given operation");
     }
 }

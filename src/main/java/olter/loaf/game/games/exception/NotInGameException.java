@@ -10,7 +10,7 @@ public class NotInGameException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NotInGameException(Long gameId, Long userId) {
-        super("user " + userId + " unauthorized to access " + gameId);
+    public <T> NotInGameException(String code, Long userId) {
+        super("user " + userId + " unauthorized to access " + code);
     }
 }

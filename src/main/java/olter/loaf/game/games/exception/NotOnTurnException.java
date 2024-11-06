@@ -11,7 +11,7 @@ public class NotOnTurnException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NotOnTurnException(Long gameId, Long userId) {
-        super(userId + " is not on turn in " + gameId);
+    public <T> NotOnTurnException(String code, Long userId) {
+        super(userId + " is not on turn in " + code);
     }
 }

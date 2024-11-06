@@ -10,7 +10,7 @@ public class InvalidPhaseActionException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> InvalidPhaseActionException(Long gameId) {
-        super("Invalid action for current game phase in " + gameId);
+    public <T> InvalidPhaseActionException(String code) {
+        super("Invalid action for current game phase in " + code);
     }
 }
