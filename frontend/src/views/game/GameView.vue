@@ -24,7 +24,7 @@
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
-    :cards="cardStore.getCards.districts"
+    :cards="gameStore.getGameDetails?.hand"
     :card-images="cardStore.getDistrictImages"
     :can-build="canBuild"
     @build="(cost, cardIndex) => buildDistrict(cost, cardIndex)"

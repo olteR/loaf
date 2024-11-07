@@ -39,7 +39,7 @@ public class DefaultGameDataGenerator {
                 new DistrictEntity(14L, "Őrtorony", "Őrtorony", null, DistrictTypeEnum.MILITARY, 1),
                 new DistrictEntity(15L, "Börtön", "Börtön", null, DistrictTypeEnum.MILITARY, 2),
                 new DistrictEntity(16L, "Barakk", "Barakk", null, DistrictTypeEnum.MILITARY, 3),
-                new DistrictEntity(17L, "Erőd", "Erőd", null, DistrictTypeEnum.MILITARY, 3),
+                new DistrictEntity(17L, "Erőd", "Erőd", null, DistrictTypeEnum.MILITARY, 5),
                 new DistrictEntity(18L, "Aranybánya", "Aranybánya",
                     "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa" + " fa-coins\"></i>-t.</p>",
                     DistrictTypeEnum.UNIQUE, 6), new DistrictEntity(19L, "Állványzat", "Állványzat",
@@ -56,7 +56,7 @@ public class DefaultGameDataGenerator {
                     "<p>A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha  van legalább 3 egyforma típusú <i " +
                         "class=\"fa fa-city\"></i> a városodban.</p><p>A Capitolium csak egyszer adhat <i class=\"fa " +
                         "fa-star\"></i>-t.</p>", DistrictTypeEnum.UNIQUE, 5),
-                new DistrictEntity(23L, "Csillagvizsgáló", "Csillag- vizsgáló",
+                new DistrictEntity(23L, "Csillagvizsgáló", "Csillagvizsgáló",
                     "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több közül " +
                         "választhatsz.", DistrictTypeEnum.UNIQUE, 4),
                 new DistrictEntity(24L, "Elefántcsonttorony", "Elefántcsont- torony",
