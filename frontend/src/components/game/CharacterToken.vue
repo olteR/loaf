@@ -184,7 +184,7 @@ const openPopup = () => {
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
-  font-size: 6vw;
+  font-size: 5vw;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

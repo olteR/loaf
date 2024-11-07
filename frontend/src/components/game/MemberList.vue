@@ -20,7 +20,7 @@
           >
           <span class="mr-1"
             ><Chip style="color: inherit; font-size: inherit">
-              <i class="fa fa-hand mr-1" />
+              <i class="fa fa-sheet-plastic mr-1" />
               {{ player.handSize }}
             </Chip></span
           >

@@ -2,8 +2,10 @@
   <div v-if="cards">
     <Transition name="fade">
       <div v-if="isDragging && canBuild" class="card-dropper" ref="cardDropper">
-        <i class="fa fa-hammer text-9xl mt-12"></i>
-        <p class="text-5xl mt-12">Kerület építése</p>
+        <div>
+          <i class="fa fa-hammer" style="font-size: min(4vw, 64px)"></i>
+          <p class="mt-2" style="font-size: min(2vw, 24px)">Kerület építése</p>
+        </div>
       </div>
     </Transition>
     <div
@@ -130,16 +132,20 @@ function doElementsCollide(elem1, elem2) {
 
 .card-dropper {
   position: absolute;
-  height: 20rem;
-  width: 32.36rem;
+  height: 25vh;
+  width: 45vw;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
-  bottom: 24rem;
+  top: 45%;
+  transform: translateY(-50%);
   border: solid #9fa8da;
   border-radius: 8px;
   color: #9fa8da;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -8,6 +8,8 @@ export const useGameStore = defineStore("game", () => {
     details: (code) => `game/${code}/details`,
     select: (code) => `game/${code}/select`,
     resource: (code) => `game/${code}/resource`,
+    cards: (code) => `game/${code}/cards`,
+    build: (code) => `game/${code}/build`,
   };
 
   const gameDetails = ref();
@@ -39,13 +41,26 @@ export const useGameStore = defineStore("game", () => {
     gameDetails.value.drawnCards = response.data;
   }
 
-  async function buildDistrict(code, cardIndex) {}
+  async function drawCards(code, cards) {
+    const response = await requestStore.request(
+      urls.cards(code),
+      REQ_TYPE.POST,
+      cards
+    );
+    gameDetails.value.drawnCards = [];
+    gameDetails.value.hand.push(...response.data);
+  }
+
+  async function buildDistrict(code, cardIndex) {
+    await requestStore.request(urls.cards(code), REQ_TYPE.POST, cardIndex);
+  }
 
   return {
     getGameDetails: getGameDetails,
     fetchGameDetails,
     selectCharacter,
     gatherResources,
+    drawCards,
     buildDistrict,
   };
 });

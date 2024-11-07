@@ -23,7 +23,7 @@
       >
         <div class="w-full text-center">
           <i
-            class="fa fa-hand"
+            class="fa fa-sheet-plastic"
             v-tooltip="{
               value: '2 lap húzása a pakliból, amiből egyet választhatsz',
               escape: false,

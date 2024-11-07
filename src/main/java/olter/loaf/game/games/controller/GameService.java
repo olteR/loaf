@@ -16,6 +16,7 @@ import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameUpdateDto;
 import olter.loaf.game.games.dto.GameUpdateTypeEnum;
+import olter.loaf.game.games.dto.ResourceGatherResponse;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.games.exception.NotInGameException;
@@ -168,6 +169,8 @@ public class GameService {
             game.getCurrentPlayer().giveGold(RESOURCE_GOLD);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
+            broadcastOnWebsocket(game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
+                new ResourceGatherResponse(resource, RESOURCE_GOLD));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
             game.getCurrentPlayer().setDrawnCards(drawFromDeck(game, 2));
             gameRepository.save(game);
@@ -176,10 +179,35 @@ public class GameService {
         return Collections.emptyList();
     }
 
-    public void buildDistrict(String code, Long districtId, UserEntity loggedInUser) {
-        log.info("User {} building district {} in game {}", loggedInUser.getName(), districtId, code);
+    public List<DistrictResponse> drawCards(String code, List<Integer> districtIndexes, UserEntity loggedInUser) {
+        log.info("User {} choosing districts {} in game {}", loggedInUser.getName(), districtIndexes, code);
+        GameEntity game = findGame(code);
+        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.RESOURCE);
+
+        List<DistrictEntity> drawnCards = new ArrayList<>();
+        districtIndexes.forEach(index -> drawnCards.add(game.getCurrentPlayer().getDrawnCards().get(index)));
+        game.getCurrentPlayer().giveCards(drawnCards);
+        game.getCurrentPlayer().getDrawnCards().clear();
+        game.setPhase(GamePhaseEnum.TURN);
+        gameRepository.save(game);
+        broadcastOnWebsocket(game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
+            new ResourceGatherResponse(ResourceTypeEnum.CARDS, drawnCards.size()));
+        return drawnCards.stream().map(cardMapper::entityToResponse).toList();
+    }
+
+    public void buildDistrict(String code, Integer districtIndex, UserEntity loggedInUser) {
+        log.info("User {} building district {} in game {}", loggedInUser.getName(), districtIndex, code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
+    }
+
+    // Broadcasts the update to all the players of the game
+    private void broadcastOnWebsocket(List<PlayerEntity> players, GameUpdateTypeEnum updateType, Object change) {
+        players.forEach(m -> {
+            log.info("Broadcasting {} to {}", updateType.getValue(), m.getUserId());
+            simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getUserId()), "/topic/game/update",
+                new GameUpdateDto(updateType, change));
+        });
     }
 
     // Returns the game or throws an exception if it doesn't exist

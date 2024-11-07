@@ -1,6 +1,6 @@
 <template>
   <div class="game-area"></div>
-  <Card class="m-2" style="width: 10vw; font-size: min(1.5vw, 32px)">
+  <Card class="m-2" style="width: 15vw; font-size: min(1.5vw, 32px)">
     <template #content>
       <div class="columns-2 text-center select-none">
         <div>
@@ -27,7 +27,7 @@
     :cards="gameStore.getGameDetails?.hand"
     :card-images="cardStore.getDistrictImages"
     :can-build="canBuild"
-    @build="(cost, cardIndex) => buildDistrict(cost, cardIndex)"
+    @build="(cardIndex, cost) => buildDistrict(cardIndex, cost)"
   ></PlayerHand>
   <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
     >Játék bezárása</Button
@@ -45,6 +45,8 @@
     <CardSelectModal
       v-else-if="currentModal === GAME_MODAL.CARDS"
       :cards="gameStore.getGameDetails?.drawnCards"
+      :max-selects="1"
+      @select="(cards) => drawCards(cards)"
     />
   </Dialog>
 </template>
@@ -144,7 +146,7 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGameDetails(lobbyCode);
-  if (gameStore.getGameDetails?.phase === GAME_PHASE.RESOURCE) {
+  if (gameStore.getGameDetails?.phase === GAME_PHASE.RESOURCE && onTurn.value) {
     currentModal.value =
       gameStore.getGameDetails?.drawnCards.length === 0
         ? GAME_MODAL.RESOURCE
@@ -166,6 +168,15 @@ function handleGameUpdate(update) {
       gameStore.getGameDetails.unavailableCharacters = update.change;
       break;
     }
+    case GAME_UPDATE.RESOURCE_COLLECTION: {
+      let player = gameStore.getGameDetails?.players.find(
+        (p) => p.id === gameStore.getGameDetails?.currentPlayer.id
+      );
+      player[update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"] +=
+        update.change.amount;
+      gameStore.getGameDetails.currentPlayer = player;
+      break;
+    }
     default: {
       console.log(update);
     }
@@ -181,8 +192,13 @@ async function gatherResources(resource) {
   }
 }
 
-async function buildDistrict(cost, cardIndex) {
-  if (cost < gameStore.getGameDetails.gold) {
+async function drawCards(cards) {
+  await gameStore.drawCards(lobbyCode, cards);
+  currentModal.value = null;
+}
+
+async function buildDistrict(cardIndex, cost) {
+  if (cost > gameStore.getGameDetails.gold) {
     toast.add({
       severity: "warn",
       summary: "Hiányzó arany",
@@ -226,9 +242,10 @@ const errorCallback = function (error) {
 .annoucement-message {
   width: 100%;
   position: absolute;
-  top: 25%;
+  margin-top: 5vh;
+  top: 9vw;
   text-align: center;
-  font-size: xx-large;
+  font-size: min(2vw, 24px);
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
