@@ -5,7 +5,7 @@
     id="draggable-container"
     :style="{
       'outline-color': primaryColor,
-      left: order * 7 + 'rem',
+      left: order * 4 + 'vw',
     }"
   >
     <div id="draggable-header" @mousedown="dragMouseDown">
@@ -88,12 +88,12 @@ function closeDragElement() {
   document.onmouseup = null;
   document.onmousemove = null;
   const resetPos = districtCard.value.animate(
-    { top: 0, left: props.order * 7 + "rem" },
+    { top: 0, left: props.order * 4 + "vw" },
     200
   );
   resetPos.onfinish = () => {
     districtCard.value.style.top = 0;
-    districtCard.value.style.left = props.order * 7 + "rem";
+    districtCard.value.style.left = props.order * 4 + "vw";
   };
 }
 </script>
@@ -109,16 +109,16 @@ function closeDragElement() {
 .district-cost {
   position: absolute;
   z-index: 100;
-  top: -0.3rem;
-  left: -0.3rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  top: -1vh;
+  left: -1vh;
+  width: 5vh;
+  height: 5vh;
   outline: thick solid;
   border-radius: 9999px;
   text-align: center;
   vertical-align: middle;
-  line-height: 2.5rem;
-  font-size: 1.5rem;
+  line-height: 5vh;
+  font-size: 3vh;
   font-weight: 700;
   user-select: none;
   -webkit-user-select: none;
@@ -127,7 +127,7 @@ function closeDragElement() {
 .district-text {
   text-align: center;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 2.5vh;
   margin: 0;
   user-select: none;
   position: absolute;
@@ -138,7 +138,8 @@ function closeDragElement() {
 #draggable-container {
   position: absolute;
   z-index: 9;
-  width: 10rem;
+  width: 20vh;
+  height: 30vh;
   outline: thick solid;
   border-radius: 4px;
   top: 0;

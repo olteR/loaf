@@ -1,9 +1,9 @@
 package olter.loaf.lobby.lobbies;
 
 import olter.loaf.game.games.GameMapper;
-import olter.loaf.lobby.lobbies.dto.LobbyRequest;
 import olter.loaf.lobby.lobbies.dto.LobbyDetailsResponse;
 import olter.loaf.lobby.lobbies.dto.LobbyListResponse;
+import olter.loaf.lobby.lobbies.dto.LobbyRequest;
 import olter.loaf.lobby.lobbies.model.LobbyEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

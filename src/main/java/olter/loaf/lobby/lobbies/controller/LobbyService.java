@@ -148,13 +148,13 @@ public class LobbyService {
         broadcastOnWebsocket(members, LobbyUpdateTypeEnum.LEAVE, user.getId());
     }
 
-    public void kickMember(UserEntity user, LobbyMemberInteractionDto req) {
-        LobbyEntity lobby = findLobby(req.getCode());
+    public void kickMember(UserEntity user, LobbyMemberInteractionDto request) {
+        LobbyEntity lobby = findLobby(request.getCode());
         List<UserEntity> members = lobby.getMembers();
 
-        PlayerEntity kickedPlayer = playerRepository.findByUserIdAndGame(req.getMemberId(), lobby.getGame())
-            .orElseThrow(() -> new NotInLobbyException(req.getCode(), req.getMemberId()));
-        log.info("Kicking member {} from lobby {}", req.getMemberId(), req.getCode());
+        PlayerEntity kickedPlayer = playerRepository.findByUserIdAndGame(request.getMemberId(), lobby.getGame())
+            .orElseThrow(() -> new NotInLobbyException(request.getCode(), request.getMemberId()));
+        log.info("Kicking member {} from lobby {}", request.getMemberId(), request.getCode());
 
         validateOwnerRequest(lobby, user);
 
@@ -162,23 +162,28 @@ public class LobbyService {
             playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), kickedPlayer.getOrder()).stream()
                 .peek(p -> p.setOrder(p.getOrder() - 1)).toList());
         playerRepository.delete(kickedPlayer);
-        broadcastOnWebsocket(members, LobbyUpdateTypeEnum.KICK, req.getMemberId());
+        broadcastOnWebsocket(members, LobbyUpdateTypeEnum.KICK, request.getMemberId());
 
-        members.removeIf(m -> Objects.equals(m.getId(), req.getMemberId()));
+        members.removeIf(m -> Objects.equals(m.getId(), request.getMemberId()));
         lobby.setMembers(members);
         lobbyRepository.save(lobby);
     }
 
-    public void promoteMember(UserEntity user, LobbyMemberInteractionDto req) {
-        LobbyEntity lobby = findLobby(req.getCode());
-        log.info("Promoting member {} in lobby {}", req.getMemberId(), req.getCode());
+    public void promoteMember(UserEntity user, LobbyMemberInteractionDto request) {
+        LobbyEntity lobby = findLobby(request.getCode());
+        log.info("Promoting member {} in lobby {}", request.getMemberId(), request.getCode());
 
         validateOwnerRequest(lobby, user);
-        validateContainment(lobby, req.getMemberId());
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.OWNER, req.getMemberId());
+        validateContainment(lobby, request.getMemberId());
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.OWNER, request.getMemberId());
 
-        lobby.setOwner(req.getMemberId());
+        lobby.setOwner(request.getMemberId());
         lobbyRepository.save(lobby);
+    }
+
+    public void reorderLobby(List<LobbyMemberDto> request, String code, UserEntity user) {
+        LobbyEntity lobby = findLobby(code);
+        log.info("Reordering lobby {}", code);
     }
 
     public void deleteLobby(String code, UserEntity user) {
@@ -190,53 +195,53 @@ public class LobbyService {
         lobbyRepository.delete(lobby);
     }
 
-    public void updateCharacters(UserEntity user, LobbySettingDto req) {
-        LobbyEntity lobby = findLobby(req.getCode());
-        log.info("Updating characters in lobby {}", req.getCode());
+    public void updateCharacters(UserEntity user, LobbySettingDto request) {
+        LobbyEntity lobby = findLobby(request.getCode());
+        log.info("Updating characters in lobby {}", request.getCode());
         validateOwnerRequest(lobby, user);
 
-        List<CharacterEntity> characters = characterRepository.findAllByIdIn(req.getIds());
+        List<CharacterEntity> characters = characterRepository.findAllByIdIn(request.getIds());
         characters.sort(Comparator.comparing(CharacterEntity::getNumber));
         for (int i = 0; i < characters.size(); i++) {
             if (!characters.get(i).getNumber().equals(i + 1)) {
-                throw new InvalidCharactersException(req.getCode());
+                throw new InvalidCharactersException(request.getCode());
             }
         }
 
         GameEntity game = lobby.getGame();
         game.setCharacters(characters);
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, req.getIds());
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, request.getIds());
         gameRepository.save(game);
     }
 
-    public void updateDistricts(UserEntity user, LobbySettingDto req) {
-        LobbyEntity lobby = findLobby(req.getCode());
-        log.info("Updating districts in lobby {}", req.getCode());
+    public void updateDistricts(UserEntity user, LobbySettingDto request) {
+        LobbyEntity lobby = findLobby(request.getCode());
+        log.info("Updating districts in lobby {}", request.getCode());
         validateOwnerRequest(lobby, user);
 
-        if (new HashSet<>(req.getIds()).size() != UNIQUE_DISTRICTS) {
-            throw new InvalidDistrictsException(req.getCode());
+        if (new HashSet<>(request.getIds()).size() != UNIQUE_DISTRICTS) {
+            throw new InvalidDistrictsException(request.getCode());
         }
         GameEntity game = lobby.getGame();
-        game.setUniqueDistricts(req.getIds());
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DISTRICTS, req.getIds());
+        game.setUniqueDistricts(request.getIds());
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DISTRICTS, request.getIds());
         gameRepository.save(game);
     }
 
-    public void crownMember(UserEntity user, LobbyMemberInteractionDto req) {
-        LobbyEntity lobby = findLobby(req.getCode());
-        log.info("Changing crowned user to {} in lobby {}", req.getMemberId(), req.getCode());
+    public void crownMember(UserEntity user, LobbyMemberInteractionDto request) {
+        LobbyEntity lobby = findLobby(request.getCode());
+        log.info("Changing crowned user to {} in lobby {}", request.getMemberId(), request.getCode());
         validateOwnerRequest(lobby, user);
 
         GameEntity game = lobby.getGame();
-        if (req.getMemberId() == null) {
+        if (request.getMemberId() == null) {
             game.setCrownedPlayer(null);
         } else {
             game.setCrownedPlayer(
-                game.getPlayers().stream().filter(player -> Objects.equals(player.getUserId(), req.getMemberId()))
-                    .findFirst().orElseThrow(() -> new NotInGameException(req.getCode(), req.getMemberId())));
+                game.getPlayers().stream().filter(player -> Objects.equals(player.getUserId(), request.getMemberId()))
+                    .findFirst().orElseThrow(() -> new NotInGameException(request.getCode(), request.getMemberId())));
         }
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, req.getMemberId());
+        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, request.getMemberId());
         gameRepository.save(game);
     }
 

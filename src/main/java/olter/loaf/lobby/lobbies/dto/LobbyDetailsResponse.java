@@ -19,6 +19,6 @@ public class LobbyDetailsResponse {
     private Integer maxMembers;
     private Long owner;
     private LobbyStatusEnum status;
-    private List<LobbyMemberResponse> members;
+    private List<LobbyMemberDto> members;
     private GameSettingsResponse gameSettings;
 }

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class LobbyMemberResponse {
+public class LobbyMemberDto {
     private Long id;
     private String name;
     private String displayName;

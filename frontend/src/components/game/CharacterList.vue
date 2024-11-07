@@ -4,7 +4,7 @@
       <div
         v-for="character in details?.characters"
         :key="character"
-        class="inline-flex"
+        class="inline-flex justify-between"
       >
         <CharacterToken
           :character="character"
@@ -47,12 +47,11 @@ function getStatus(number) {
 <style scoped>
 .characters {
   position: absolute;
-  height: 10rem;
-  width: 72rem;
+  width: 64vw;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
-  top: 3rem;
+  top: 5vh;
 }
 </style>

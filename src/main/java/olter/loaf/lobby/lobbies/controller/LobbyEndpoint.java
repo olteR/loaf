@@ -42,8 +42,8 @@ public class LobbyEndpoint {
     }
 
     @PostMapping("/lobby/{code}")
-    public ResponseEntity<LobbyDetailsResponse> editLobby(@RequestBody LobbyRequest request,
-        @PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user
+    public ResponseEntity<LobbyDetailsResponse> editLobby(@RequestBody LobbyRequest request, @PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(lobbyService.editLobby(request, code, user));
     }
@@ -65,25 +65,33 @@ public class LobbyEndpoint {
 
     @PostMapping("/lobby/promote")
     public ResponseEntity<Void> promoteMember(@SecurityAnnotations.GetLoggedInUser UserEntity user,
-        @RequestBody LobbyMemberInteractionDto req
+        @RequestBody LobbyMemberInteractionDto request
     ) {
-        lobbyService.promoteMember(user, req);
+        lobbyService.promoteMember(user, request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/lobby/kick")
     public ResponseEntity<Void> kickMember(@SecurityAnnotations.GetLoggedInUser UserEntity user,
-        @RequestBody LobbyMemberInteractionDto req
+        @RequestBody LobbyMemberInteractionDto request
     ) {
-        lobbyService.kickMember(user, req);
+        lobbyService.kickMember(user, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/lobby/{code}/reorder")
+    public ResponseEntity<Void> reorderLobby(@RequestBody List<LobbyMemberDto> request, @PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
+    ) {
+        lobbyService.reorderLobby(request, code, user);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("lobby/characters")
     public ResponseEntity<Void> updateCharacters(@SecurityAnnotations.GetLoggedInUser UserEntity user,
-        @RequestBody LobbySettingDto req
+        @RequestBody LobbySettingDto request
     ) {
-        lobbyService.updateCharacters(user, req);
+        lobbyService.updateCharacters(user, request);
         return ResponseEntity.ok().build();
     }
 

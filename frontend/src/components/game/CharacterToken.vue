@@ -9,7 +9,7 @@
       <img
         class="character-image"
         :style="{
-          width: totalCharacters === 8 ? '8rem' : '7rem',
+          width: totalCharacters === 8 ? '7vw' : '6vw',
           'outline-color': primaryColor,
         }"
         :src="props.image.src"
@@ -19,8 +19,8 @@
       class="character-color"
       :style="{
         background: characterColor,
-        width: totalCharacters === 8 ? '8rem' : '7rem',
-        height: totalCharacters === 8 ? '8rem' : '7rem',
+        width: totalCharacters === 8 ? '7vw' : '6vw',
+        height: totalCharacters === 8 ? '7vw' : '6vw',
       }"
       v-on:click="openPopup()"
     >
@@ -52,7 +52,7 @@
       :style="{
         background: secondaryColor,
         'outline-color': primaryColor,
-        width: totalCharacters === 8 ? '8rem' : '7rem',
+        width: totalCharacters === 8 ? '7vw' : '6vw',
       }"
     >
       {{ props.character.name }}
@@ -124,8 +124,8 @@ const openPopup = () => {
 <style scoped>
 .character-image {
   border-radius: 50%;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  margin-left: 0.5vw;
+  margin-right: 0.5vw;
   outline: thick solid;
   user-select: none;
   -webkit-user-select: none;
@@ -134,18 +134,18 @@ const openPopup = () => {
 
 .character-number {
   position: relative;
-  z-index: 100;
-  top: -10rem;
+  z-index: 10;
+  top: -8.2vw;
   left: 50%;
   transform: translateX(-50%);
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 4vh;
+  height: 4vh;
   outline: thick solid;
   border-radius: 9999px;
   text-align: center;
   vertical-align: middle;
-  line-height: 2.5rem;
-  font-size: 1.5rem;
+  line-height: 4vh;
+  font-size: 2vh;
   font-weight: 700;
   user-select: none;
   -webkit-user-select: none;
@@ -154,17 +154,17 @@ const openPopup = () => {
 
 .character-text {
   position: relative;
-  z-index: 100;
-  top: -3rem;
+  z-index: 11;
+  top: -5vh;
   left: 50%;
   transform: translateX(-50%);
-  height: 2.5rem;
+  height: 3.2vh;
   outline: thick solid;
   border-radius: 9999px;
   text-align: center;
   vertical-align: middle;
-  line-height: 2.5rem;
-  font-size: 1.25rem;
+  line-height: 3.2vh;
+  font-size: 1.6vh;
   font-weight: 700;
   user-select: none;
   -webkit-user-select: none;
@@ -175,16 +175,16 @@ const openPopup = () => {
   top: 0;
   opacity: 0.5;
   border-radius: 50%;
-  margin-left: 0.5rem;
+  margin-left: 0.5vw;
 }
 .character-icon {
   position: relative;
-  z-index: 101;
+  z-index: 12;
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
-  font-size: 6rem;
+  font-size: 6vw;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

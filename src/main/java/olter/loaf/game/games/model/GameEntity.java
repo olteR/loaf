@@ -55,6 +55,7 @@ public class GameEntity extends BaseEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "game_characters", joinColumns = @JoinColumn(name = "game_id"),
         inverseJoinColumns = @JoinColumn(name = "character_id"))
+    @OrderBy("number ASC")
     private List<CharacterEntity> characters;
 
     @ManyToMany(fetch = FetchType.LAZY)

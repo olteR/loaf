@@ -9,12 +9,13 @@
     <div
       class="hand"
       :style="{
-        width: cardsWidth + 10 + 'rem',
+        width: cardsWidth + 96 + 'px',
       }"
     >
       <button
         v-if="page !== 0"
-        class="absolute top-0 bottom-0 my-auto text-4xl w-20"
+        class="absolute top-0 bottom-0 my-auto text-4xl"
+        style="width: 48px"
         @click="page--"
       >
         <i class="fa fa-chevron-left"></i>
@@ -26,12 +27,11 @@
           right: 0,
           'margin-left': 'auto',
           'margin-right': 'auto',
-          width: cardsWidth + 'rem',
-          height: '16.18rem',
+          width: cardsWidth + 'px',
         }"
       >
         <DistrictCard
-          v-for="(card, i) in cards"
+          v-for="(card, i) in displayedCards"
           :card="card"
           :order="i"
           :image="cardImages[card.id - 1]"
@@ -43,7 +43,8 @@
       </div>
       <button
         v-if="page !== Math.floor(cards.length / 10) && cards.length > 10"
-        class="absolute right-0 top-0 bottom-0 my-auto text-4xl w-20"
+        class="absolute right-0 top-0 bottom-0 my-auto text-4xl"
+        style="width: 48px"
         @click="page++"
       >
         <i class="fa fa-chevron-right"></i>
@@ -54,7 +55,7 @@
 
 <script setup>
 import DistrictCard from "@/components/game/DistrictCard.vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const emit = defineEmits(["build"]);
 
@@ -67,14 +68,21 @@ const props = defineProps({
 const cardDropper = ref();
 const page = ref(0);
 const isDragging = ref(false);
+const vw = ref(window.innerWidth * 0.01);
+const vh = ref(window.innerHeight * 0.01);
 
 const displayedCards = computed(() => {
   return props.cards.slice(page.value * 10, (page.value + 1) * 10);
 });
 const cardsWidth = computed(() => {
-  return (
-    10 * displayedCards.value.length - 3 * (displayedCards.value.length - 1)
-  );
+  return 20 * vh.value + 4 * (displayedCards.value.length - 1) * vw.value;
+});
+
+onMounted(() => {
+  window.addEventListener("resize", () => {
+    vw.value = window.innerWidth * 0.01;
+    vh.value = window.innerHeight * 0.01;
+  });
 });
 
 function onDragEnd(elem, card, ind) {
@@ -102,12 +110,12 @@ function doElementsCollide(elem1, elem2) {
 <style scoped>
 .hand {
   position: absolute;
-  height: 18rem;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
   bottom: 0;
+  height: 35vh;
 }
 
 .fade-enter-active,

@@ -1,6 +1,6 @@
 <template>
   <div class="game-area"></div>
-  <Card class="w-48 text-2xl m-2">
+  <Card class="m-2" style="width: 10vw; font-size: min(1.5vw, 32px)">
     <template #content>
       <div class="columns-2 text-center select-none">
         <div>
@@ -24,7 +24,7 @@
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
-    :cards="gameStore.getGameDetails?.hand"
+    :cards="cardStore.getCards.districts"
     :card-images="cardStore.getDistrictImages"
     :can-build="canBuild"
     @build="(cost, cardIndex) => buildDistrict(cost, cardIndex)"

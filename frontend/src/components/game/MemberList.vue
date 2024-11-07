@@ -10,16 +10,16 @@
       }"
     >
       <template #content>
-        <div class="text-2xl">
+        <div style="font-size: min(1.5vw, 32px)">
           <span>{{ i + 1 + ". " }}</span>
           <span class="mr-1"
-            ><Chip style="color: inherit">
+            ><Chip style="color: inherit; font-size: inherit">
               <i class="fa fa-coins mr-1" />
               {{ player.gold }}
             </Chip></span
           >
           <span class="mr-1"
-            ><Chip style="color: inherit">
+            ><Chip style="color: inherit; font-size: inherit">
               <i class="fa fa-hand mr-1" />
               {{ player.handSize }}
             </Chip></span
@@ -55,6 +55,7 @@ const props = defineProps({
   margin-top: auto;
   margin-bottom: auto;
   user-select: none;
+  z-index: 12;
 }
 .crowned {
   outline: 2px solid #f6e012;
@@ -66,7 +67,7 @@ const props = defineProps({
 .crowned-icon {
   display: inline;
   position: absolute;
-  right: -2.25rem;
+  right: -2.25vw;
   color: #f6e012;
 }
 ::v-deep(.p-card) {
