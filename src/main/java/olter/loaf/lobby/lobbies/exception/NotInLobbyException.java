@@ -1,16 +1,16 @@
 package olter.loaf.lobby.lobbies.exception;
 
+import olter.loaf.common.exception.LoafException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-public class NotInLobbyException extends RuntimeException {
+public class NotInLobbyException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NotInLobbyException(String code, Long userId) {
-        super("user " + userId + " unauthorized to access " + code);
+    public NotInLobbyException(String code, Long userId) {
+        super("user " + userId + " unauthorized to access " + code, HttpStatus.UNAUTHORIZED);
+        setUserMessage("Ehhez a lobbihoz nincs hozzáférésed");
     }
 }

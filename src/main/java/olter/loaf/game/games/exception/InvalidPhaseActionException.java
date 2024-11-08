@@ -1,16 +1,17 @@
 package olter.loaf.game.games.exception;
 
+import olter.loaf.common.exception.LoafException;
+import olter.loaf.game.games.model.GamePhaseEnum;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
-public class InvalidPhaseActionException extends RuntimeException {
+public class InvalidPhaseActionException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> InvalidPhaseActionException(String code) {
-        super("Invalid action for current game phase in " + code);
+    public InvalidPhaseActionException(String code, GamePhaseEnum phase) {
+        super("Invalid action for current game phase in " + code, HttpStatus.FORBIDDEN);
+        setUserMessage("Ebben a fázisban ez a cselekvés nem megengedett");
     }
 }

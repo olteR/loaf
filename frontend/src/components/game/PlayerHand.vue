@@ -89,7 +89,7 @@ onMounted(() => {
 
 function onDragEnd(elem, card, ind) {
   if (doElementsCollide(elem.value, cardDropper.value)) {
-    emit("build", ind, card.cost);
+    emit("build", card, ind);
   }
   isDragging.value = false;
 }

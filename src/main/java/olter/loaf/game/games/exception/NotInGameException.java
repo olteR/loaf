@@ -1,16 +1,16 @@
 package olter.loaf.game.games.exception;
 
+import olter.loaf.common.exception.LoafException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-public class NotInGameException extends RuntimeException {
+public class NotInGameException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NotInGameException(String code, Long userId) {
-        super("user " + userId + " unauthorized to access " + code);
+    public NotInGameException(String code, Long userId) {
+        super("User " + userId + " unauthorized to access " + code, HttpStatus.UNAUTHORIZED);
+        setUserMessage("Nincs hozzáférésed ehhez a játékhoz");
     }
 }

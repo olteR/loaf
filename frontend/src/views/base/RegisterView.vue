@@ -11,7 +11,7 @@
             type="text"
             v-model="userForm.username"
             class="w-full"
-            required
+            minlength="3"
           />
           <label for="name">Felhasználónév</label>
         </span>
@@ -33,6 +33,7 @@
             toggleMask
             class="w-full"
             required
+            :input-props="{ minlength: 8 }"
           />
           <label for="password">Jelszó</label>
         </span>

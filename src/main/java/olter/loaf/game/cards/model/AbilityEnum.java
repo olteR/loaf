@@ -128,10 +128,7 @@ public enum AbilityEnum {
                 throw new InvalidTargetException(target, EMPEROR);
             }
             PlayerEntity targetPlayer = findPlayer(game, target, EMPEROR);
-            if (targetPlayer.getGold() > 1) {
-                targetPlayer.takeGold(1);
-                game.getCurrentPlayer().giveGold(1);
-            }
+            game.getCurrentPlayer().giveGold(targetPlayer.takeGold(1));
         }
 
         @Override
@@ -140,10 +137,7 @@ public enum AbilityEnum {
                 throw new InvalidTargetException(targets.get(0), EMPEROR);
             }
             PlayerEntity targetPlayer = findPlayer(game, targets.get(0), EMPEROR);
-            if (targets.get(1) == 0L && targetPlayer.getGold() > 1) {
-                targetPlayer.takeGold(1);
-                game.getCurrentPlayer().giveGold(1);
-            }
+            game.getCurrentPlayer().giveGold(targetPlayer.takeGold(1));
         }
     };
 

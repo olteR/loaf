@@ -20,9 +20,10 @@ export const useRequestStore = defineStore("request", () => {
       toast.add({
         severity: "error",
         summary: "Hiba",
-        detail: error,
+        detail: error?.response?.data ?? error,
         life: 3000,
       });
+      throw error;
     }
   }
 

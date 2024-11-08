@@ -16,11 +16,12 @@ import java.util.function.Function;
 public class JwtHandler {
     private final int JWT_EXP_TIME = 1200000;
 
-    @Value("${jwt.secret}")
-    private final String SECRET = "secret";
-
-    private final String ISSUER = "Loaf_Security";
-    private final String AUDIENCE = "Loaf";
+    @Value("${loaf.security.jwt-secret}")
+    private String SECRET;
+    @Value("${loaf.security.jwt-issuer}")
+    private String ISSUER;
+    @Value("${loaf.security.jwt-audience}")
+    private String AUDIENCE;
     private static final SignatureAlgorithm ALGORITHM = SignatureAlgorithm.HS512;
 
     public String generateJwt(String username, Map<String, Object> data) {

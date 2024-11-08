@@ -1,17 +1,17 @@
 package olter.loaf.lobby.lobbies.exception;
 
+import olter.loaf.common.exception.LoafException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class InvalidCharactersException extends RuntimeException {
+public class InvalidCharactersException extends LoafException {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> InvalidCharactersException(String code) {
-        super("Invalid character list in request for lobby " + code);
+    public InvalidCharactersException(String code) {
+        super("Invalid character list in request for lobby " + code, HttpStatus.BAD_REQUEST);
+        setUserMessage("Nem megfelelő karakter lista");
     }
 }

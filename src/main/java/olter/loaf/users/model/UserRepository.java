@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByName(String name);
+    Optional<UserEntity> findByEmail(String email);
 
     @Query("SELECT new olter.loaf.lobby.lobbies.dto.LobbyMemberDto(u.id, u.displayName, u.name, p.order) FROM " +
         "UserEntity u JOIN u.lobbies l JOIN PlayerEntity p ON u.id = p.userId AND p.game.id = l.game.id WHERE l" +

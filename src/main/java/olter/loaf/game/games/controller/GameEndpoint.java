@@ -3,6 +3,7 @@ package olter.loaf.game.games.controller;
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.game.cards.dto.DistrictResponse;
+import olter.loaf.game.games.dto.DistrictBuildRequest;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.users.model.UserEntity;
@@ -46,10 +47,10 @@ public class GameEndpoint {
     }
 
     @PostMapping("game/{code}/build")
-    public ResponseEntity<Void> buildDistrict(@PathVariable String code, @RequestBody Integer index,
+    public ResponseEntity<Void> buildDistrict(@PathVariable String code, @RequestBody DistrictBuildRequest request,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
-        gameService.buildDistrict(code, index, user);
+        gameService.buildDistrict(code, request, user);
         return ResponseEntity.ok().build();
     }
 }

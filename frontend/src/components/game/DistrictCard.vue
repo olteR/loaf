@@ -8,7 +8,11 @@
       left: order * 4 + 'vw',
     }"
   >
-    <div id="draggable-header" @mousedown="dragMouseDown">
+    <div
+      id="draggable-header"
+      @mousedown="dragMouseDown"
+      @touchstart="dragTouchStart"
+    >
       <div
         class="district-cost"
         :style="{
@@ -66,11 +70,20 @@ function dragMouseDown(event) {
   delete districtCard.value.style.transition;
   positions.value.clientX = event.clientX;
   positions.value.clientY = event.clientY;
-  document.onmousemove = elementDrag;
-  document.onmouseup = closeDragElement;
+  document.onmousemove = mouseDrag;
+  document.onmouseup = handleDragEnd;
 }
 
-function elementDrag(event) {
+function dragTouchStart(event) {
+  emit("drag-begin");
+  delete districtCard.value.style.transition;
+  positions.value.clientX = event.targetTouches[0].clientX;
+  positions.value.clientY = event.targetTouches[0].clientY;
+  document.ontouchmove = touchDrag;
+  document.ontouchend = handleDragEnd;
+}
+
+function mouseDrag(event) {
   event.preventDefault();
   positions.value.movementX = positions.value.clientX - event.clientX;
   positions.value.movementY = positions.value.clientY - event.clientY;
@@ -83,10 +96,26 @@ function elementDrag(event) {
     districtCard.value.offsetLeft - positions.value.movementX + "px";
 }
 
-function closeDragElement() {
+function touchDrag(event) {
+  positions.value.movementX =
+    positions.value.clientX - event.targetTouches[0].clientX;
+  positions.value.movementY =
+    positions.value.clientY - event.targetTouches[0].clientY;
+  positions.value.clientX = event.targetTouches[0].clientX;
+  positions.value.clientY = event.targetTouches[0].clientY;
+  districtCard.value.style.top =
+    Math.min(districtCard.value.offsetTop - positions.value.movementY, 48) +
+    "px";
+  districtCard.value.style.left =
+    districtCard.value.offsetLeft - positions.value.movementX + "px";
+}
+
+function handleDragEnd() {
   emit("drag-end", districtCard);
   document.onmouseup = null;
   document.onmousemove = null;
+  document.ontouchmove = null;
+  document.ontouchend = null;
   const resetPos = districtCard.value.animate(
     { top: 0, left: props.order * 4 + "vw" },
     200

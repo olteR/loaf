@@ -19,10 +19,9 @@
       </span>
     </template>
     <template #end>
-      <div class="invisible lg:visible">
-        bejelentkezett felhasználó:
+      <div class="invisible lg:visible" style="font-size: min(1.5vw, 48px)">
         <router-link to="/profile">
-          {{ stateStore.getUser ? stateStore.getUser.name : "" }}.
+          {{ stateStore.getUser ? stateStore.getUser.name : "" }}
           <i class="fa fa-user"></i
         ></router-link>
       </div>
@@ -80,7 +79,7 @@ const menuItems = ref([
 }
 .menulabel {
   border-bottom: 2px solid transparent;
-  font-size: 1.25rem;
+  font-size: min(1.25vw, 24px);
 }
 .active {
   border-bottom: 2px solid #ce93d8;
@@ -94,7 +93,7 @@ const menuItems = ref([
     width: 30vw;
   }
   .p-menubar-end {
-    width: 30vw;
+    width: 20vw;
     text-align: right;
     margin-left: 0 !important;
   }

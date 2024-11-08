@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
-import olter.loaf.game.games.exception.InvalidTransactionException;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
@@ -63,11 +62,14 @@ public class PlayerEntity extends BaseEntity {
         this.gold += gold;
     }
 
-    public void takeGold(Integer gold) {
+    public Integer takeGold(Integer gold) {
+        Integer taken = gold;
         if (gold > this.gold) {
-            throw new InvalidTransactionException(this.getId());
+            taken = this.gold;
+            this.gold = 0;
         }
         this.gold -= gold;
+        return taken;
     }
 
     public void giveCards(List<DistrictEntity> cards) {

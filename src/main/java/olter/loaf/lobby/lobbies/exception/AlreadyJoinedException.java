@@ -1,16 +1,15 @@
 package olter.loaf.lobby.lobbies.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import olter.loaf.common.exception.LoafException;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class AlreadyJoinedException extends RuntimeException {
+public class AlreadyJoinedException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> AlreadyJoinedException(String code, Long userId) {
-        super("user " + userId + " already in lobby " + code);
+    public AlreadyJoinedException(String code, Long userId) {
+        super("User " + userId + " already in lobby " + code);
+        setUserMessage("Már benne vagy ebben a lobbiban");
     }
 }

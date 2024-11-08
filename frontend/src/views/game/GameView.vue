@@ -27,7 +27,7 @@
     :cards="gameStore.getGameDetails?.hand"
     :card-images="cardStore.getDistrictImages"
     :can-build="canBuild"
-    @build="(cardIndex, cost) => buildDistrict(cardIndex, cost)"
+    @build="(card, index) => buildDistrict(card, index)"
   ></PlayerHand>
   <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
     >Játék bezárása</Button
@@ -197,8 +197,8 @@ async function drawCards(cards) {
   currentModal.value = null;
 }
 
-async function buildDistrict(cardIndex, cost) {
-  if (cost > gameStore.getGameDetails.gold) {
+async function buildDistrict(card, index) {
+  if (card.cost > gameStore.getGameDetails.gold) {
     toast.add({
       severity: "warn",
       summary: "Hiányzó arany",
@@ -206,7 +206,10 @@ async function buildDistrict(cardIndex, cost) {
       life: 3000,
     });
   } else {
-    await gameStore.buildDistrict(lobbyCode, cardIndex);
+    await gameStore.buildDistrict(lobbyCode, {
+      districtId: card.id,
+      cardIndex: index,
+    });
   }
 }
 

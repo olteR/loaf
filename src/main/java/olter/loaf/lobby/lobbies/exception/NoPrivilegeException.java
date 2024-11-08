@@ -1,16 +1,16 @@
 package olter.loaf.lobby.lobbies.exception;
 
+import olter.loaf.common.exception.LoafException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
-public class NoPrivilegeException extends RuntimeException {
+public class NoPrivilegeException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> NoPrivilegeException(String code, Long userId) {
-        super(userId + " has owner privilege for lobby " + code);
+    public NoPrivilegeException(String code, Long userId) {
+        super(userId + " has owner privilege for lobby " + code, HttpStatus.FORBIDDEN);
+        setUserMessage("Ehhez a művelethez nincs jogod ebben a lobbiban");
     }
 }

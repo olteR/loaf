@@ -1,16 +1,15 @@
 package olter.loaf.game.games.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import olter.loaf.common.exception.LoafException;
 
 import java.io.Serial;
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class CorruptedGameException extends RuntimeException {
+public class CorruptedGameException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public <T> CorruptedGameException(String code) {
+    public CorruptedGameException(String code) {
         super("Corrupted data in game " + code);
+        setUserMessage("Sérült adat a játékban");
     }
 }

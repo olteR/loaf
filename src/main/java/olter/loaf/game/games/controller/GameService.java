@@ -13,10 +13,7 @@ import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
-import olter.loaf.game.games.dto.GameDetailsResponse;
-import olter.loaf.game.games.dto.GameUpdateDto;
-import olter.loaf.game.games.dto.GameUpdateTypeEnum;
-import olter.loaf.game.games.dto.ResourceGatherResponse;
+import olter.loaf.game.games.dto.*;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.games.exception.NotInGameException;
@@ -195,7 +192,7 @@ public class GameService {
         return drawnCards.stream().map(cardMapper::entityToResponse).toList();
     }
 
-    public void buildDistrict(String code, Integer districtIndex, UserEntity loggedInUser) {
+    public void buildDistrict(String code, DistrictBuildRequest districtIndex, UserEntity loggedInUser) {
         log.info("User {} building district {} in game {}", loggedInUser.getName(), districtIndex, code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
@@ -307,7 +304,7 @@ public class GameService {
     // Validates if the game is in the given phase and the given player is on turn
     private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
         if (!Objects.equals(game.getPhase(), phase)) {
-            throw new InvalidPhaseActionException(game.getLobby().getCode());
+            throw new InvalidPhaseActionException(game.getLobby().getCode(), phase);
         }
         if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
             throw new NotOnTurnException(game.getLobby().getCode(), userId);

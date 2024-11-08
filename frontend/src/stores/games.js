@@ -51,8 +51,8 @@ export const useGameStore = defineStore("game", () => {
     gameDetails.value.hand.push(...response.data);
   }
 
-  async function buildDistrict(code, cardIndex) {
-    await requestStore.request(urls.cards(code), REQ_TYPE.POST, cardIndex);
+  async function buildDistrict(code, request) {
+    await requestStore.request(urls.build(code), REQ_TYPE.POST, request);
   }
 
   return {

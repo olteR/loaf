@@ -32,21 +32,23 @@ const toast = useToast();
 const stateStore = useStateStore();
 
 onMounted(() => {
-  if (!stateStore.isLoggedIn) {
-    if (stateStore.getUser != null) {
-      stateStore.logoutUser();
-      toast.add({
-        severity: "error",
-        summary: "Lejárt bejelentkezés",
-        detail: "Kérjük lépj be újra!",
-        group: "bc",
-        life: 3000,
-      });
+  if (!["/", "/register"].includes(router.currentRoute.value.path)) {
+    if (!stateStore.isLoggedIn) {
+      if (stateStore.getUser != null) {
+        stateStore.logoutUser();
+        toast.add({
+          severity: "error",
+          summary: "Lejárt bejelentkezés",
+          detail: "Kérjük lépj be újra!",
+          group: "bc",
+          life: 3000,
+        });
+      }
+      router.push("/login");
+    } else {
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + stateStore.getJwt;
     }
-    router.push("/login");
-  } else {
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + stateStore.getJwt;
   }
 });
 </script>
