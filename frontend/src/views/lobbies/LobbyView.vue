@@ -45,7 +45,7 @@
               </template>
             </Column>
             <Column
-              field="displayName"
+              field="name"
               header="Név"
               bodyStyle="text-align: center"
               headerStyle="text-align: center; font-size: 1.5rem;"
@@ -272,7 +272,7 @@ function handleLobbyUpdate(update) {
       toast.add({
         severity: "success",
         summary: "Felhasználó csatlakozott",
-        detail: `${update.change.displayName} csatlakozott a lobbihoz!`,
+        detail: `${update.change.name} csatlakozott a lobbihoz!`,
         life: 3000,
       });
       break;
@@ -288,7 +288,7 @@ function handleLobbyUpdate(update) {
       toast.add({
         severity: "warn",
         summary: "Felhasználó kilépett",
-        detail: `${user.displayName} elhagyta a lobbit!`,
+        detail: `${user.name} elhagyta a lobbit!`,
         life: 3000,
       });
       break;
@@ -299,8 +299,7 @@ function handleLobbyUpdate(update) {
         severity: "info",
         summary: "Új lobbi tulajdonos",
         detail: `${
-          lobbyStore.getLobby.members.find((m) => m.id === update.change)
-            .displayName
+          lobbyStore.getLobby.members.find((m) => m.id === update.change).name
         } a lobbi új tulajdonosa!`,
         life: 3000,
       });
@@ -326,7 +325,7 @@ function handleLobbyUpdate(update) {
         toast.add({
           severity: "error",
           summary: "Felhasználó eltávolítva",
-          detail: `${user.displayName} eltávolítva a lobbiból!`,
+          detail: `${user.name} eltávolítva a lobbiból!`,
           life: 3000,
         });
       }

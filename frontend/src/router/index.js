@@ -4,7 +4,6 @@ import { BREADCRUMB } from "@/utils/const";
 
 import LoginView from "../views/base/LoginView.vue";
 import RegisterView from "@/views/base/RegisterView.vue";
-import ProfileView from "../views/base/ProfileView.vue";
 import PageNotFound from "@/views/base/PageNotFound.vue";
 import MyGamesView from "@/views/lobbies/MyGamesView.vue";
 import LobbiesView from "../views/lobbies/LobbiesView.vue";
@@ -27,12 +26,6 @@ const router = createRouter({
       name: "register",
       component: RegisterView,
       props: { breadcrumbs: [] },
-    },
-    {
-      path: "/profile",
-      name: "profile",
-      component: ProfileView,
-      props: { breadcrumbs: [{ name: "profile" }] },
     },
     {
       path: "/my-games",

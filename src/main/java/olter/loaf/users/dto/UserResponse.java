@@ -10,5 +10,4 @@ import lombok.Setter;
 public class UserResponse {
     private Integer id;
     private String name;
-    private String displayName;
 }

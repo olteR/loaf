@@ -1,5 +1,8 @@
 package olter.loaf.game.cards.model;
 
+import lombok.Getter;
+
+@Getter
 public enum DistrictTypeEnum {
     NOBLE("NOBLE"), RELIGIOUS("RELIGIOUS"), TRADE("TRADE"), MILITARY("MILITARY"), UNIQUE("UNIQUE");
 
@@ -7,9 +10,5 @@ public enum DistrictTypeEnum {
 
     DistrictTypeEnum(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return this.value;
     }
 }

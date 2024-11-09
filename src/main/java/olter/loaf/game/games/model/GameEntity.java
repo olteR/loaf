@@ -8,7 +8,7 @@ import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.players.model.PlayerEntity;
-import olter.loaf.lobby.lobbies.model.LobbyEntity;
+import olter.loaf.lobbies.model.LobbyEntity;
 
 import java.util.List;
 

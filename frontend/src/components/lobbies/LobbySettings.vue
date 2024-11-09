@@ -61,7 +61,7 @@
                 id="crownedPlayerSelect"
                 v-model="selectedCrowned"
                 :options="playerSelect"
-                optionLabel="displayName"
+                optionLabel="name"
                 class="w-full mt-1"
                 :disabled="!isOwner"
                 @change="(option) => emit('crown', option.value)"
@@ -123,7 +123,7 @@ const districtSettingsVisible = ref(false);
 
 const playerSelect = computed(() => {
   let list = JSON.parse(JSON.stringify(props.players || []));
-  list.unshift({ displayName: "Véletlenszerű" });
+  list.unshift({ name: "Véletlenszerű" });
   return list;
 });
 

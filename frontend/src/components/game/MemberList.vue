@@ -24,7 +24,7 @@
               {{ player.handSize }}
             </Chip></span
           >
-          <span>{{ player.displayName }}</span>
+          <span>{{ player.name }}</span>
           <div v-if="player.id === props.crownedPlayer.id" class="crowned-icon">
             <i class="fa fa-crown" />
           </div>

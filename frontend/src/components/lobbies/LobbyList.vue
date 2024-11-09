@@ -29,7 +29,7 @@
         játékosok:
         <Chip v-for="player in lobby.members" :key="player.id" class="mr-1">
           <i v-if="player.id === lobby.owner" class="fa fa-star mr-1" />
-          {{ player.displayName }}
+          {{ player.name }}
         </Chip>
       </div>
       <div class="ml-auto w-auto">

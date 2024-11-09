@@ -6,6 +6,7 @@ import lombok.Setter;
 import olter.loaf.game.cards.dto.CharacterResponse;
 import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.games.model.GamePhaseEnum;
+import olter.loaf.game.players.dto.PublicPlayerResponse;
 
 import java.util.List;
 

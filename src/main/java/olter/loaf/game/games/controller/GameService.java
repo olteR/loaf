@@ -22,10 +22,10 @@ import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
-import olter.loaf.game.logs.controller.LogService;
+import olter.loaf.statistics.LogService;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
-import olter.loaf.lobby.lobbies.model.LobbyEntity;
+import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -135,7 +135,7 @@ public class GameService {
         game.getCurrentPlayer().setCurrentCharacter(selectedCharacter);
         game.getCurrentPlayer().setSkippedCharacters(skippedCharacters);
 
-        logService.logCharacterSelection(game, game.getCurrentPlayer());
+        logService.logCharacterSelection(game);
 
         setNextPlayer(game);
         game.getPlayers().forEach(p -> {
@@ -161,6 +161,7 @@ public class GameService {
         log.info("Selecting resource {} for {} in game {}", resource, loggedInUser.getName(), code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.RESOURCE);
+        logService.logResourceGathering(game, resource);
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
             game.getCurrentPlayer().giveGold(RESOURCE_GOLD);

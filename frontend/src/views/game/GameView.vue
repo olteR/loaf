@@ -109,13 +109,11 @@ const currentMessage = computed(() => {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : gameStore.getGameDetails?.currentPlayer.displayName +
-            " választ karaktert.";
+        : gameStore.getGameDetails?.currentPlayer.name + " választ karaktert.";
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
-        : gameStore.getGameDetails?.currentPlayer.displayName +
-            " gyűjt nyersanyagot.";
+        : gameStore.getGameDetails?.currentPlayer.name + " gyűjt nyersanyagot.";
     case GAME_PHASE.TURN:
       return onTurn.value
         ? "Te vagy körön!"
@@ -124,7 +122,7 @@ const currentMessage = computed(() => {
               gameStore.getGameDetails?.currentPlayer.currentCharacter - 1
             ].name +
             " (" +
-            gameStore.getGameDetails?.currentPlayer.displayName +
+            gameStore.getGameDetails?.currentPlayer.name +
             ") van körön.";
     default:
       return "";

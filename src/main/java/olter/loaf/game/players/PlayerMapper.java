@@ -1,6 +1,6 @@
 package olter.loaf.game.players;
 
-import olter.loaf.game.games.dto.PublicPlayerResponse;
+import olter.loaf.game.players.dto.PublicPlayerResponse;
 import olter.loaf.game.players.model.PlayerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

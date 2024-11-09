@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.games.model.GamePhaseEnum;
+import olter.loaf.game.players.dto.PublicPlayerResponse;
 
 import java.util.List;
 

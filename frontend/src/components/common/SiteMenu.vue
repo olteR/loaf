@@ -19,11 +19,19 @@
       </span>
     </template>
     <template #end>
-      <div class="invisible lg:visible" style="font-size: min(1.5vw, 48px)">
-        <router-link to="/profile">
+      <div class="invisible lg:visible">
+        <div class="select-none" style="font-size: min(1.5vw, 24px)">
           {{ stateStore.getUser ? stateStore.getUser.name : "" }}
-          <i class="fa fa-user"></i
-        ></router-link>
+          <i class="fa fa-user"></i>
+        </div>
+        <div>
+          <Button
+            size="small"
+            class="logout-button"
+            @click="stateStore.logoutUser()"
+            >Kijelentkezés</Button
+          >
+        </div>
       </div>
     </template>
   </Menubar>
@@ -41,22 +49,22 @@ const router = useRouter();
 const stateStore = useStateStore();
 const menuItems = ref([
   {
-    label: "játékaim",
+    label: "Játékaim",
     route: "/my-games",
     icon: "fa fa-dice",
   },
   {
-    label: "lobbik",
+    label: "Lobbik",
     route: "/lobbies",
     icon: "fa fa-people-group",
   },
   {
-    label: "statisztikák",
+    label: "Statisztikák",
     route: "/statistics",
     icon: "fa fa-chart-line",
   },
   {
-    label: "szabályok",
+    label: "Szabályok",
     route: "/rules",
     icon: "fa fa-circle-info",
   },
@@ -79,7 +87,7 @@ const menuItems = ref([
 }
 .menulabel {
   border-bottom: 2px solid transparent;
-  font-size: min(1.25vw, 24px);
+  font-size: min(1.5vw, 24px);
 }
 .active {
   border-bottom: 2px solid #ce93d8;
@@ -100,5 +108,12 @@ const menuItems = ref([
 }
 .p-menuitem {
   list-style: none;
+}
+.logout-button {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: rgba(255, 255, 255, 0.87) !important;
+  padding: 0 !important;
+  font-size: min(1.25vw, 16px) !important;
 }
 </style>

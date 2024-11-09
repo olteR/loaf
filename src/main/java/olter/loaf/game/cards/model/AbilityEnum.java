@@ -1,5 +1,6 @@
 package olter.loaf.game.cards.model;
 
+import lombok.Getter;
 import olter.loaf.game.games.exception.InvalidTargetException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.model.PlayerEntity;
@@ -7,6 +8,7 @@ import olter.loaf.game.players.model.PlayerEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public enum AbilityEnum {
     NOBLE_GOLD("NOBLE_GOLD") {
         @Override
@@ -145,10 +147,6 @@ public enum AbilityEnum {
 
     AbilityEnum(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return this.value;
     }
 
     public abstract void useAbility(GameEntity game, Long target);

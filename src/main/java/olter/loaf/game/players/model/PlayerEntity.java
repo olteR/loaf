@@ -30,9 +30,6 @@ public class PlayerEntity extends BaseEntity {
     @Formula("(SELECT u.name FROM users u WHERE u.id = user_id)")
     private String name;
 
-    @Formula("(SELECT u.display_name FROM users u WHERE u.id = user_id)")
-    private String displayName;
-
     @ElementCollection
     @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))
     private List<Integer> unavailableCharacters;
