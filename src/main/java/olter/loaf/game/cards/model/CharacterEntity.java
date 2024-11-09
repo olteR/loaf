@@ -28,8 +28,8 @@ public class CharacterEntity {
     @Enumerated(EnumType.STRING)
     private DistrictTypeEnum districtTypeBonus;
 
-    @ElementCollection
-    @CollectionTable(name = "character_abilities", joinColumns = @JoinColumn(name = "character_id"))
-    @Enumerated(EnumType.STRING)
-    List<AbilityEnum> abilites;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "character_abilities", joinColumns = @JoinColumn(name = "ability_id"),
+        inverseJoinColumns = @JoinColumn(name = "character_id"))
+    private List<AbilityEntity> abilities;
 }

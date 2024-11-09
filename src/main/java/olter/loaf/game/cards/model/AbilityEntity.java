@@ -11,20 +11,23 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "districts")
-public class DistrictEntity {
+@Table(name = "abilities")
+public class AbilityEntity {
     @Id
     private Long id;
 
-    @Column(unique = true)
     private String name;
-
-    private String cardName;
-    private Integer cost;
+    private String icon;
 
     @Enumerated(EnumType.STRING)
-    private DistrictTypeEnum type;
+    private AbilityActivationEnum type;
+
+    @Enumerated(EnumType.STRING)
+    private AbilityUsageEnum usage;
+
+    @Enumerated(EnumType.STRING)
+    private AbilityTargetEnum target;
 
     @Column(columnDefinition = "TEXT")
-    private String cardText;
+    private String description;
 }

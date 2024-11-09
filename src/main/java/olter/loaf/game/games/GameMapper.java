@@ -1,5 +1,6 @@
 package olter.loaf.game.games;
 
+import olter.loaf.game.cards.CardMapper;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameSettingsResponse;
@@ -10,7 +11,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = PlayerMapper.class)
+@Mapper(componentModel = "spring", uses = {PlayerMapper.class, CardMapper.class})
 public interface GameMapper {
 
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")

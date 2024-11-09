@@ -45,7 +45,7 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, Long target) {
             game.setCrownedPlayer(game.getCurrentPlayer());
         }
-    }, ASSASSIN("ASSASSIN") {
+    }, ASSASSIN("ASSASSIN", AbilityTargetEnum.CHARACTER) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 2 || target > game.getCharacters().size()) {
@@ -53,7 +53,7 @@ public enum AbilityEnum {
             }
             game.setKilledCharacter(target.intValue());
         }
-    }, THIEF("THIEF") {
+    }, THIEF("THIEF", AbilityTargetEnum.CHARACTER) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 3 || target > game.getCharacters().size() && game.getKilledCharacter() == target.intValue() ||
@@ -62,7 +62,7 @@ public enum AbilityEnum {
             }
             game.setRobbedCharacter(target.intValue());
         }
-    }, MAGICIAN_PLAYER("MAGICIAN_PLAYER") {
+    }, MAGICIAN_PLAYER("MAGICIAN_PLAYER", AbilityTargetEnum.PLAYER) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target.equals(game.getCurrentPlayer().getId())) {
@@ -73,7 +73,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setHand(targetPlayer.getHand());
             targetPlayer.setHand(magicianHand);
         }
-    }, MAGICIAN_DECK("MAGICIAN_DECK") {
+    }, MAGICIAN_DECK("MAGICIAN_DECK", AbilityTargetEnum.OWN_CARDS) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             discardCard(game, target);
@@ -95,7 +95,7 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, Long target) {
             game.getCurrentPlayer().giveCards(drawFromDeck(game, 2));
         }
-    }, WARLORD("WARLORD") {
+    }, WARLORD("WARLORD", AbilityTargetEnum.BUILT_DISTRICT) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             // TODO
@@ -105,7 +105,7 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, Long target) {
             // TODO
         }
-    }, WITCH("WITCH") {
+    }, WITCH("WITCH", AbilityTargetEnum.CHARACTER) {
         @Override
         public void useAbility(GameEntity game, Long target) {
             if (target < 2 || target > game.getCharacters().size()) {
@@ -144,26 +144,33 @@ public enum AbilityEnum {
     };
 
     private final String value;
+    private final AbilityTargetEnum target;
 
     AbilityEnum(String value) {
         this.value = value;
+        this.target = AbilityTargetEnum.NONE;
     }
 
-    public abstract void useAbility(GameEntity game, Long target);
+    AbilityEnum(String value, AbilityTargetEnum target) {
+        this.value = value;
+        this.target = target;
+    }
+
+    public abstract void useAbility(GameEntity game, Long targetId);
 
     public void useAbility(GameEntity game, List<Long> targets) {
         useAbility(game, targets.get(0));
     }
 
-    protected PlayerEntity findPlayer(GameEntity game, Long target, AbilityEnum ability) {
-        return game.getPlayers().stream().filter(player -> player.getId().equals(target)).findFirst()
-            .orElseThrow(() -> new InvalidTargetException(target, ability));
+    protected PlayerEntity findPlayer(GameEntity game, Long targetId, AbilityEnum ability) {
+        return game.getPlayers().stream().filter(player -> player.getId().equals(targetId)).findFirst()
+            .orElseThrow(() -> new InvalidTargetException(targetId, ability));
     }
 
-    protected void discardCard(GameEntity game, Long target) {
+    protected void discardCard(GameEntity game, Long targetId) {
         game.getCurrentPlayer().getHand().remove(
-            game.getCurrentPlayer().getHand().stream().filter(district -> district.getId().equals(target)).findFirst()
-                .orElseThrow(() -> new InvalidTargetException(target, MAGICIAN_DECK)));
+            game.getCurrentPlayer().getHand().stream().filter(district -> district.getId().equals(targetId)).findFirst()
+                .orElseThrow(() -> new InvalidTargetException(targetId, MAGICIAN_DECK)));
     }
 
     protected List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {

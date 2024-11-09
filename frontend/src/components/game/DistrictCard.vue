@@ -23,8 +23,14 @@
         {{ props.card.cost }}
       </div>
       <img class="district-img" :src="props.image.src" />
+      <div class="card-info">
+        <i
+          v-if="props.card.type === DISTRICT_TYPE.UNIQUE"
+          class="fa fa-circle-question"
+          v-tooltip="{ value: props.card.cardText, escape: false }"
+        />
+      </div>
       <div
-        v-if="props.card"
         class="district-text"
         :style="{
           background: secondaryColor,
@@ -38,7 +44,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { COLORS } from "@/utils/const";
+import { COLORS, DISTRICT_TYPE } from "@/utils/const";
 
 const emit = defineEmits(["drag-begin", "drag-end"]);
 
@@ -152,6 +158,14 @@ function handleDragEnd() {
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
+}
+.card-info {
+  position: relative;
+  z-index: 100;
+  text-align: end;
+  margin-right: 0.25rem;
+  height: 30vh;
+  transform: translateY(-100%);
 }
 .district-text {
   text-align: center;

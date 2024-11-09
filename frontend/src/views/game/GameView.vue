@@ -1,6 +1,6 @@
 <template>
   <div class="game-area"></div>
-  <Card class="m-2" style="width: 15vw; font-size: min(1.5vw, 32px)">
+  <Card class="m-2" style="width: 12vw; font-size: min(1.5vw, 32px)">
     <template #content>
       <div class="columns-2 text-center select-none">
         <div>
@@ -32,6 +32,20 @@
   <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
     >Játék bezárása</Button
   >
+  <Button
+    class="absolute right-2 bottom-2 block rounded-full"
+    style="width: 10vw; height: 10vw"
+  >
+    <div
+      class="whitespace-nowrap"
+      style="font-size: min(1vw, 24px); margin-top: 1vw"
+    >
+      Kör befejezése
+    </div>
+    <div style="font-size: min(6vw, 160px); margin-top: -2vw">
+      <i class="fa fa-forward"></i>
+    </div>
+  </Button>
   <Dialog
     :closable="false"
     v-model:visible="currentModal"
