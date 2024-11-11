@@ -28,7 +28,7 @@
         <i
           v-if="district.type === DISTRICT_TYPE.UNIQUE"
           class="fa fa-circle-question"
-          v-tooltip="{ value: district.cardText, escape: false }"
+          v-tooltip="{ value: description, escape: false }"
         />
       </div>
     </div>
@@ -64,6 +64,12 @@ const secondaryColor = computed(() => {
     : props.clickable
     ? COLORS.DISABLED.SECONDARY
     : COLORS.DEFAULT.SECONDARY;
+});
+
+const description = computed(() => {
+  return props.district.abilities
+    .map((ability) => ability.description)
+    .join("");
 });
 </script>
 

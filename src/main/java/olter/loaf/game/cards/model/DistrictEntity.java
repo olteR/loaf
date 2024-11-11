@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import olter.loaf.game.players.model.ConditionEntity;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,6 +28,8 @@ public class DistrictEntity {
     @Enumerated(EnumType.STRING)
     private DistrictTypeEnum type;
 
-    @Column(columnDefinition = "TEXT")
-    private String cardText;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "district_abilities", joinColumns = @JoinColumn(name = "ability_id"),
+        inverseJoinColumns = @JoinColumn(name = "district_id"))
+    private List<AbilityEntity> abilities;
 }
