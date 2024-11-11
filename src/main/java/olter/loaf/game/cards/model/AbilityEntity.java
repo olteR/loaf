@@ -23,7 +23,7 @@ public class AbilityEntity {
     private AbilityActivationEnum type;
 
     @Enumerated(EnumType.STRING)
-    private AbilityUsageEnum usage;
+    private AbilityUsageEnum useRule;
 
     @Enumerated(EnumType.STRING)
     private AbilityTargetEnum target;

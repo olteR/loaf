@@ -29,25 +29,29 @@ public class DefaultGameDataGenerator {
             new AbilityEntity(2L, "Nemesi lapok", "sheet-plastic", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-sheet-plastic\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">nemesi</span> <i class=\"fa fa-city\"></i> után.</p>"),
             new AbilityEntity(3L, "Vallási arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>"),
             new AbilityEntity(4L, "Vallási lapok", "sheet-plastic", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-sheet-plastic\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>"),
-            new AbilityEntity(5L, "Vallási arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>"),
-            new AbilityEntity(6L, "Vallási lapok", "sheet-plastic", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-sheet-plastic\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>"),
-            new AbilityEntity(7L, "Kereskedelmi arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">kereskedelmi</span> <i class=\"fa fa-city\"></i> után.</p>"),
-            new AbilityEntity(8L, "Katonai arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">katonai</span> <i class=\"fa fa-city\"></i> után.</p>"),
-            new AbilityEntity(9L, "Korona elvétele", "crown", AbilityActivationEnum.MANUAL, AbilityUsageEnum.MUST, AbilityTargetEnum.NONE, "<p>A köröd során megkapod a <i class=\"fa fa-crown\"></i>-t. A karakter választási fázisban te választasz először karaktert, amíg egy másik játékos nem választja a Királyt.</p><p>Ha meggyilkolnak, akkor ugyanúgy kihagyod a körödet, mint bármely más karakter, a <i class=\"fa fa-crown\"></i> pedig nálad marad, mint trónörökösnél.</p><p>Ha megbabonáznak, attól még megtartod a <i class=\"fa fa-crown\"></i>-t.</p>"),
-            new AbilityEntity(10L, "Gyilkolás", "skull", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.CHARACTER, "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt karakter kihagyja az egész körét.</p>"),
-            new AbilityEntity(11L, "Lopás", "sack-dollar", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.CHARACTER, "<p>Válaszd ki, hogy melyik karaktertől szeretnél lopni! Amikor az a karakter következik, elveszed a kincstartalékában lévő összes <i class=\"fa fa-coins\"></i>-t.</p><p>Nem rabolhatsz ki 1-es rangú karkatert, megölt vagy megbabonázott karaktert.</p>"),
-            new AbilityEntity(12L, "Csere játékossal", "right-left", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>"),
-            new AbilityEntity(13L, "Csere pakliból", "rotate", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>"),
-            new AbilityEntity(14L, "Védelem", "building-shield", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben a 8-as rangú karakter nem használhatja képességét a <i class=\"fa fa-city\"></i>-eiden.</p><p>Ha megölnek, nyolcas rangú karakter <b>tudja</b> használni a képességét a <i class=\"fa fa-city\"></i>-eiden. Ugyanígy, ha megbabonáznak, nyolcas rangú karakter <b>nem tudja</b> használni a képességeit a Boszorkány <i class=\"fa fa-city\"></i>-ein, de <b>képes</b> használni a képességét a Püspök <i class=\"fa fa-city\"></i>-ein.</p>"),
-            new AbilityEntity(15L, "Bevétel", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz plusz egy <i class=\"fa fa-coins\"></i>-t.</p>"),
-            new AbilityEntity(16L, "Építőanyagok", "sheet-plastic", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz két plusz <i class=\"fa fa-sheet-plastic\"></i>-t.</p>"),
-            new AbilityEntity(17L, "Építőmester", "coins", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben az építkezési korlátod 3 <i class=\"fa fa-city\"></i>.</p>"),
-            new AbilityEntity(18L, "Rombolás", "building-circle-xmark", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.BUILT_DISTRICT, "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>"),
-            new AbilityEntity(19L, "Uralkodói csapatmunka", "chess-queen", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos,, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>"),
-            new AbilityEntity(20L, "Megbabonázás", "wand-sparkles", AbilityActivationEnum.MANUAL, AbilityUsageEnum.MUST, AbilityTargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz építkezni, és a <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül, amik nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a körének. Nem képes <i class=\"fa fa-city\"></i>-t építeni sem, karakterek képességeit használni — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül a megbabonázott karakter esetében, amik nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b> kezedben lévő <i class=\"fa fa-sheet-plastic\"></i>-okkal játszol, a <b>te</b> kincstartalékodban lévő <i class=\"fa fa-coins\"></i>-al fizetsz, a <b>te</b> városod <i class=\"fa fa-city\"></i>-eiből gyűjtesz nyersanyagokat, a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a megbabonázott játékos bírtokában lévő <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i>-ek hatásait.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>"),
-            new AbilityEntity(21L, "Kémkedés", "user-secret", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.PLAYER_AND_DISTRICT_TYPE, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>"),
-            new AbilityEntity(22L, "Varázslás", "hand-sparkles", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.PLAYER_AND_DISTRICT_IN_HAND, "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>"),
-            new AbilityEntity(23L, "Duplikátumok", "clone", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetsz a városodban, amilyenek már léteznek.</p>"));
+            new AbilityEntity(5L, "Vallási arany vagy lapok", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> vagy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>"),
+            new AbilityEntity(6L, "Kereskedelmi arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">kereskedelmi</span> <i class=\"fa fa-city\"></i> után.</p>"),
+            new AbilityEntity(7L, "Katonai arany", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">katonai</span> <i class=\"fa fa-city\"></i> után.</p>"),
+            new AbilityEntity(8L, "Korona elvétele", "crown", AbilityActivationEnum.MANUAL, AbilityUsageEnum.MUST, AbilityTargetEnum.NONE, "<p>A köröd során megkapod a <i class=\"fa fa-crown\"></i>-t. A karakter választási fázisban te választasz először karaktert, amíg egy másik játékos nem választja a Királyt.</p><p>Ha meggyilkolnak, akkor ugyanúgy kihagyod a körödet, mint bármely más karakter, a <i class=\"fa fa-crown\"></i> pedig nálad marad, mint trónörökösnél.</p><p>Ha megbabonáznak, attól még megtartod a <i class=\"fa fa-crown\"></i>-t.</p>"),
+            new AbilityEntity(9L, "Gyilkolás", "skull", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.CHARACTER, "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt karakter kihagyja az egész körét.</p>"),
+            new AbilityEntity(10L, "Lopás", "sack-dollar", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.CHARACTER, "<p>Válaszd ki, hogy melyik karaktertől szeretnél lopni! Amikor az a karakter következik, elveszed a kincstartalékában lévő összes <i class=\"fa fa-coins\"></i>-t.</p><p>Nem rabolhatsz ki 1-es rangú karkatert, megölt vagy megbabonázott karaktert.</p>"),
+            new AbilityEntity(11L, "Csere játékossal", "right-left", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>"),
+            new AbilityEntity(12L, "Csere pakliból", "rotate", AbilityActivationEnum.MANUAL, AbilityUsageEnum.OR, AbilityTargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>"),
+            new AbilityEntity(13L, "Védelem", "building-shield", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben a 8-as rangú karakter nem használhatja képességét a <i class=\"fa fa-city\"></i>-eiden.</p><p>Ha megölnek, nyolcas rangú karakter <b>tudja</b> használni a képességét a <i class=\"fa fa-city\"></i>-eiden. Ugyanígy, ha megbabonáznak, nyolcas rangú karakter <b>nem tudja</b> használni a képességeit a Boszorkány <i class=\"fa fa-city\"></i>-ein, de <b>képes</b> használni a képességét a Püspök <i class=\"fa fa-city\"></i>-ein.</p>"),
+            new AbilityEntity(14L, "Bevétel", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz plusz egy <i class=\"fa fa-coins\"></i>-t.</p>"),
+            new AbilityEntity(15L, "Építőanyagok", "sheet-plastic", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz két plusz <i class=\"fa fa-sheet-plastic\"></i>-t.</p>"),
+            new AbilityEntity(16L, "Építőmester", "hammer", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben az építkezési korlátod 3 <i class=\"fa fa-city\"></i>.</p>"),
+            new AbilityEntity(17L, "Rombolás", "building-circle-xmark", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.BUILT_DISTRICT, "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>"),
+            new AbilityEntity(18L, "Uralkodói csapatmunka", "chess-queen", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos,, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>"),
+            new AbilityEntity(19L, "Megbabonázás", "wand-sparkles", AbilityActivationEnum.MANUAL, AbilityUsageEnum.MUST, AbilityTargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz építkezni, és a <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül, amik nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a körének. Nem képes <i class=\"fa fa-city\"></i>-t építeni sem, karakterek képességeit használni — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül a megbabonázott karakter esetében, amik nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b> kezedben lévő <i class=\"fa fa-sheet-plastic\"></i>-okkal játszol, a <b>te</b> kincstartalékodban lévő <i class=\"fa fa-coins\"></i>-al fizetsz, a <b>te</b> városod <i class=\"fa fa-city\"></i>-eiből gyűjtesz nyersanyagokat, a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a megbabonázott játékos bírtokában lévő <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i>-ek hatásait.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>"),
+            new AbilityEntity(20L, "Kémkedés", "user-secret", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.PLAYER_AND_DISTRICT_TYPE, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>"),
+            new AbilityEntity(21L, "Varázslás", "hand-sparkles", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.PLAYER_AND_DISTRICT_IN_HAND, "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>"),
+            new AbilityEntity(22L, "Duplikátumok", "clone", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetsz a városodban, amilyenek már léteznek.</p>"),
+            new AbilityEntity(23L, "Korona áttétele", "crown", AbilityActivationEnum.MANUAL, AbilityUsageEnum.MUST, AbilityTargetEnum.PLAYER, "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz érte nyersanyagot.</p>"),
+            new AbilityEntity(24L, "Alamizsna", "coins", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.PLAYER, "<p>Ha a köröd során bármikor előfordul, hogy nem te vagy a legtöbb <i class=\"fa fa-coins\"></i>-al rendelkező játékos, a leggazdagabb játékos ad neked egyet. Döntetlen esetén te választasz, hogy ki ad <i class=\"fa fa-coins\"></i>-t.</p>"),
+            new AbilityEntity(25L, "Alkímia", "coins", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>"),
+            new AbilityEntity(26L, "Szállítmány", "sailboat", AbilityActivationEnum.MANUAL, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t.</p>"),
+            new AbilityEntity(27L, "Tengeren", "person-walking-luggage", AbilityActivationEnum.PASSIVE, AbilityUsageEnum.AND, AbilityTargetEnum.NONE, "<p>Nem építhetsz semmilyen kerületet ebben a körben.</p>"));
         abilityRepository.saveAll(abilities);
         log.info("Abilities generated successfully!");
         return abilities;
@@ -109,63 +113,33 @@ public class DefaultGameDataGenerator {
 
     private void generateDefaultCharacters(List<AbilityEntity> abilities) {
         List<CharacterEntity> characters = List.of(
-            new CharacterEntity(1L, 1, "Orgyilkos", "", null, List.of(abilities.get(9))),
-            new CharacterEntity(2L, 2, "Tolvaj", "", null, List.of(abilities.get(10))),
-            new CharacterEntity(3L, 3, "Mágus", "", null, List.of(abilities.get(11), abilities.get(12))),
-            new CharacterEntity(4L, 4, "Király", "", DistrictTypeEnum.NOBLE, List.of(abilities.get(0), abilities.get(8))),
-            new CharacterEntity(5L, 5, "Püspök", "", DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(2), abilities.get(13))),
-            new CharacterEntity(6L, 6, "Kereskedő", "", DistrictTypeEnum.TRADE, List.of(abilities.get(6), abilities.get(14))),
-            new CharacterEntity(7L, 7, "Építész", "", null, List.of(abilities.get(15), abilities.get(16))),
-            new CharacterEntity(8L, 8, "Hadúr", "", DistrictTypeEnum.MILITARY, List.of(abilities.get(7), abilities.get(17))),
-            new CharacterEntity(9L, 9, "Királynő", "", null, List.of(abilities.get(18))),
-            new CharacterEntity(10L, 1, "Boszorkány", "", null, List.of(abilities.get(19))),
-            new CharacterEntity(11L, 2, "Kém", "", null, List.of(abilities.get(20))),
-            new CharacterEntity(12L, 3, "Varázsló", "", null, List.of()),
-            new CharacterEntity(13L, 4, "Császár",
-                "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a " +
-                    "játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a " +
-                    "játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa " +
-                    "fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha" +
-                    " nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor " +
-                    "nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz " +
-                    "érte nyersanyagot.</p>", DistrictTypeEnum.NOBLE, List.of(abilities.get(0))),
-            new CharacterEntity(14L, 5, "Apát",
-                "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> vagy <b><i class=\"fa " +
-                    "fa-sheet-plastic\"></i>-t</b> a városodban lévő minden <span style=\"font-variant: " +
-                    "small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p><p>Ha a köröd során bármikor " +
-                    "előfordul, hogy nem te vagy a legtöbb <i class=\"fa fa-coins\"></i>-al rendelkező játékos, a " +
-                    "leggazdagabb játékos ad neked egyet. Döntetlen esetén te választasz, hogy ki ad <i class=\"fa " +
-                    "fa-coins\"></i>-t.</p>", DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(4), abilities.get(5))),
-            new CharacterEntity(15L, 6, "Alkimista",
-                "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>", null,
-                List.of()),
-            new CharacterEntity(16L, 7, "Navigátor",
-                "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t" +
-                    ".</p><p>Nem építhetsz semmilyen kerületet ebben a körben.</p>", null, List.of()),
-            new CharacterEntity(17L, 8, "Diplomata",
-                "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> a városodban lévő minden egyes <span " +
-                    "style=\"font-variant: small-caps\">katonai</span> <i class=\"fa fa-city\"></i> után.</p>",
-                DistrictTypeEnum.MILITARY, List.of(abilities.get(7))),
-            new CharacterEntity(18L, 9, "Művész", "<p></p>", null, List.of()),
-            new CharacterEntity(19L, 1, "Magisztrátus", "<p></p>", null, List.of()),
-            new CharacterEntity(20L, 2, "Zsaroló", "<p></p>", null, List.of()),
-            new CharacterEntity(21L, 3, "Látnok", "<p></p>", null, List.of()), new CharacterEntity(22L, 4, "Patrícius",
-                "<p>Kapsz egy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden egyes <span " +
-                    "style=\"font-variant: small-caps\">nemesi</span> <i class=\"fa fa-city\"></i> után.</p>",
-                DistrictTypeEnum.NOBLE, List.of(abilities.get(1), abilities.get(8))),
-            new CharacterEntity(23L, 5, "Bíboros",
-                "<p>Kapsz egy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden egyes <span " +
-                    "style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>",
-                DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(3))),
-            new CharacterEntity(24L, 6, "Szatócs",
-                "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span " +
-                    "style=\"font-variant: small-caps\">kereskedelmi</span> <i class=\"fa fa-city\"></i> után.</p>",
-                DistrictTypeEnum.TRADE, List.of(abilities.get(6))),
-            new CharacterEntity(25L, 7, "Tudós", "<p></p>", null, List.of()), new CharacterEntity(26L, 8, "Marsall",
-                "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span " +
-                    "style=\"font-variant: small-caps\">katonai</span> <i class=\"fa fa-city\"></i> után.</p>",
-                DistrictTypeEnum.MILITARY, List.of()),
-            new CharacterEntity(27L, 9, "Adószedő", "<p></p>", null, List.of()));
+            new CharacterEntity(1L, 1, "Orgyilkos", null, List.of(abilities.get(8))),
+            new CharacterEntity(2L, 2, "Tolvaj", null, List.of(abilities.get(9))),
+            new CharacterEntity(3L, 3, "Mágus", null, List.of(abilities.get(10), abilities.get(11))),
+            new CharacterEntity(4L, 4, "Király", DistrictTypeEnum.NOBLE, List.of(abilities.get(0), abilities.get(7))),
+            new CharacterEntity(5L, 5, "Püspök", DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(2), abilities.get(12))),
+            new CharacterEntity(6L, 6, "Kereskedő", DistrictTypeEnum.TRADE, List.of(abilities.get(5), abilities.get(13))),
+            new CharacterEntity(7L, 7, "Építész", null, List.of(abilities.get(14), abilities.get(15))),
+            new CharacterEntity(8L, 8, "Hadúr", DistrictTypeEnum.MILITARY, List.of(abilities.get(6), abilities.get(16))),
+            new CharacterEntity(9L, 9, "Királynő", null, List.of(abilities.get(17))),
+            new CharacterEntity(10L, 1, "Boszorkány", null, List.of(abilities.get(18))),
+            new CharacterEntity(11L, 2, "Kém", null, List.of(abilities.get(19))),
+            new CharacterEntity(12L, 3, "Varázsló", null, List.of(abilities.get(20), abilities.get(21))),
+            new CharacterEntity(13L, 4, "Császár", DistrictTypeEnum.NOBLE, List.of(abilities.get(0), abilities.get(22))),
+            new CharacterEntity(14L, 5, "Apát", DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(4), abilities.get(23))),
+            new CharacterEntity(15L, 6, "Alkimista", null, List.of(abilities.get(24))),
+            new CharacterEntity(16L, 7, "Navigátor", null, List.of(abilities.get(25), abilities.get(26))),
+            new CharacterEntity(17L, 8, "Diplomata", DistrictTypeEnum.MILITARY, List.of(abilities.get(7))),
+            new CharacterEntity(18L, 9, "Művész", null, List.of()),
+            new CharacterEntity(19L, 1, "Magisztrátus", null, List.of()),
+            new CharacterEntity(20L, 2, "Zsaroló", null, List.of()),
+            new CharacterEntity(21L, 3, "Látnok", null, List.of()),
+            new CharacterEntity(22L, 4, "Patrícius", DistrictTypeEnum.NOBLE, List.of(abilities.get(1), abilities.get(8))),
+            new CharacterEntity(23L, 5, "Bíboros", DistrictTypeEnum.RELIGIOUS, List.of(abilities.get(3))),
+            new CharacterEntity(24L, 6, "Szatócs", DistrictTypeEnum.TRADE, List.of(abilities.get(6))),
+            new CharacterEntity(25L, 7, "Tudós", null, List.of()),
+            new CharacterEntity(26L, 8, "Marsall", DistrictTypeEnum.MILITARY, List.of()),
+            new CharacterEntity(27L, 9, "Adószedő", null, List.of()));
         characterRepository.saveAll(characters);
         log.info("Characters generated successfully!");
     }
