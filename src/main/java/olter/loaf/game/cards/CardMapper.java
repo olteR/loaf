@@ -3,6 +3,7 @@ package olter.loaf.game.cards;
 import olter.loaf.game.cards.dto.AbilityResponse;
 import olter.loaf.game.cards.dto.CharacterResponse;
 import olter.loaf.game.cards.dto.DistrictResponse;
+import olter.loaf.game.cards.model.AbilityEntity;
 import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
@@ -15,6 +16,5 @@ public interface CardMapper {
 
     DistrictResponse entityToResponse(DistrictEntity entity);
 
-    @Mapping(source = "value", target = "ability")
-    AbilityResponse enumToResponse(AbilityEnum ability);
+    AbilityResponse entityToResponse(AbilityEntity ability);
 }

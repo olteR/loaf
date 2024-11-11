@@ -37,7 +37,7 @@
           </div>
           <div>
             <Button
-              label="új lobbi"
+              label="Új lobbi"
               class="float-right"
               icon="pi pi-plus-circle"
               @click="createModalVisible = true"

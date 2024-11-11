@@ -146,3 +146,9 @@ export const LOBBY_STATUS = {
   ONGOING: "ONGOING",
   ENDED: "ENDED",
 };
+
+export const ABILITY_USE_RULE = {
+  AND: "AND",
+  OR: "OR",
+  MUST: "",
+};

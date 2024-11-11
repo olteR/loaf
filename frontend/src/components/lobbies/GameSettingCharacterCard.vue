@@ -31,7 +31,7 @@
         <i
           class="fa fa-circle-question"
           v-tooltip="{
-            value: character.cardText,
+            value: description,
             escape: false,
           }"
         />
@@ -42,7 +42,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS, CARD_POS } from "@/utils/const";
+import { COLORS, CARD_POS, ABILITY_USE_RULE } from "@/utils/const";
 
 const props = defineProps({
   character: Object,
@@ -66,6 +66,16 @@ const secondaryColor = computed(() => {
     ? COLORS[props.character.districtTypeBonus]?.SECONDARY ??
         COLORS.DEFAULT.SECONDARY
     : COLORS.DISABLED.SECONDARY;
+});
+
+const description = computed(() => {
+  return props.character.abilities
+    .map((ability) => ability.description)
+    .join(
+      props.character.abilities[0].useRule === ABILITY_USE_RULE.OR
+        ? "<p>VAGY</p>"
+        : ""
+    );
 });
 </script>
 
