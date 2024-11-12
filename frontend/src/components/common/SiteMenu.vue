@@ -98,7 +98,7 @@ const menuItems = ref([
 }
 @media (min-width: 1024px) {
   .p-menubar-start {
-    width: 30vw;
+    width: 20vw;
   }
   .p-menubar-end {
     width: 20vw;

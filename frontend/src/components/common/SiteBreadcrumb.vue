@@ -5,7 +5,7 @@
         @click="router.push({ name: item.name, params: item.params })"
         class="p-link"
       >
-        <i v-if="item.icon" :class="item.icon" :title="item.name"></i
+        <i v-if="item.icon" :class="item.icon" :title="item.label"></i
         ><span v-else>{{ item.label ? item.label : item.name }}</span>
       </div>
     </template>
@@ -20,7 +20,7 @@ import Breadcrumb from "primevue/breadcrumb";
 
 const router = useRouter();
 const stateStore = useStateStore();
-const home = ref({ icon: "pi pi-home", to: "/lobbies" });
+const home = ref({ icon: "pi pi-home", name: "lobbies", label: "Kezdőlap" });
 </script>
 
 <style scoped></style>

@@ -1,24 +1,23 @@
 export const BREADCRUMB = {
   MY_GAMES: {
-    name: "játékaim",
+    name: "my-games",
+    label: "Játékaim",
     icon: "fa fa-dice",
   },
   LOBBIES: {
-    name: "lobbik",
+    name: "lobbies",
+    label: "Lobbik",
     icon: "fa fa-people-group",
   },
   STATISTICS: {
-    name: "statisztikák",
+    name: "statistics",
+    label: "Statisztikák",
     icon: "fa fa-chart-line",
   },
-
   RULES: {
-    name: "szabályok",
+    name: "rules",
+    label: "Szabályok",
     icon: "fa fa-circle-info",
-  },
-  PROFILE: {
-    name: "profil",
-    icon: "fa fa-user",
   },
 };
 
