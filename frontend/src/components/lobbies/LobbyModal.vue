@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="createLobby()">
     <div class="grid gap-x-8 gap-y-4 grid-cols-2 p-1">
-      <div class="p-float-label">
+      <div class="p-float-label self-end">
         <InputText
           id="name"
           v-model="lobbyForm.name"
@@ -11,7 +11,7 @@
         <label for="name">Név</label>
       </div>
 
-      <div class="p-float-label">
+      <div class="p-float-label" v-if="!editedLobby">
         <Password
           id="password"
           v-model="lobbyForm.password"
@@ -38,7 +38,7 @@
           decrementButtonIcon="pi pi-minus"
         />
       </div>
-      <div class="relative">
+      <div class="relative" v-if="!editedLobby">
         <div
           class="absolute bottom-0 w-full grid grid-cols-8"
           style="height: 3.75rem"
@@ -92,7 +92,6 @@ const loading = ref(false);
 
 const lobbyForm = ref({
   name: null,
-  password: null,
   secured: false,
   maxMembers: MAX_LOBBY_PLAYERS,
 });
@@ -113,6 +112,8 @@ onMounted(() => {
     lobbyForm.value.name = props.editedLobby.name;
     lobbyForm.value.secured = props.editedLobby.secured;
     lobbyForm.value.maxMembers = props.editedLobby.maxMembers;
+  } else {
+    lobbyForm.value.password = null;
   }
 });
 

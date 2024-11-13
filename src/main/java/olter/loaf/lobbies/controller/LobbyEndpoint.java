@@ -35,14 +35,14 @@ public class LobbyEndpoint {
     }
 
     @PostMapping("/lobby")
-    public ResponseEntity<LobbyDetailsResponse> createLobby(@RequestBody LobbyRequest request,
+    public ResponseEntity<LobbyDetailsResponse> createLobby(@RequestBody LobbyDto request,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(lobbyService.createLobby(request, user));
     }
 
     @PostMapping("/lobby/{code}")
-    public ResponseEntity<LobbyDetailsResponse> editLobby(@RequestBody LobbyRequest request, @PathVariable String code,
+    public ResponseEntity<LobbyDetailsResponse> editLobby(@RequestBody LobbyDto request, @PathVariable String code,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(lobbyService.editLobby(request, code, user));

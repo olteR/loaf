@@ -4,8 +4,16 @@
       <Card>
         <template #title>
           <div class="inline-flex justify-between w-full">
-            <div>
-              <h1 class="text-4xl">{{ lobbyStore.getLobby.name }}</h1>
+            <div class="text-4xl">
+              {{ lobbyStore.getLobby.name }}
+              <i
+                v-if="lobbyStore.getLobby.secured"
+                v-tooltip.top="{
+                  value: 'Jelszóval védett lobbi',
+                  escape: false,
+                }"
+                class="fa fa-lock"
+              ></i>
             </div>
             <div v-if="isOwner">
               <Button

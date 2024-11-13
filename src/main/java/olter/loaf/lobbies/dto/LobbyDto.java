@@ -9,10 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LobbyRequest {
+public class LobbyDto {
     private String name;
     private String password;
-    private Boolean hidden;
     private Boolean secured;
     private Integer maxMembers;
 }

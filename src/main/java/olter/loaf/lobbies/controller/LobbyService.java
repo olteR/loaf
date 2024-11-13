@@ -66,7 +66,7 @@ public class LobbyService {
             .map(lobbyMapper::entityToListResponse).toList();
     }
 
-    public LobbyDetailsResponse createLobby(LobbyRequest request, UserEntity creator) {
+    public LobbyDetailsResponse createLobby(LobbyDto request, UserEntity creator) {
         log.info("{} creating lobby...", request.getName());
         LobbyEntity lobby = new LobbyEntity();
         lobbyMapper.map(request, lobby);
@@ -88,7 +88,7 @@ public class LobbyService {
         return lobbyMapper.entityToDetailsResponse(lobby);
     }
 
-    public LobbyDetailsResponse editLobby(LobbyRequest request, String code, UserEntity user) {
+    public LobbyDetailsResponse editLobby(LobbyDto request, String code, UserEntity user) {
         log.info("{} editing lobby {}...", request.getName(), code);
         LobbyEntity lobby = findLobby(code);
         validateOwnerRequest(lobby, user);
@@ -96,11 +96,10 @@ public class LobbyService {
             throw new TooManyMembersException(code);
         }
 
-        lobbyMapper.map(request, lobby);
-        if (request.getSecured() != null && request.getSecured()) {
-            lobby.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
+        lobby.setName(request.getName());
+        lobby.setMaxMembers(request.getMaxMembers());
         lobbyRepository.save(lobby);
+        broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.EDIT, request);
 
         return lobbyMapper.entityToDetailsResponse(lobby);
     }

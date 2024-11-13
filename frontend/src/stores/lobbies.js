@@ -153,6 +153,11 @@ export const useLobbyStore = defineStore("lobby", () => {
           });
           break;
         }
+        case LOBBY_UPDATE.EDIT: {
+          lobby.value.name = update.change.name;
+          lobby.value.maxMembers = update.change.maxMembers;
+          break;
+        }
         case LOBBY_UPDATE.OWNER: {
           lobby.value.owner = update.change;
           toast.add({

@@ -122,6 +122,7 @@ export const DISTRICT_TYPE = {
 export const LOBBY_UPDATE = {
   JOIN: "JOIN",
   LEAVE: "LEAVE",
+  EDIT: "EDIT",
   OWNER: "OWNER",
   KICK: "KICK",
   CHARACTERS: "CHARACTERS",
