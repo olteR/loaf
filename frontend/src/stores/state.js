@@ -5,9 +5,11 @@ import axios from "axios";
 import router from "@/router";
 import jwtDecode from "jwt-decode";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
+import { useWebsocketStore } from "@/stores/websocket";
 
 export const useStateStore = defineStore("state", () => {
   const requestStore = useRequestStore();
+  const websocketStore = useWebsocketStore();
   const toast = useToast();
 
   const urls = {
@@ -59,6 +61,7 @@ export const useStateStore = defineStore("state", () => {
     user.value = null;
     jwt.value = null;
     localStorage.removeItem("loaf_jwt");
+    websocketStore.disconnect();
     await router.push("/login");
   }
 
@@ -80,11 +83,11 @@ export const useStateStore = defineStore("state", () => {
   }
 
   return {
-    getUser,
-    getJwt,
-    isLoggedIn,
-    getBreadcrumbs,
-    getLoading,
+    getUser: getUser,
+    getJwt: getJwt,
+    isLoggedIn: isLoggedIn,
+    getBreadcrumbs: getBreadcrumbs,
+    getLoading: getLoading,
     loginUser,
     logoutUser,
     setBreadcrumbs,

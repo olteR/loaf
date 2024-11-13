@@ -12,16 +12,16 @@ export const useGameStore = defineStore("game", () => {
     build: (code) => `game/${code}/build`,
   };
 
-  const gameDetails = ref();
+  const game = ref();
 
-  const getGameDetails = computed(() => gameDetails.value);
+  const getGame = computed(() => game.value);
 
-  async function fetchGameDetails(code) {
+  async function fetchGame(code) {
     const response = await requestStore.request(
       urls.details(code),
       REQ_TYPE.GET
     );
-    gameDetails.value = response.data;
+    game.value = response.data;
   }
 
   async function selectCharacter(code, character) {
@@ -29,8 +29,8 @@ export const useGameStore = defineStore("game", () => {
       urls.select(code) + "?character=" + character,
       REQ_TYPE.GET
     );
-    gameDetails.value.currentCharacter = character;
-    gameDetails.value.skippedCharacters = response.data;
+    game.value.currentCharacter = character;
+    game.value.skippedCharacters = response.data;
   }
 
   async function gatherResources(code, resource) {
@@ -38,7 +38,7 @@ export const useGameStore = defineStore("game", () => {
       urls.resource(code) + "?type=" + resource,
       REQ_TYPE.GET
     );
-    gameDetails.value.drawnCards = response.data;
+    game.value.drawnCards = response.data;
   }
 
   async function drawCards(code, cards) {
@@ -47,20 +47,27 @@ export const useGameStore = defineStore("game", () => {
       REQ_TYPE.POST,
       cards
     );
-    gameDetails.value.drawnCards = [];
-    gameDetails.value.hand.push(...response.data);
+    game.value.drawnCards = [];
+    game.value.hand.push(...response.data);
   }
 
   async function buildDistrict(code, request) {
     await requestStore.request(urls.build(code), REQ_TYPE.POST, request);
   }
 
+  const gameUpdateHandler = function handleGameUpdate(msg) {
+    const update = JSON.parse(msg.body);
+    if (update.code === game.value.code) {
+    }
+  };
+
   return {
-    getGameDetails: getGameDetails,
-    fetchGameDetails,
+    getGame: getGame,
+    fetchGame,
     selectCharacter,
     gatherResources,
     drawCards,
     buildDistrict,
+    gameUpdateHandler,
   };
 });

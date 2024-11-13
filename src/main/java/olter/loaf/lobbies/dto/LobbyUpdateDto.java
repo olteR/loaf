@@ -10,6 +10,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class LobbyUpdateDto {
-    LobbyUpdateTypeEnum type;
-    Object change;
+    private String code;
+    private LobbyUpdateTypeEnum type;
+    private Object change;
 }

@@ -21,8 +21,10 @@
 import { onMounted } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import axios from "axios";
+import SockJS from "sockjs-client/dist/sockjs";
 import { useToast } from "primevue/usetoast";
 import { useStateStore } from "@/stores/state";
+import { useWebsocketStore } from "@/stores/websocket";
 import Toast from "primevue/toast";
 import SiteMenu from "@/components/common/SiteMenu.vue";
 import ProgressSpinner from "primevue/progressspinner";
@@ -30,26 +32,30 @@ import ProgressSpinner from "primevue/progressspinner";
 const router = useRouter();
 const toast = useToast();
 const stateStore = useStateStore();
+const websocketStore = useWebsocketStore();
 
 onMounted(() => {
-  if (
-    !stateStore.isLoggedIn &&
-    !["/", "/register"].includes(router.currentRoute.value.path)
-  ) {
-    if (stateStore.getUser != null) {
-      stateStore.logoutUser();
-      toast.add({
-        severity: "error",
-        summary: "Lejárt bejelentkezés",
-        detail: "Kérjük lépj be újra!",
-        group: "bc",
-        life: 3000,
-      });
+  if (!["/", "/login", "/register"].includes(router.currentRoute.value.path)) {
+    if (!stateStore.isLoggedIn) {
+      if (stateStore.getUser != null) {
+        stateStore.logoutUser();
+        toast.add({
+          severity: "error",
+          summary: "Lejárt bejelentkezés",
+          detail: "Kérjük lépj be újra!",
+          group: "bc",
+          life: 3000,
+        });
+      }
+      router.push("/login");
+    } else {
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${stateStore.getJwt}`;
+      websocketStore.connect(
+        new SockJS(`${window.location.origin}/ws?${stateStore.getJwt}`)
+      );
     }
-    router.push("/login");
-  } else {
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + stateStore.getJwt;
   }
 });
 </script>

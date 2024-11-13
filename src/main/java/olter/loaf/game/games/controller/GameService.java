@@ -147,10 +147,10 @@ public class GameService {
                 unavailableCharacters.add(game.getDownwardDiscard());
                 p.setUnavailableCharacters(unavailableCharacters);
                 simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                    new GameUpdateDto(GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
+                    new GameUpdateDto(code, GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
             } else {
                 simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                    new GameUpdateDto(GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
+                    new GameUpdateDto(code, GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
             }
         });
         gameRepository.save(game);
@@ -167,7 +167,7 @@ public class GameService {
             game.getCurrentPlayer().giveGold(RESOURCE_GOLD);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
-            broadcastOnWebsocket(game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
+            broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
                 new ResourceGatherResponse(resource, RESOURCE_GOLD));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
             game.getCurrentPlayer().setDrawnCards(drawFromDeck(game, 2));
@@ -188,7 +188,7 @@ public class GameService {
         game.getCurrentPlayer().getDrawnCards().clear();
         game.setPhase(GamePhaseEnum.TURN);
         gameRepository.save(game);
-        broadcastOnWebsocket(game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
+        broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
             new ResourceGatherResponse(ResourceTypeEnum.CARDS, drawnCards.size()));
         return drawnCards.stream().map(cardMapper::entityToResponse).toList();
     }
@@ -200,11 +200,11 @@ public class GameService {
     }
 
     // Broadcasts the update to all the players of the game
-    private void broadcastOnWebsocket(List<PlayerEntity> players, GameUpdateTypeEnum updateType, Object change) {
+    private void broadcastOnWebsocket(String code, List<PlayerEntity> players, GameUpdateTypeEnum updateType, Object change) {
         players.forEach(m -> {
             log.info("Broadcasting {} to {}", updateType.getValue(), m.getUserId());
             simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getUserId()), "/topic/game/update",
-                new GameUpdateDto(updateType, change));
+                new GameUpdateDto(code, updateType, change));
         });
     }
 

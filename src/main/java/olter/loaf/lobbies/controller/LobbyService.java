@@ -111,7 +111,7 @@ public class LobbyService {
         log.info("{} joining lobby {}", user.getName(), lobby.getName());
 
         validateJoin(lobby, user);
-        broadcastOnWebsocket(members, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
+        broadcastOnWebsocket(code, members, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
 
         members.add(user);
         lobby.setMembers(members);
@@ -145,7 +145,7 @@ public class LobbyService {
                 .peek(p -> p.setOrder(p.getOrder() - 1)).toList());
         playerRepository.delete(leavingPlayer);
 
-        broadcastOnWebsocket(members, LobbyUpdateTypeEnum.LEAVE, user.getId());
+        broadcastOnWebsocket(code, members, LobbyUpdateTypeEnum.LEAVE, user.getId());
     }
 
     public void kickMember(UserEntity user, LobbyMemberInteractionDto request) {
@@ -162,7 +162,7 @@ public class LobbyService {
             playerRepository.findAllByGameAndOrderGreaterThan(lobby.getGame(), kickedPlayer.getOrder()).stream()
                 .peek(p -> p.setOrder(p.getOrder() - 1)).toList());
         playerRepository.delete(kickedPlayer);
-        broadcastOnWebsocket(members, LobbyUpdateTypeEnum.KICK, request.getMemberId());
+        broadcastOnWebsocket(request.getCode(), members, LobbyUpdateTypeEnum.KICK, request.getMemberId());
 
         members.removeIf(m -> Objects.equals(m.getId(), request.getMemberId()));
         lobby.setMembers(members);
@@ -175,7 +175,7 @@ public class LobbyService {
 
         validateOwnerRequest(lobby, user);
         validateContainment(lobby, request.getMemberId());
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.OWNER, request.getMemberId());
+        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.OWNER, request.getMemberId());
 
         lobby.setOwner(request.getMemberId());
         lobbyRepository.save(lobby);
@@ -191,7 +191,7 @@ public class LobbyService {
         log.info("Deleting lobby {}", code);
 
         validateOwnerRequest(lobby, user);
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DELETE, null);
+        broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.DELETE, null);
         lobbyRepository.delete(lobby);
     }
 
@@ -210,7 +210,7 @@ public class LobbyService {
 
         GameEntity game = lobby.getGame();
         game.setCharacters(characters);
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, request.getIds());
+        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, request.getIds());
         gameRepository.save(game);
     }
 
@@ -224,7 +224,7 @@ public class LobbyService {
         }
         GameEntity game = lobby.getGame();
         game.setUniqueDistricts(request.getIds());
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.DISTRICTS, request.getIds());
+        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.DISTRICTS, request.getIds());
         gameRepository.save(game);
     }
 
@@ -241,7 +241,7 @@ public class LobbyService {
                 game.getPlayers().stream().filter(player -> Objects.equals(player.getUserId(), request.getMemberId()))
                     .findFirst().orElseThrow(() -> new NotInGameException(request.getCode(), request.getMemberId())));
         }
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, request.getMemberId());
+        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.CROWN, request.getMemberId());
         gameRepository.save(game);
     }
 
@@ -251,7 +251,7 @@ public class LobbyService {
 
         gameService.startGame(lobby);
         lobby.setStatus(LobbyStatusEnum.ONGOING);
-        broadcastOnWebsocket(lobby.getMembers(), LobbyUpdateTypeEnum.START, null);
+        broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.START, null);
 
         lobbyRepository.save(lobby);
     }
@@ -263,11 +263,11 @@ public class LobbyService {
     }
 
     // Broadcasts the update to all the members of the lobby
-    private void broadcastOnWebsocket(List<UserEntity> members, LobbyUpdateTypeEnum updateType, Object change) {
+    private void broadcastOnWebsocket(String code, List<UserEntity> members, LobbyUpdateTypeEnum updateType, Object change) {
         members.forEach(m -> {
             log.info("Broadcasting {} to {}", updateType.getValue(), m.getId());
             simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",
-                new LobbyUpdateDto(updateType, change));
+                new LobbyUpdateDto(code, updateType, change));
         });
     }
 

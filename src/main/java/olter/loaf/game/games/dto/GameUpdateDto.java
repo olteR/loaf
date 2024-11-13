@@ -10,6 +10,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class GameUpdateDto {
-    GameUpdateTypeEnum type;
-    Object change;
+    private String code;
+    private GameUpdateTypeEnum type;
+    private Object change;
 }

@@ -1,10 +1,15 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import router from "@/router";
+import { useToast } from "primevue/usetoast";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
+import { LOBBY_UPDATE } from "@/utils/const";
+import { useStateStore } from "@/stores/state";
 
 export const useLobbyStore = defineStore("lobby", () => {
+  const toast = useToast();
   const requestStore = useRequestStore();
+  const stateStore = useStateStore();
   const lobby = ref();
   const lobbies = ref([]);
 
@@ -123,9 +128,104 @@ export const useLobbyStore = defineStore("lobby", () => {
     lobby.value = null;
   }
 
+  const lobbyUpdateHandler = function handleLobbyUpdate(msg) {
+    const update = JSON.parse(msg.body);
+    if (update.code === lobby.value.code) {
+      switch (update.type) {
+        case LOBBY_UPDATE.JOIN: {
+          lobby.value.members.push(update.change);
+          toast.add({
+            severity: "success",
+            summary: "Felhasználó csatlakozott",
+            detail: `${update.change.name} csatlakozott a lobbihoz!`,
+            life: 3000,
+          });
+          break;
+        }
+        case LOBBY_UPDATE.LEAVE: {
+          const user = lobby.value.members.find((m) => m.id === update.change);
+          lobby.value.members.splice(lobby.value.members.indexOf(user), 1);
+          toast.add({
+            severity: "warn",
+            summary: "Felhasználó kilépett",
+            detail: `${user.name} elhagyta a lobbit!`,
+            life: 3000,
+          });
+          break;
+        }
+        case LOBBY_UPDATE.OWNER: {
+          lobby.value.owner = update.change;
+          toast.add({
+            severity: "info",
+            summary: "Új lobbi tulajdonos",
+            detail: `${
+              lobby.value.members.find((m) => m.id === update.change).name
+            } a lobbi új tulajdonosa!`,
+            life: 3000,
+          });
+          break;
+        }
+        case LOBBY_UPDATE.KICK: {
+          const user = lobby.value.members.find((m) => m.id === update.change);
+          lobby.value.members.splice(lobby.value.members.indexOf(user), 1);
+          if (update.change === stateStore.getUser.id) {
+            router.push("/my-games");
+            toast.add({
+              severity: "error",
+              summary: "Eltávolítva",
+              detail: `A tulajdonos eltávolított a lobbiból!`,
+              life: 3000,
+            });
+          } else {
+            toast.add({
+              severity: "error",
+              summary: "Felhasználó eltávolítva",
+              detail: `${user.name} eltávolítva a lobbiból!`,
+              life: 3000,
+            });
+          }
+          break;
+        }
+        case LOBBY_UPDATE.CHARACTERS: {
+          lobby.value.gameSettings.characters = update.change;
+          break;
+        }
+        case LOBBY_UPDATE.DISTRICTS: {
+          lobby.value.gameSettings.uniqueDistricts = update.change;
+          break;
+        }
+        case LOBBY_UPDATE.CROWN: {
+          lobby.value.gameSettings.crownedPlayer = update.change;
+          break;
+        }
+        case LOBBY_UPDATE.START: {
+          toast.add({
+            severity: "info",
+            summary: "A játék indul",
+            detail:
+              "A lobbitulajdonos elindította a játékot, ami rögtön kezdetét veszi!",
+            life: 3000,
+          });
+          router.push("/game/" + lobby.value.code);
+          break;
+        }
+        case LOBBY_UPDATE.DELETE: {
+          toast.add({
+            severity: "error",
+            summary: "Játék törölve",
+            detail: "A lobbitulajdonos kitörölte a játékot!",
+            life: 3000,
+          });
+          router.push("/my-games");
+          break;
+        }
+      }
+    }
+  };
+
   return {
-    getLobby,
-    getLobbies,
+    getLobby: getLobby,
+    getLobbies: getLobbies,
     fetchLobby,
     fetchLobbies,
     fetchMyGames,
@@ -140,5 +240,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     crownMember,
     startGame,
     deleteLobby,
+    lobbyUpdateHandler,
   };
 });

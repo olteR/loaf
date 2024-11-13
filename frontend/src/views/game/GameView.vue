@@ -3,28 +3,26 @@
   <Card class="m-2" style="width: 12vw; font-size: min(1.5vw, 32px)">
     <template #content>
       <div class="columns-2 text-center select-none">
-        <div>
-          <i class="fa fa-coins"></i> {{ gameStore.getGameDetails?.gold }}
-        </div>
+        <div><i class="fa fa-coins"></i> {{ gameStore.getGame?.gold }}</div>
         <div><i class="fa fa-star"></i> 0</div>
       </div>
     </template>
   </Card>
   <MemberList
-    :players="gameStore.getGameDetails?.players"
-    :crownedPlayer="gameStore.getGameDetails?.crownedPlayer"
-    :currentPlayer="gameStore.getGameDetails?.currentPlayer"
+    :players="gameStore.getGame?.players"
+    :crownedPlayer="gameStore.getGame?.crownedPlayer"
+    :currentPlayer="gameStore.getGame?.currentPlayer"
   ></MemberList>
   <ActionButtons v-if="onTurn"></ActionButtons>
   <CharacterList
-    :details="gameStore.getGameDetails"
+    :details="gameStore.getGame"
     :card-images="cardStore.getCharacterImages"
     :can-select="canSelect"
     @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
   ></CharacterList>
   <div class="annoucement-message">{{ currentMessage }}</div>
   <PlayerHand
-    :cards="gameStore.getGameDetails?.hand"
+    :cards="gameStore.getGame?.hand"
     :card-images="cardStore.getDistrictImages"
     :can-build="canBuild"
     @build="(card, index) => buildDistrict(card, index)"
@@ -58,7 +56,7 @@
     />
     <CardSelectModal
       v-else-if="currentModal === GAME_MODAL.CARDS"
-      :cards="gameStore.getGameDetails?.drawnCards"
+      :cards="gameStore.getGame?.drawnCards"
       :max-selects="1"
       @select="(cards) => drawCards(cards)"
     />
@@ -67,14 +65,17 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import SockJS from "sockjs-client/dist/sockjs";
-import Stomp from "webstomp-client";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
 
 import { useStateStore } from "@/stores/state";
+import { useWebsocketStore } from "@/stores/websocket";
 import { useCardStore } from "@/stores/cards";
 import { useGameStore } from "@/stores/games";
 
+import ActionButtons from "@/components/game/ActionButtons.vue";
+import CardSelectModal from "@/components/game/CardSelectModal.vue";
 import CharacterList from "@/components/game/CharacterList.vue";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
@@ -83,60 +84,49 @@ import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
-import { GAME_MODAL, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
-import CardSelectModal from "@/components/game/CardSelectModal.vue";
-import ActionButtons from "@/components/game/ActionButtons.vue";
-import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
 const toast = useToast();
 
 const stateStore = useStateStore();
+const websocketStore = useWebsocketStore();
 const cardStore = useCardStore();
 const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
 
-const socket = ref();
-const stompClient = ref();
 const currentModal = ref();
 
-const connected = ref(false);
-
 const onTurn = computed(() => {
-  return (
-    gameStore.getGameDetails?.currentPlayer.userId === stateStore.getUser.id
-  );
+  return gameStore.getGame?.currentPlayer.userId === stateStore.getUser.id;
 });
 
 const canSelect = computed(() => {
-  return (
-    onTurn.value && gameStore.getGameDetails?.phase === GAME_PHASE.SELECTION
-  );
+  return onTurn.value && gameStore.getGame?.phase === GAME_PHASE.SELECTION;
 });
 
 const canBuild = computed(() => {
-  return onTurn.value && gameStore.getGameDetails?.phase === GAME_PHASE.TURN;
+  return onTurn.value && gameStore.getGame?.phase === GAME_PHASE.TURN;
 });
 
 const currentMessage = computed(() => {
-  switch (gameStore.getGameDetails?.phase) {
+  switch (gameStore.getGame?.phase) {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : gameStore.getGameDetails?.currentPlayer.name + " választ karaktert.";
+        : gameStore.getGame?.currentPlayer.name + " választ karaktert.";
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
-        : gameStore.getGameDetails?.currentPlayer.name + " gyűjt nyersanyagot.";
+        : gameStore.getGame?.currentPlayer.name + " gyűjt nyersanyagot.";
     case GAME_PHASE.TURN:
       return onTurn.value
         ? "Te vagy körön!"
         : "A(z) " +
-            gameStore.getGameDetails?.characters[
-              gameStore.getGameDetails?.currentPlayer.currentCharacter - 1
+            gameStore.getGame?.characters[
+              gameStore.getGame?.currentPlayer.currentCharacter - 1
             ].name +
             " (" +
-            gameStore.getGameDetails?.currentPlayer.name +
+            gameStore.getGame?.currentPlayer.name +
             ") van körön.";
     default:
       return "";
@@ -157,43 +147,20 @@ const modalHeader = computed(() => {
 onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
-  await gameStore.fetchGameDetails(lobbyCode);
-  if (gameStore.getGameDetails?.phase === GAME_PHASE.RESOURCE && onTurn.value) {
+  await gameStore.fetchGame(lobbyCode);
+  if (gameStore.getGame?.phase === GAME_PHASE.RESOURCE && onTurn.value) {
     currentModal.value =
-      gameStore.getGameDetails?.drawnCards.length === 0
+      gameStore.getGame?.drawnCards.length === 0
         ? GAME_MODAL.RESOURCE
         : GAME_MODAL.CARDS;
   }
-  connect();
+  websocketStore.subscribeToGame();
   stateStore.setLoading(false);
 });
 
-function handleGameUpdate(update) {
-  switch (update.type) {
-    case GAME_UPDATE.NEXT_PLAYER: {
-      gameStore.getGameDetails.currentPlayer =
-        gameStore.getGameDetails?.players.find((p) => p.id === update.change);
-      break;
-    }
-    case GAME_UPDATE.PLAYER_TURN: {
-      gameStore.getGameDetails.currentPlayer = stateStore.getUser.id;
-      gameStore.getGameDetails.unavailableCharacters = update.change;
-      break;
-    }
-    case GAME_UPDATE.RESOURCE_COLLECTION: {
-      let player = gameStore.getGameDetails?.players.find(
-        (p) => p.id === gameStore.getGameDetails?.currentPlayer.id
-      );
-      player[update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"] +=
-        update.change.amount;
-      gameStore.getGameDetails.currentPlayer = player;
-      break;
-    }
-    default: {
-      console.log(update);
-    }
-  }
-}
+onBeforeRouteLeave(() => {
+  websocketStore.unsubscribe();
+});
 
 async function gatherResources(resource) {
   await gameStore.gatherResources(lobbyCode, resource);
@@ -210,7 +177,7 @@ async function drawCards(cards) {
 }
 
 async function buildDistrict(card, index) {
-  if (card.cost > gameStore.getGameDetails.gold) {
+  if (card.cost > gameStore.getGame.gold) {
     toast.add({
       severity: "warn",
       summary: "Hiányzó arany",
@@ -224,30 +191,6 @@ async function buildDistrict(card, index) {
     });
   }
 }
-
-function connect() {
-  if (!connected.value) {
-    socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
-    stompClient.value = Stomp.over(socket);
-    stompClient.value.connect({}, connectCallback, errorCallback);
-  }
-}
-
-const connectCallback = function (frame) {
-  console.log("Connected!");
-  connected.value = true;
-  console.log(frame);
-  stompClient.value.subscribe("/user/topic/game/update", (msg) => {
-    handleGameUpdate(JSON.parse(msg.body));
-  });
-};
-
-const errorCallback = function (error) {
-  console.log(error);
-  connected.value = false;
-  console.log("Reconnecting...");
-  setTimeout(connect, 5000);
-};
 </script>
 
 <style scoped>

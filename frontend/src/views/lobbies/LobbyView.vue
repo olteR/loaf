@@ -66,7 +66,7 @@
               headerStyle="text-align: center; font-size: 1.5rem;"
             >
               <template #body="slotProps">
-                <div v-if="slotProps.data.id !== stateStore.getUser.id">
+                <div v-if="slotProps.data.id !== stateStore.getUser?.id">
                   <Button
                     v-tooltip.bottom="'Tulajdonossá nevezés'"
                     icon="fa fa-star"
@@ -131,7 +131,10 @@
         modal
         header="Lobbi szerkesztése"
       >
-        <CreateLobbyModal :edited-lobby="lobbyStore.getLobby" />
+        <LobbyModal
+          :edited-lobby="lobbyStore.getLobby"
+          @hide="editModalVisible = false"
+        />
       </Dialog>
     </div>
   </div>
@@ -139,12 +142,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import SockJS from "sockjs-client/dist/sockjs";
-import Stomp from "webstomp-client";
 import { useStateStore } from "@/stores/state";
+import { useWebsocketStore } from "@/stores/websocket";
 import { useLobbyStore } from "@/stores/lobbies";
 import { useCardStore } from "@/stores/cards";
 import Button from "primevue/button";
@@ -153,21 +155,19 @@ import ConfirmDialog from "primevue/confirmpopup";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import LobbySettings from "@/components/lobbies/LobbySettings.vue";
-import { LOBBY_STATUS, LOBBY_UPDATE } from "@/utils/const";
-import CreateLobbyModal from "@/components/lobbies/LobbyModal.vue";
+import { LOBBY_STATUS } from "@/utils/const";
+import LobbyModal from "@/components/lobbies/LobbyModal.vue";
 import Dialog from "primevue/dialog";
 
 const router = useRouter();
 const confirm = useConfirm();
 const toast = useToast();
 const stateStore = useStateStore();
+const websocketStore = useWebsocketStore();
 const lobbyStore = useLobbyStore();
 const cardStore = useCardStore();
 const lobbyCode = router.currentRoute.value.params.code;
-const socket = ref();
-const stompClient = ref();
 
-const connected = ref(false);
 const starting = ref(false);
 const editModalVisible = ref(false);
 
@@ -187,33 +187,13 @@ onMounted(async () => {
     label: lobbyStore.getLobby.name,
     params: router.currentRoute.value.params,
   });
-  connect();
+  websocketStore.subscribeToLobby();
   stateStore.setLoading(false);
 });
 
-function connect() {
-  if (!connected.value) {
-    socket.value = new SockJS("http://localhost:3000/ws?" + stateStore.getJwt);
-    stompClient.value = Stomp.over(socket);
-    stompClient.value.connect({}, connectCallback, errorCallback);
-  }
-}
-
-const connectCallback = function (frame) {
-  console.log("Connected!");
-  connected.value = true;
-  console.log(frame);
-  stompClient.value.subscribe("/user/topic/lobby/update", (msg) => {
-    handleLobbyUpdate(JSON.parse(msg.body));
-  });
-};
-
-const errorCallback = function (error) {
-  console.log(error);
-  connected.value = false;
-  console.log("Reconnecting...");
-  setTimeout(connect, 5000);
-};
+onBeforeRouteLeave(() => {
+  websocketStore.unsubscribe();
+});
 
 async function start() {
   toast.add({
@@ -264,110 +244,6 @@ const openDeleteModal = (event) => {
     rejectLabel: "Nem",
   });
 };
-
-function handleLobbyUpdate(update) {
-  switch (update.type) {
-    case LOBBY_UPDATE.JOIN: {
-      lobbyStore.getLobby.members.push(update.change);
-      toast.add({
-        severity: "success",
-        summary: "Felhasználó csatlakozott",
-        detail: `${update.change.name} csatlakozott a lobbihoz!`,
-        life: 3000,
-      });
-      break;
-    }
-    case LOBBY_UPDATE.LEAVE: {
-      const user = lobbyStore.getLobby.members.find(
-        (m) => m.id === update.change
-      );
-      lobbyStore.getLobby.members.splice(
-        lobbyStore.getLobby.members.indexOf(user),
-        1
-      );
-      toast.add({
-        severity: "warn",
-        summary: "Felhasználó kilépett",
-        detail: `${user.name} elhagyta a lobbit!`,
-        life: 3000,
-      });
-      break;
-    }
-    case LOBBY_UPDATE.OWNER: {
-      lobbyStore.getLobby.owner = update.change;
-      toast.add({
-        severity: "info",
-        summary: "Új lobbi tulajdonos",
-        detail: `${
-          lobbyStore.getLobby.members.find((m) => m.id === update.change).name
-        } a lobbi új tulajdonosa!`,
-        life: 3000,
-      });
-      break;
-    }
-    case LOBBY_UPDATE.KICK: {
-      const user = lobbyStore.getLobby.members.find(
-        (m) => m.id === update.change
-      );
-      lobbyStore.getLobby.members.splice(
-        lobbyStore.getLobby.members.indexOf(user),
-        1
-      );
-      if (update.change === stateStore.getUser.id) {
-        router.push("/my-games");
-        toast.add({
-          severity: "error",
-          summary: "Eltávolítva",
-          detail: `A tulajdonos eltávolított a lobbiból!`,
-          life: 3000,
-        });
-      } else {
-        toast.add({
-          severity: "error",
-          summary: "Felhasználó eltávolítva",
-          detail: `${user.name} eltávolítva a lobbiból!`,
-          life: 3000,
-        });
-      }
-      break;
-    }
-    case LOBBY_UPDATE.CHARACTERS: {
-      lobbyStore.getLobby.gameSettings.characters = update.change;
-      break;
-    }
-    case LOBBY_UPDATE.DISTRICTS: {
-      lobbyStore.getLobby.gameSettings.uniqueDistricts = update.change;
-      break;
-    }
-    case LOBBY_UPDATE.CROWN: {
-      lobbyStore.getLobby.gameSettings.crownedPlayer = update.change;
-      break;
-    }
-    case LOBBY_UPDATE.START: {
-      toast.add({
-        severity: "info",
-        summary: "A játék indul",
-        detail:
-          "A lobbitulajdonos elindította a játékot, ami rögtön kezdetét veszi!",
-        life: 3000,
-      });
-      stompClient.value.disconnect();
-      router.push("/game/" + lobbyCode);
-      break;
-    }
-    case LOBBY_UPDATE.DELETE: {
-      toast.add({
-        severity: "error",
-        summary: "Játék törölve",
-        detail: "A lobbitulajdonos kitörölte a játékot!",
-        life: 3000,
-      });
-      stompClient.value.disconnect();
-      router.push("/my-games");
-      break;
-    }
-  }
-}
 </script>
 
 <style scoped>
