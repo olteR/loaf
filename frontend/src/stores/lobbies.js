@@ -22,6 +22,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     lobbies: `lobbies`,
     join: `lobby/join`,
     leave: (code) => `lobby/${code}/leave`,
+    security: (code) => `lobby/${code}/security`,
     promote: `lobby/promote`,
     kick: `lobby/kick`,
     characters: `lobby/characters`,
@@ -59,15 +60,6 @@ export const useLobbyStore = defineStore("lobby", () => {
     await router.push(`/lobby/${lobby.value.code}`);
   }
 
-  async function editLobby(request, code) {
-    const response = await requestStore.request(
-      `${urls.lobby}/${code}`,
-      REQ_TYPE.POST,
-      request
-    );
-    lobby.value = response.data;
-  }
-
   async function joinLobby(request) {
     const response = await requestStore.request(
       urls.join,
@@ -82,6 +74,24 @@ export const useLobbyStore = defineStore("lobby", () => {
     await requestStore.request(urls.leave(code), REQ_TYPE.POST);
     lobby.value = null;
     await router.push("/my-games");
+  }
+
+  async function editLobby(request, code) {
+    const response = await requestStore.request(
+      `${urls.lobby}/${code}`,
+      REQ_TYPE.POST,
+      request
+    );
+    lobby.value = response.data;
+  }
+
+  async function updateSecurity(request, code) {
+    const response = await requestStore.request(
+      urls.security(code),
+      REQ_TYPE.POST,
+      request
+    );
+    lobby.value = response.data;
   }
 
   async function promoteMember(code, id) {
@@ -156,6 +166,10 @@ export const useLobbyStore = defineStore("lobby", () => {
         case LOBBY_UPDATE.EDIT: {
           lobby.value.name = update.change.name;
           lobby.value.maxMembers = update.change.maxMembers;
+          break;
+        }
+        case LOBBY_UPDATE.SECURITY: {
+          lobby.value.secured = update.change;
           break;
         }
         case LOBBY_UPDATE.OWNER: {
@@ -236,6 +250,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     fetchMyGames,
     createLobby,
     editLobby,
+    updateSecurity,
     joinLobby,
     leaveLobby,
     promoteMember,

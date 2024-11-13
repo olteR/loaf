@@ -68,25 +68,11 @@
       modal
       header="Jelszó megadása"
     >
-      <form @submit.prevent="joinSecuredLobby()">
-        <span class="p-float-label">
-          <Password
-            id="password"
-            v-model="password"
-            :feedback="false"
-            toggleMask
-            input-class="w-full"
-            required
-          />
-          <label for="password">Jelszó</label>
-        </span>
-        <Button
-          type="submit"
-          label="Belépés"
-          :loading="modalLoading"
-          class="p-button-primary mt-4 float-right"
-        />
-      </form>
+      <PasswordModal
+        button-label="Belépés"
+        :loading="modalLoading"
+        @submit="(pass) => joinSecuredLobby(pass)"
+      ></PasswordModal>
     </Dialog>
   </div>
 </template>
@@ -96,11 +82,11 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStateStore } from "@/stores/state";
 import { useLobbyStore } from "@/stores/lobbies";
+import PasswordModal from "@/components/lobbies/PasswordModal.vue";
 import Button from "primevue/button";
 import Chip from "primevue/chip";
 import Dialog from "primevue/dialog";
 import Panel from "primevue/panel";
-import Password from "primevue/password";
 
 const props = defineProps({
   lobbies: Array,
@@ -114,12 +100,10 @@ const lobbyStore = useLobbyStore();
 const passwordModalVisible = ref(false);
 const modalLoading = ref(false);
 const modalCode = ref();
-const password = ref();
 
 async function joinLobby(lobby) {
   if (lobby.secured) {
     modalCode.value = lobby.code;
-    password.value = null;
     passwordModalVisible.value = true;
   } else {
     stateStore.setLoading(true);
@@ -128,12 +112,12 @@ async function joinLobby(lobby) {
   }
 }
 
-async function joinSecuredLobby() {
+async function joinSecuredLobby(pass) {
   modalLoading.value = true;
   try {
     await lobbyStore.joinLobby({
       code: modalCode.value,
-      password: password.value,
+      password: pass,
     });
   } finally {
     modalLoading.value = false;

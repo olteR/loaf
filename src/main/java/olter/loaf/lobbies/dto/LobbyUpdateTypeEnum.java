@@ -8,6 +8,7 @@ public enum LobbyUpdateTypeEnum {
     JOIN("JOIN"),
     LEAVE("LEAVE"),
     EDIT("EDIT"),
+    SECURITY("SECURITY"),
     OWNER("OWNER"),
     KICK("KICK"),
     CHARACTERS("CHARACTERS"),

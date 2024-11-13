@@ -17,6 +17,25 @@
             </div>
             <div v-if="isOwner">
               <Button
+                v-if="lobbyStore.getLobby.secured"
+                v-tooltip.bottom="'Lobbi kinyitása'"
+                icon="fa fa-lock-open"
+                :loading="starting || modalLoading"
+                @click="openLobby"
+              />
+              <Button
+                class="ml-2"
+                v-tooltip.bottom="
+                  lobbyStore.getLobby.secured
+                    ? 'Jelszó módosítása'
+                    : 'Lobbi levédése'
+                "
+                :icon="lobbyStore.getLobby.secured ? 'fa fa-key' : 'fa fa-lock'"
+                :loading="starting"
+                @click="passwordModalVisible = true"
+              />
+              <Button
+                class="ml-2"
                 v-tooltip.bottom="'Lobbi beállításai'"
                 icon="fa fa-gear"
                 :loading="starting"
@@ -144,6 +163,17 @@
           @hide="editModalVisible = false"
         />
       </Dialog>
+      <Dialog
+        v-model:visible="passwordModalVisible"
+        modal
+        header="Jelszó megadása"
+      >
+        <PasswordModal
+          button-label="Küldés"
+          :loading="modalLoading"
+          @submit="(pass) => updateSecurity(pass)"
+        />
+      </Dialog>
     </div>
   </div>
 </template>
@@ -166,6 +196,7 @@ import LobbySettings from "@/components/lobbies/LobbySettings.vue";
 import { LOBBY_STATUS } from "@/utils/const";
 import LobbyModal from "@/components/lobbies/LobbyModal.vue";
 import Dialog from "primevue/dialog";
+import PasswordModal from "@/components/lobbies/PasswordModal.vue";
 
 const router = useRouter();
 const confirm = useConfirm();
@@ -178,6 +209,8 @@ const lobbyCode = router.currentRoute.value.params.code;
 
 const starting = ref(false);
 const editModalVisible = ref(false);
+const passwordModalVisible = ref(false);
+const modalLoading = ref(false);
 
 const isOwner = computed(
   () => stateStore.getUser.id === lobbyStore.getLobby?.owner
@@ -202,6 +235,30 @@ onMounted(async () => {
 onBeforeRouteLeave(() => {
   websocketStore.unsubscribe();
 });
+
+async function openLobby() {
+  modalLoading.value = true;
+  await lobbyStore.updateSecurity({ secured: false }, lobbyCode);
+  toast.add({
+    severity: "info",
+    summary: "Kinyitva",
+    detail: `A lobbi jelszava eltávolítva`,
+    life: 3000,
+  });
+  modalLoading.value = false;
+}
+
+async function updateSecurity(pass) {
+  modalLoading.value = true;
+  await lobbyStore.updateSecurity({ secured: true, password: pass }, lobbyCode);
+  toast.add({
+    severity: "info",
+    summary: "Levédve",
+    detail: `A lobbi jelszava frissítve lett`,
+    life: 3000,
+  });
+  modalLoading.value = false;
+}
 
 async function start() {
   toast.add({

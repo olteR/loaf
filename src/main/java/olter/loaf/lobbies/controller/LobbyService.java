@@ -89,7 +89,7 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse editLobby(LobbyDto request, String code, UserEntity user) {
-        log.info("{} editing lobby {}...", request.getName(), code);
+        log.info("{} editing lobby {}...", user.getId(), code);
         LobbyEntity lobby = findLobby(code);
         validateOwnerRequest(lobby, user);
         if (lobby.getMembers().size() > request.getMaxMembers()) {
@@ -100,6 +100,24 @@ public class LobbyService {
         lobby.setMaxMembers(request.getMaxMembers());
         lobbyRepository.save(lobby);
         broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.EDIT, request);
+
+        return lobbyMapper.entityToDetailsResponse(lobby);
+    }
+
+    public LobbyDetailsResponse editSecurity(LobbyDto request, String code, UserEntity user) {
+        log.info("{} editing lobby security {}...", user.getId(), code);
+        LobbyEntity lobby = findLobby(code);
+        validateOwnerRequest(lobby, user);
+
+        lobby.setSecured(request.getSecured());
+        if (request.getSecured()) {
+            lobby.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        else {
+            lobby.setPassword(null);
+        }
+        lobbyRepository.save(lobby);
+        broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.SECURITY, request.getSecured());
 
         return lobbyMapper.entityToDetailsResponse(lobby);
     }
