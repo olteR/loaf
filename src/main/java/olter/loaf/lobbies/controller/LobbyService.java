@@ -105,13 +105,13 @@ public class LobbyService {
         return lobbyMapper.entityToDetailsResponse(lobby);
     }
 
-    public LobbyDetailsResponse joinLobby(String code, UserEntity user) {
-        LobbyEntity lobby = findLobby(code);
+    public LobbyDetailsResponse joinLobby(LobbyJoinRequest request, UserEntity user) {
+        LobbyEntity lobby = findLobby(request.getCode());
         List<UserEntity> members = lobby.getMembers();
         log.info("{} joining lobby {}", user.getName(), lobby.getName());
 
-        validateJoin(lobby, user);
-        broadcastOnWebsocket(code, members, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
+        validateJoin(lobby, request, user);
+        broadcastOnWebsocket(request.getCode(), members, LobbyUpdateTypeEnum.JOIN, userMapper.entityToResponse(user));
 
         members.add(user);
         lobby.setMembers(members);
@@ -287,12 +287,15 @@ public class LobbyService {
     }
 
     // Validates if the given user can join the lobby
-    private void validateJoin(LobbyEntity lobby, UserEntity user) {
+    private void validateJoin(LobbyEntity lobby, LobbyJoinRequest request, UserEntity user) {
         if (lobby.getMembers().contains(user)) {
             throw new AlreadyJoinedException(lobby.getCode(), user.getId());
         }
         if (lobby.getMaxMembers() == lobby.getMembers().size()) {
             throw new TooManyMembersException(lobby.getCode());
+        }
+        if (lobby.getSecured() && !passwordEncoder.matches(request.getPassword(), lobby.getPassword())) {
+            throw new InvalidPasswordException(lobby.getCode(), user.getId());
         }
         validateProgress(lobby);
     }

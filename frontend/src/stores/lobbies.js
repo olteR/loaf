@@ -20,7 +20,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     myGames: `my-games`,
     lobby: `lobby`,
     lobbies: `lobbies`,
-    join: (code) => `lobby/${code}/join`,
+    join: `lobby/join`,
     leave: (code) => `lobby/${code}/leave`,
     promote: `lobby/promote`,
     kick: `lobby/kick`,
@@ -68,11 +68,11 @@ export const useLobbyStore = defineStore("lobby", () => {
     lobby.value = response.data;
   }
 
-  async function joinLobby(code) {
-    console.log(urls);
+  async function joinLobby(request) {
     const response = await requestStore.request(
-      urls.join(code),
-      REQ_TYPE.PATCH
+      urls.join,
+      REQ_TYPE.PATCH,
+      request
     );
     lobby.value = response.data;
     await router.push(`/lobby/${lobby.value.code}`);

@@ -48,11 +48,11 @@ public class LobbyEndpoint {
         return ResponseEntity.ok().body(lobbyService.editLobby(request, code, user));
     }
 
-    @PatchMapping("/lobby/{code}/join")
-    public ResponseEntity<LobbyDetailsResponse> joinLobby(@PathVariable String code,
+    @PatchMapping("/lobby/join")
+    public ResponseEntity<LobbyDetailsResponse> joinLobby(@RequestBody LobbyJoinRequest request,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
-        return ResponseEntity.ok().body(lobbyService.joinLobby(code, user));
+        return ResponseEntity.ok().body(lobbyService.joinLobby(request, user));
     }
 
     @PostMapping("/lobby/{code}/leave")

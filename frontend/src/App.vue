@@ -35,7 +35,7 @@ const stateStore = useStateStore();
 const websocketStore = useWebsocketStore();
 
 onMounted(() => {
-  if (!["/", "/login", "/register"].includes(router.currentRoute.value.path)) {
+  if (!["/login", "/register"].includes(router.currentRoute.value.path)) {
     if (!stateStore.isLoggedIn) {
       if (stateStore.getUser != null) {
         stateStore.logoutUser();
