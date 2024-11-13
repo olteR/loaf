@@ -25,9 +25,9 @@
           {{ lobby.members.length }}/{{ lobby.maxMembers }}
         </div>
       </template>
-      <div class="grid grid-cols-2">
+      <div class="inline-flex justify-between w-full">
         <div>
-          játékosok:
+          Játékosok:
           <Chip v-for="player in lobby.members" :key="player.id" class="mr-1">
             <i v-if="player.id === lobby.owner" class="fa fa-star mr-1" />
             {{ player.name }}
@@ -36,29 +36,30 @@
         <div class="ml-auto w-auto">
           <Button
             v-if="props.type === 'search'"
-            label="csatlakozás"
+            label="Csatlakozás"
             icon="pi pi-user-plus"
             @click="joinLobby(lobby)"
           ></Button>
           <Button
             v-else-if="props.type === 'mine' && lobby.status === 'CREATED'"
-            label="lobbi megnyitása"
+            label="Lobbi megnyitása"
             icon="pi pi-play"
             class="mr-2"
             @click="router.push('lobby/'.concat(lobby.code))"
           ></Button>
           <Button
             v-else
-            label="játék megnyitása"
+            label="Játék megnyitása"
             icon="fa fa-gamepad"
             class="mr-2"
             @click="router.push('game/'.concat(lobby.code))"
           ></Button>
           <Button
-            v-if="props.type === 'mine'"
-            label="kilépés"
+            v-if="props.type === 'mine' && lobby.status === 'CREATED'"
+            label="Kilépés"
             icon="pi pi-sign-out"
             class="p-button-danger"
+            @click="lobbyStore.leaveLobby(lobby.code)"
           ></Button>
         </div>
       </div>

@@ -5,6 +5,10 @@
         <div class="grid grid-cols-6">
           <div class="col-span-5 flex">
             <Button
+              v-tooltip.top="{
+                value: 'Lista frissítése',
+                escape: false,
+              }"
               class="w-12 h-12 my-auto"
               icon="pi pi-sync"
               :disabled="!canRefresh"

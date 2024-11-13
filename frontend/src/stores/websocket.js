@@ -41,7 +41,7 @@ export const useWebsocketStore = defineStore("websocket", () => {
   }
 
   function unsubscribe() {
-    subscription.value.unsubscribe();
+    subscription.value?.unsubscribe();
   }
 
   const connectCallback = function (frame) {

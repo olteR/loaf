@@ -73,6 +73,7 @@ export const useLobbyStore = defineStore("lobby", () => {
   async function leaveLobby(code) {
     await requestStore.request(urls.leave(code), REQ_TYPE.POST);
     lobby.value = null;
+    lobbies.value = lobbies.value.filter((lobby) => lobby.code !== code);
     await router.push("/my-games");
   }
 

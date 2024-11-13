@@ -122,7 +122,7 @@
               :loading="starting"
               @click="openDeleteModal($event)"
             >
-              Játék törlése
+              Lobbi törlése
             </Button>
             <Button
               v-else
@@ -258,15 +258,10 @@ async function updateSecurity(pass) {
     life: 3000,
   });
   modalLoading.value = false;
+  passwordModalVisible.value = false;
 }
 
 async function start() {
-  toast.add({
-    severity: "info",
-    summary: "Játék indítása",
-    detail: `A játék hamarosan elindul...`,
-    life: 3000,
-  });
   starting.value = true;
   await lobbyStore.startGame(lobbyCode);
   toast.add({
