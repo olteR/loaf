@@ -110,7 +110,7 @@ public class GameService {
             }
         });
 
-        return gameMapper.entityToDetailsResponse(game, player);
+        return gameMapper.entityToDetailsResponse(game, player, code);
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {

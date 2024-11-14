@@ -153,3 +153,8 @@ export const ABILITY_USE_RULE = {
   OR: "OR",
   MUST: "",
 };
+
+export const SUBSCRIPTION_TYPE = {
+  LOBBY: "LOBBY",
+  GAME: "GAME",
+};

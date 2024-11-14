@@ -42,7 +42,6 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import SockJS from "sockjs-client/dist/sockjs";
 import { useStateStore } from "@/stores/state";
 import { useWebsocketStore } from "@/stores/websocket";
 import Button from "primevue/button";
@@ -63,8 +62,6 @@ onMounted(() => {
 
 async function loginUser() {
   await stateStore.loginUser({ name: name.value, password: password.value });
-  websocketStore.connect(
-    new SockJS(`${window.location.origin}/ws?${stateStore.getJwt}`)
-  );
+  websocketStore.connect();
 }
 </script>

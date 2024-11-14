@@ -21,7 +21,6 @@
 import { onMounted } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import axios from "axios";
-import SockJS from "sockjs-client/dist/sockjs";
 import { useToast } from "primevue/usetoast";
 import { useStateStore } from "@/stores/state";
 import { useWebsocketStore } from "@/stores/websocket";
@@ -52,9 +51,7 @@ onMounted(() => {
       axios.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${stateStore.getJwt}`;
-      websocketStore.connect(
-        new SockJS(`${window.location.origin}/ws?${stateStore.getJwt}`)
-      );
+      websocketStore.connect();
     }
   }
 });

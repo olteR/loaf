@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class GameDetailsResponse {
+    private String code;
     private List<CharacterResponse> characters;
     private PublicPlayerResponse crownedPlayer;
     private PublicPlayerResponse currentPlayer;
