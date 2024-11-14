@@ -1,180 +1,178 @@
 <template>
-  <div>
-    <div class="container mx-auto my-4" v-if="lobbyStore.getLobby">
-      <Card>
-        <template #title>
-          <div class="inline-flex justify-between w-full">
-            <div class="text-4xl">
-              {{ lobbyStore.getLobby.name }}
-              <i
-                v-if="lobbyStore.getLobby.secured"
-                v-tooltip.top="{
-                  value: 'Jelszóval védett lobbi',
-                  escape: false,
-                }"
-                class="fa fa-lock"
-              ></i>
-            </div>
-            <div v-if="isOwner">
-              <Button
-                v-if="lobbyStore.getLobby.secured"
-                v-tooltip.bottom="'Lobbi kinyitása'"
-                icon="fa fa-lock-open"
-                :loading="starting || modalLoading"
-                @click="openLobby"
-              />
-              <Button
-                class="ml-2"
-                v-tooltip.bottom="
-                  lobbyStore.getLobby.secured
-                    ? 'Jelszó módosítása'
-                    : 'Lobbi levédése'
-                "
-                :icon="lobbyStore.getLobby.secured ? 'fa fa-key' : 'fa fa-lock'"
-                :loading="starting"
-                @click="passwordModalVisible = true"
-              />
-              <Button
-                class="ml-2"
-                v-tooltip.bottom="'Lobbi beállításai'"
-                icon="fa fa-gear"
-                :loading="starting"
-                @click="editModalVisible = true"
-              />
-            </div>
+  <div class="container mx-auto my-4" v-if="lobbyStore.getLobby">
+    <Card>
+      <template #title>
+        <div class="inline-flex justify-between w-full">
+          <div class="text-4xl">
+            {{ lobbyStore.getLobby.name }}
+            <i
+              v-if="lobbyStore.getLobby.secured"
+              v-tooltip.top="{
+                value: 'Jelszóval védett lobbi',
+                escape: false,
+              }"
+              class="fa fa-lock"
+            ></i>
           </div>
-        </template>
-        <template #content>
-          <h2 class="text-2xl mb-2">
-            Játékosok ({{ lobbyStore.getLobby.members?.length }}/{{
-              lobbyStore.getLobby.maxMembers
-            }}):
-          </h2>
-          <DataTable
-            :value="lobbyStore.getLobby.members"
-            :reorderableColumns="true"
-            @rowReorder="onRowReorder"
-          >
-            <Column
-              v-if="isOwner"
-              rowReorder
-              headerStyle="width: 3rem"
-              :reorderableColumn="false"
+          <div v-if="isOwner">
+            <Button
+              v-if="lobbyStore.getLobby.secured"
+              v-tooltip.bottom="'Lobbi kinyitása'"
+              icon="fa fa-lock-open"
+              :loading="starting || modalLoading"
+              @click="openLobby"
             />
-            <Column
-              header="Sorrend"
-              style="width: 8rem"
-              bodyStyle="text-align: center"
-              headerStyle="text-align: center; font-size: 1.5rem;"
-            >
-              <template #body="{ data }">
-                {{ lobbyStore.getLobby.members.indexOf(data) + 1 + "." }}
-              </template>
-            </Column>
-            <Column
-              field="name"
-              header="Név"
-              bodyStyle="text-align: center"
-              headerStyle="text-align: center; font-size: 1.5rem;"
-            >
-              <template #body="{ data }">
-                {{ data.name }}
-                <i
-                  v-if="data.id === lobbyStore.getLobby.owner"
-                  class="fa fa-star mr-1"
-                />
-              </template>
-            </Column>
-            <Column
-              v-if="isOwner"
-              header="Műveletek"
-              style="width: 16rem"
-              bodyStyle="text-align: center"
-              headerStyle="text-align: center; font-size: 1.5rem;"
-            >
-              <template #body="slotProps">
-                <div v-if="slotProps.data.id !== stateStore.getUser?.id">
-                  <Button
-                    v-tooltip.bottom="'Tulajdonossá nevezés'"
-                    icon="fa fa-star"
-                    :loading="starting"
-                    @click="
-                      lobbyStore.promoteMember(lobbyCode, slotProps.data.id)
-                    "
-                  />
-                  <Button
-                    v-tooltip.bottom="'Eltávolítás a lobbiból'"
-                    class="ml-2 p-button-danger"
-                    icon="fa fa-x"
-                    :loading="starting"
-                    @click="lobbyStore.kickMember(lobbyCode, slotProps.data.id)"
-                  />
-                </div>
-              </template>
-            </Column>
-          </DataTable>
-
-          <div class="mt-2 ml-auto">
-            <ConfirmDialog></ConfirmDialog>
             <Button
-              v-if="isOwner"
-              class="p-button-danger mr-2"
+              class="ml-2"
+              v-tooltip.bottom="
+                lobbyStore.getLobby.secured
+                  ? 'Jelszó módosítása'
+                  : 'Lobbi levédése'
+              "
+              :icon="lobbyStore.getLobby.secured ? 'fa fa-key' : 'fa fa-lock'"
               :loading="starting"
-              @click="openDeleteModal($event)"
-            >
-              Lobbi törlése
-            </Button>
+              @click="passwordModalVisible = true"
+            />
             <Button
-              v-else
-              class="p-button-danger mr-2"
+              class="ml-2"
+              v-tooltip.bottom="'Lobbi beállításai'"
+              icon="fa fa-gear"
               :loading="starting"
-              @click="lobbyStore.leaveLobby(lobbyCode)"
-            >
-              Játék elhagyása
-            </Button>
-            <Button
-              v-if="isOwner"
-              :disabled="lobbyStore.getLobby.members?.length < 4"
-              :loading="starting"
-              @click="start()"
-            >
-              Játék indítása
-            </Button>
+              @click="editModalVisible = true"
+            />
           </div>
-        </template>
-      </Card>
-      <LobbySettings
-        :is-owner="isOwner"
-        :settings="lobbyStore.getLobby?.gameSettings"
-        :players="lobbyStore.getLobby?.members"
-        :cards="cardStore.getCards"
-        :loading="starting"
-        @characters="(characters) => updateCharacters(characters)"
-        @districts="(districts) => updateDistricts(districts)"
-        @crown="(player) => crownPlayer(player)"
+        </div>
+      </template>
+      <template #content>
+        <h2 class="text-2xl mb-2">
+          Játékosok ({{ lobbyStore.getLobby.members?.length }}/{{
+            lobbyStore.getLobby.maxMembers
+          }}):
+        </h2>
+        <DataTable
+          :value="lobbyStore.getLobby.members"
+          :reorderableColumns="true"
+          @rowReorder="onRowReorder"
+        >
+          <Column
+            v-if="isOwner"
+            rowReorder
+            headerStyle="width: 3rem"
+            :reorderableColumn="false"
+          />
+          <Column
+            header="Sorrend"
+            style="width: 8rem"
+            bodyStyle="text-align: center"
+            headerStyle="text-align: center; font-size: 1.5rem;"
+          >
+            <template #body="{ data }">
+              {{ lobbyStore.getLobby.members.indexOf(data) + 1 + "." }}
+            </template>
+          </Column>
+          <Column
+            field="name"
+            header="Név"
+            bodyStyle="text-align: center"
+            headerStyle="text-align: center; font-size: 1.5rem;"
+          >
+            <template #body="{ data }">
+              {{ data.name }}
+              <i
+                v-if="data.id === lobbyStore.getLobby.owner"
+                class="fa fa-star mr-1"
+              />
+            </template>
+          </Column>
+          <Column
+            v-if="isOwner"
+            header="Műveletek"
+            style="width: 16rem"
+            bodyStyle="text-align: center"
+            headerStyle="text-align: center; font-size: 1.5rem;"
+          >
+            <template #body="slotProps">
+              <div v-if="slotProps.data.id !== stateStore.getUser?.id">
+                <Button
+                  v-tooltip.bottom="'Tulajdonossá nevezés'"
+                  icon="fa fa-star"
+                  :loading="starting"
+                  @click="
+                    lobbyStore.promoteMember(lobbyCode, slotProps.data.id)
+                  "
+                />
+                <Button
+                  v-tooltip.bottom="'Eltávolítás a lobbiból'"
+                  class="ml-2 p-button-danger"
+                  icon="fa fa-x"
+                  :loading="starting"
+                  @click="lobbyStore.kickMember(lobbyCode, slotProps.data.id)"
+                />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+
+        <div class="mt-2 ml-auto">
+          <ConfirmDialog></ConfirmDialog>
+          <Button
+            v-if="isOwner"
+            class="p-button-danger mr-2"
+            :loading="starting"
+            @click="openDeleteModal($event)"
+          >
+            Lobbi törlése
+          </Button>
+          <Button
+            v-else
+            class="p-button-danger mr-2"
+            :loading="starting"
+            @click="lobbyStore.leaveLobby(lobbyCode)"
+          >
+            Játék elhagyása
+          </Button>
+          <Button
+            v-if="isOwner"
+            :disabled="lobbyStore.getLobby.members?.length < 4"
+            :loading="starting"
+            @click="start()"
+          >
+            Játék indítása
+          </Button>
+        </div>
+      </template>
+    </Card>
+    <LobbySettings
+      :is-owner="isOwner"
+      :settings="lobbyStore.getLobby?.gameSettings"
+      :players="lobbyStore.getLobby?.members"
+      :cards="cardStore.getCards"
+      :loading="starting"
+      @characters="(characters) => updateCharacters(characters)"
+      @districts="(districts) => updateDistricts(districts)"
+      @crown="(player) => crownPlayer(player)"
+    />
+    <Dialog
+      v-model:visible="editModalVisible"
+      modal
+      header="Lobbi szerkesztése"
+    >
+      <LobbyModal
+        :edited-lobby="lobbyStore.getLobby"
+        @hide="editModalVisible = false"
       />
-      <Dialog
-        v-model:visible="editModalVisible"
-        modal
-        header="Lobbi szerkesztése"
-      >
-        <LobbyModal
-          :edited-lobby="lobbyStore.getLobby"
-          @hide="editModalVisible = false"
-        />
-      </Dialog>
-      <Dialog
-        v-model:visible="passwordModalVisible"
-        modal
-        header="Jelszó megadása"
-      >
-        <PasswordModal
-          button-label="Küldés"
-          :loading="modalLoading"
-          @submit="(pass) => updateSecurity(pass)"
-        />
-      </Dialog>
-    </div>
+    </Dialog>
+    <Dialog
+      v-model:visible="passwordModalVisible"
+      modal
+      header="Jelszó megadása"
+    >
+      <PasswordModal
+        button-label="Küldés"
+        :loading="modalLoading"
+        @submit="(pass) => updateSecurity(pass)"
+      />
+    </Dialog>
   </div>
 </template>
 
@@ -263,13 +261,17 @@ async function updateSecurity(pass) {
 
 async function start() {
   starting.value = true;
-  await lobbyStore.startGame(lobbyCode);
-  toast.add({
-    severity: "success",
-    summary: "Indítás sikeres",
-    detail: `Jó játékot!`,
-    life: 3000,
-  });
+  try {
+    await lobbyStore.startGame(lobbyCode);
+    toast.add({
+      severity: "success",
+      summary: "Indítás sikeres",
+      detail: `Jó játékot!`,
+      life: 3000,
+    });
+  } finally {
+    starting.value = false;
+  }
 }
 
 async function updateCharacters(characters) {

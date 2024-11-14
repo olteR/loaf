@@ -1,66 +1,68 @@
 <template>
-  <div class="game-area"></div>
-  <Card class="m-2" style="width: 12vw; font-size: min(1.5vw, 32px)">
-    <template #content>
-      <div class="columns-2 text-center select-none">
-        <div><i class="fa fa-coins"></i> {{ gameStore.getGame?.gold }}</div>
-        <div><i class="fa fa-star"></i> 0</div>
-      </div>
-    </template>
-  </Card>
-  <MemberList
-    :players="gameStore.getGame?.players"
-    :crownedPlayer="gameStore.getGame?.crownedPlayer"
-    :currentPlayer="gameStore.getGame?.currentPlayer"
-  ></MemberList>
-  <ActionButtons v-if="onTurn"></ActionButtons>
-  <CharacterList
-    :details="gameStore.getGame"
-    :card-images="cardStore.getCharacterImages"
-    :can-select="canSelect"
-    @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
-  ></CharacterList>
-  <div class="annoucement-message">{{ currentMessage }}</div>
-  <PlayerHand
-    :cards="gameStore.getGame?.hand"
-    :card-images="cardStore.getDistrictImages"
-    :can-build="canBuild"
-    @build="(card, index) => buildDistrict(card, index)"
-  ></PlayerHand>
-  <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
-    >Játék bezárása</Button
-  >
-  <Button
-    class="absolute right-2 bottom-2 block rounded-full"
-    style="width: 10vw; height: 10vw"
-  >
-    <div
-      class="whitespace-nowrap"
-      style="font-size: min(1vw, 24px); margin-top: 1vw"
+  <div v-if="gameStore.getGame">
+    <div class="game-area"></div>
+    <Card class="m-2" style="width: 12vw; font-size: min(1.5vw, 32px)">
+      <template #content>
+        <div class="columns-2 text-center select-none">
+          <div><i class="fa fa-coins"></i> {{ gameStore.getGame.gold }}</div>
+          <div><i class="fa fa-star"></i> 0</div>
+        </div>
+      </template>
+    </Card>
+    <NewMemberList
+      :game="gameStore.getGame"
+      :card-images="cardStore.getCharacterImages"
+    ></NewMemberList>
+    <ActionButtons v-if="onTurn"></ActionButtons>
+    <CharacterList
+      :game="gameStore.getGame"
+      :card-images="cardStore.getCharacterImages"
+      :can-select="canSelect"
+      @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
+    ></CharacterList>
+    <div class="annoucement-message">{{ currentMessage }}</div>
+    <PlayerHand
+      :cards="gameStore.getGame.hand"
+      :card-images="cardStore.getDistrictImages"
+      :can-build="canBuild"
+      @build="(card, index) => buildDistrict(card, index)"
+    ></PlayerHand>
+    <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
+      >Játék bezárása</Button
     >
-      Kör befejezése
-    </div>
-    <div style="font-size: min(6vw, 160px); margin-top: -2vw">
-      <i class="fa fa-forward"></i>
-    </div>
-  </Button>
-  <Dialog
-    :closable="false"
-    v-model:visible="currentModal"
-    modal
-    :header="modalHeader"
-  >
-    <ResourceSelectModal
-      v-if="currentModal === GAME_MODAL.RESOURCE"
-      @gather="(resource) => gatherResources(resource)"
-    />
-    <CardSelectModal
-      v-else-if="currentModal === GAME_MODAL.CARDS"
-      :cards="gameStore.getGame?.drawnCards"
-      :max-selects="1"
-      @select="(cards) => drawCards(cards)"
-    />
-  </Dialog>
+    <Button
+      :disabled="!onTurn || gameStore.getGame.phase !== 'TURN'"
+      class="absolute right-2 bottom-2 block rounded-full"
+      style="width: 10vw; height: 10vw"
+    >
+      <div
+        class="whitespace-nowrap"
+        style="font-size: min(1vw, 24px); margin-top: 1vw"
+      >
+        Kör befejezése
+      </div>
+      <div style="font-size: min(6vw, 160px); margin-top: -2vw">
+        <i class="fa fa-forward"></i>
+      </div>
+    </Button>
+    <Dialog
+      :closable="false"
+      v-model:visible="currentModal"
+      modal
+      :header="modalHeader"
+    >
+      <ResourceSelectModal
+        v-if="currentModal === GAME_MODAL.RESOURCE"
+        @gather="(resource) => gatherResources(resource)"
+      />
+      <CardSelectModal
+        v-else-if="currentModal === GAME_MODAL.CARDS"
+        :cards="gameStore.getGame.drawnCards"
+        :max-selects="1"
+        @select="(cards) => drawCards(cards)"
+      />
+    </Dialog>
+  </div>
 </template>
 
 <script setup>
@@ -77,7 +79,7 @@ import { useGameStore } from "@/stores/games";
 import ActionButtons from "@/components/game/ActionButtons.vue";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
 import CharacterList from "@/components/game/CharacterList.vue";
-import MemberList from "@/components/game/MemberList.vue";
+import NewMemberList from "@/components/game/NewMemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
 import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
 
@@ -97,36 +99,36 @@ const lobbyCode = router.currentRoute.value.params.code;
 const currentModal = ref();
 
 const onTurn = computed(() => {
-  return gameStore.getGame?.currentPlayer.userId === stateStore.getUser.id;
+  return gameStore.getGame.currentPlayer.userId === stateStore.getUser.id;
 });
 
 const canSelect = computed(() => {
-  return onTurn.value && gameStore.getGame?.phase === GAME_PHASE.SELECTION;
+  return onTurn.value && gameStore.getGame.phase === GAME_PHASE.SELECTION;
 });
 
 const canBuild = computed(() => {
-  return onTurn.value && gameStore.getGame?.phase === GAME_PHASE.TURN;
+  return onTurn.value && gameStore.getGame.phase === GAME_PHASE.TURN;
 });
 
 const currentMessage = computed(() => {
-  switch (gameStore.getGame?.phase) {
+  switch (gameStore.getGame.phase) {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : gameStore.getGame?.currentPlayer.name + " választ karaktert.";
+        : gameStore.getGame.currentPlayer.name + " választ karaktert.";
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
-        : gameStore.getGame?.currentPlayer.name + " gyűjt nyersanyagot.";
+        : gameStore.getGame.currentPlayer.name + " gyűjt nyersanyagot.";
     case GAME_PHASE.TURN:
       return onTurn.value
         ? "Te vagy körön!"
         : "A(z) " +
-            gameStore.getGame?.characters[
-              gameStore.getGame?.currentPlayer.currentCharacter - 1
+            gameStore.getGame.characters[
+              gameStore.getGame.currentPlayer.currentCharacter - 1
             ].name +
             " (" +
-            gameStore.getGame?.currentPlayer.name +
+            gameStore.getGame.currentPlayer.name +
             ") van körön.";
     default:
       return "";
@@ -148,9 +150,9 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGame(lobbyCode);
-  if (gameStore.getGame?.phase === GAME_PHASE.RESOURCE && onTurn.value) {
+  if (gameStore.getGame.phase === GAME_PHASE.RESOURCE && onTurn.value) {
     currentModal.value =
-      gameStore.getGame?.drawnCards.length === 0
+      gameStore.getGame.drawnCards.length === 0
         ? GAME_MODAL.RESOURCE
         : GAME_MODAL.CARDS;
   }

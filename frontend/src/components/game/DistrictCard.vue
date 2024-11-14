@@ -200,6 +200,7 @@ function handleDragEnd() {
 }
 #draggable-header {
   z-index: 10;
+  height: 0;
 }
 @keyframes resetPos {
   100% {

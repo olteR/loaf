@@ -1,15 +1,15 @@
 <template>
-  <div v-if="details?.characters">
+  <div v-if="game?.characters">
     <div class="characters">
       <div
-        v-for="character in details?.characters"
+        v-for="character in game?.characters"
         :key="character"
         class="inline-flex justify-between"
       >
         <CharacterToken
           :character="character"
           :image="cardImages[character.id - 1]"
-          :total-characters="details?.characters?.length"
+          :total-characters="game?.characters?.length"
           :status="getStatus(character.number)"
           :can-select="canSelect"
           @select="(number) => emit('select', number)"
@@ -25,20 +25,20 @@ import { CHAR_STATUS } from "@/utils/const";
 
 const emit = defineEmits(["select"]);
 const props = defineProps({
-  details: Object,
+  game: Object,
   cardImages: Array,
   canSelect: Boolean,
 });
 
 function getStatus(number) {
-  if (number === props.details?.currentPlayer?.currentCharacter)
+  if (number === props.game?.currentPlayer?.currentCharacter)
     return CHAR_STATUS.ON_TURN;
-  if (number === props.details?.currentCharacter) return CHAR_STATUS.SELECTED;
-  if (props.details?.discardedCharacters?.includes(number))
+  if (number === props.game?.currentCharacter) return CHAR_STATUS.SELECTED;
+  if (props.game?.discardedCharacters?.includes(number))
     return CHAR_STATUS.DISCARDED;
-  if (props.details?.unavailableCharacters?.includes(number))
+  if (props.game?.unavailableCharacters?.includes(number))
     return CHAR_STATUS.UNAVAILABLE;
-  if (props.details?.skippedCharacters?.includes(number))
+  if (props.game?.skippedCharacters?.includes(number))
     return CHAR_STATUS.SKIPPED;
   return CHAR_STATUS.SELECTABLE;
 }

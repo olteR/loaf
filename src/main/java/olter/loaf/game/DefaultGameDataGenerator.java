@@ -150,7 +150,7 @@ public class DefaultGameDataGenerator {
                 new DistrictEntity(22L, "Capitolium", "Capitolium", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(42))),
                 new DistrictEntity(23L, "Csillagvizsgáló", "Csillagvizsgáló", 4, DistrictTypeEnum.UNIQUE, List.of(abilities.get(43))),
                 new DistrictEntity(24L, "Elefántcsonttorony", "Elefántcsont- torony", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(44))),
-                // new DistrictEntity(25L, "Emlékmű", "Emlékmű", 4, DistrictTypeEnum.UNIQUE, List.of()), // "<p>Nem építhetsz Emlékművet, ha 5 vagy annál több <i class=\"fa fa-city\"></i> van a városodban. Az Emlékmű 2 <i class=\"fa fa-city\"></i>-nek számít a befejezett város szempontjából.</p>"
+                new DistrictEntity(25L, "Emlékmű", "Emlékmű", 4, DistrictTypeEnum.UNIQUE, List.of()), // "<p>Nem építhetsz Emlékművet, ha 5 vagy annál több <i class=\"fa fa-city\"></i> van a városodban. Az Emlékmű 2 <i class=\"fa fa-city\"></i>-nek számít a befejezett város szempontjából.</p>"
                 new DistrictEntity(26L, "Erődítmény", "Erődítmény", 3, DistrictTypeEnum.UNIQUE, List.of(abilities.get(45))),
                 new DistrictEntity(27L, "Fegyvertár", "Fegyvertár", 3, DistrictTypeEnum.UNIQUE, List.of(abilities.get(46))),
                 new DistrictEntity(28L, "Gyár", "Gyár", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(47))),
@@ -161,16 +161,16 @@ public class DefaultGameDataGenerator {
                 new DistrictEntity(33L, "Könyvtár", "Könyvtár", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(52))),
                 new DistrictEntity(34L, "Kőfejtő", "Kőfejtő", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(53))),
                 new DistrictEntity(35L, "Laboratórium", "Laboratórium", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(54))),
-                // new DistrictEntity(36L, "Múzeum", "Múzeum", 4, DistrictTypeEnum.UNIQUE, List.of()), // "<p>A köröd folyamán egyszer helyezhetsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből a múzeumba. A játék végén minden <i class=\"fa fa-sheet-plastic\"></i>-ért a múzeumban 1 <i class=\"fa fa-star\"></i> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok vele mennek. Ha elpusztítják, a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok a pakli aljára kerülnek.</p>"
+                new DistrictEntity(36L, "Múzeum", "Múzeum", 4, DistrictTypeEnum.UNIQUE, List.of()), // "<p>A köröd folyamán egyszer helyezhetsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből a múzeumba. A játék végén minden <i class=\"fa fa-sheet-plastic\"></i>-ért a múzeumban 1 <i class=\"fa fa-star\"></i> jár.</p><p>Ha a múzeumot kicserélik vagy lefoglalják a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok vele mennek. Ha elpusztítják, a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok a pakli aljára kerülnek.</p>"
                 new DistrictEntity(37L, "Nagy Fal", "Nagy Fal", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(55))),
                 new DistrictEntity(38L, "Park", "Park", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(56))),
                 new DistrictEntity(39L, "Sárkánykapu", "Sárkánykapu", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(57))),
                 new DistrictEntity(40L, "Szegényház", "Szegényház", 4, DistrictTypeEnum.UNIQUE, List.of(abilities.get(58))),
-                // new DistrictEntity(41L, "Színház", "Színház", 6, DistrictTypeEnum.UNIQUE, List.of()),// "<p>Minden választási fázis végén vakon kicserélheted az általad választott karaktert ellenfeled egyik karakterkártyájával.</p>"
+                new DistrictEntity(41L, "Színház", "Színház", 6, DistrictTypeEnum.UNIQUE, List.of()),// "<p>Minden választási fázis végén vakon kicserélheted az általad választott karaktert ellenfeled egyik karakterkártyájával.</p>"
                 new DistrictEntity(42L, "Szobor", "Szobor", 3, DistrictTypeEnum.UNIQUE, List.of(abilities.get(59))),
                 new DistrictEntity(43L, "Temető", "Temető", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(60))),
                 new DistrictEntity(44L, "Térképszoba", "Térképszoba", 5, DistrictTypeEnum.UNIQUE, List.of(abilities.get(61))),
-                // new DistrictEntity(45L, "Titkos Kripta", "Titkos Kripta", 0, DistrictTypeEnum.UNIQUE, List.of()), "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha a Titkos kripta a kezedben van.</p>"
+                new DistrictEntity(45L, "Titkos Kripta", "Titkos Kripta", 0, DistrictTypeEnum.UNIQUE, List.of()), // "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha a Titkos kripta a kezedben van.</p>"
                 new DistrictEntity(46L, "Tolvajtanya", "Tolvajtanya", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(62))),
                 new DistrictEntity(47L, "Varázstanoda", "Varázstanoda", 6, DistrictTypeEnum.UNIQUE, List.of(abilities.get(63))));
         districtRepository.saveAll(districts);

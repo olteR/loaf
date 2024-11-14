@@ -22,10 +22,11 @@ import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
-import olter.loaf.statistics.LogService;
+import olter.loaf.game.players.PlayerMapper;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobbies.model.LobbyEntity;
+import olter.loaf.statistics.LogService;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -48,6 +49,7 @@ public class GameService {
     private final LogService logService;
     private final GameMapper gameMapper;
     private final CardMapper cardMapper;
+    private final PlayerMapper playerMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Value("${loaf.config.starting-gold}")
@@ -63,6 +65,7 @@ public class GameService {
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
         game.setCharacters(getDefaultCharacters(lobby.getMaxMembers() == 8));
+        game.setTurn(0);
         gameRepository.save(game);
 
         PlayerEntity p = new PlayerEntity();
@@ -84,26 +87,14 @@ public class GameService {
         if (game.getCrownedPlayer() == null) {
             game.setCrownedPlayer(game.getPlayers().get(r.nextInt(gameSize)));
         }
-        Map<Integer, Integer> orderMap = assembleOrderMap(game.getCrownedPlayer().getOrder(), gameSize);
-
-        game.setTurn(1);
-        game.setPhase(GamePhaseEnum.SELECTION);
-        game.setCurrentPlayer(game.getCrownedPlayer());
         game.setDeck(assembleDeck(game.getUniqueDistricts()));
-        game.setDownwardDiscard(r.nextInt(game.getCharacters().size()));
-        game.setUpwardDiscard(discardCharacters(configRepository.findByTypeAndConfigId(
-            game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
-            (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
-
-        gameRepository.save(game);
-        playerRepository.saveAll(playerRepository.findAllByGame(game).stream().peek(p -> {
+        game.setPlayers(game.getPlayers().stream().peek(p -> {
             p.setGold(STARTING_GOLD);
             p.setHand(drawFromDeck(game, STARTING_CARDS));
-            p.setOrder(orderMap.get(p.getOrder()));
-            if (p.getId().equals(game.getCurrentPlayer().getId())) {
-                p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(game.getDownwardDiscard())));
-            }
-        }).toList());
+        }).collect(Collectors.toList()));
+
+        startSelectionPhase(game);
+        gameRepository.save(game);
     }
 
     public GameDetailsResponse getGame(String code, UserEntity loggedInUser) {
@@ -199,13 +190,46 @@ public class GameService {
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
     }
 
+    public void endTurn(String code, UserEntity loggedInUser) {
+        log.info("User {} ending turn in game {}", loggedInUser.getName(), code);
+        GameEntity game = findGame(code);
+        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
+        setNextPlayer(game);
+        broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.NEXT_PLAYER,
+            playerMapper.entityToPublicResponse(game.getCurrentPlayer()));
+        gameRepository.save(game);
+    }
+
     // Broadcasts the update to all the players of the game
-    private void broadcastOnWebsocket(String code, List<PlayerEntity> players, GameUpdateTypeEnum updateType, Object change) {
+    private void broadcastOnWebsocket(String code, List<PlayerEntity> players, GameUpdateTypeEnum updateType,
+        Object change
+    ) {
         players.forEach(m -> {
             log.info("Broadcasting {} to {}", updateType.getValue(), m.getUserId());
             simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getUserId()), "/topic/game/update",
                 new GameUpdateDto(code, updateType, change));
         });
+    }
+
+    // Starts the next selection phase of the game
+    private void startSelectionPhase(GameEntity game) {
+        Random r = new Random();
+        int gameSize = game.getPlayers().size();
+        Map<Integer, Integer> orderMap = assembleOrderMap(game.getCrownedPlayer().getOrder(), gameSize);
+
+        game.setTurn(1);
+        game.setPhase(GamePhaseEnum.SELECTION);
+        game.setCurrentPlayer(game.getCrownedPlayer());
+        game.setDownwardDiscard(r.nextInt(game.getCharacters().size()));
+        game.setUpwardDiscard(discardCharacters(configRepository.findByTypeAndConfigId(
+            game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
+            (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
+        game.setPlayers(game.getPlayers().stream().peek(p -> {
+            p.setOrder(orderMap.get(p.getOrder()));
+            if (p.getId().equals(game.getCurrentPlayer().getId())) {
+                p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(game.getDownwardDiscard())));
+            }
+        }).collect(Collectors.toList()));
     }
 
     // Returns the game or throws an exception if it doesn't exist
@@ -296,6 +320,22 @@ public class GameService {
                     nextPlayer.setIsRevealed(true);
                     game.setCurrentPlayer(nextPlayer);
                     game.setPhase(GamePhaseEnum.RESOURCE);
+                }
+            }
+            case TURN -> {
+                List<PlayerEntity> playersLeft = game.getPlayers().stream()
+                    .filter(player -> player.getCurrentCharacter() > game.getCurrentPlayer().getCurrentCharacter())
+                    .sorted(Comparator.comparingInt(PlayerEntity::getCurrentCharacter)).toList();
+                if (playersLeft.isEmpty()) {
+                    game.getPlayers().forEach(player -> {
+                        player.setIsRevealed(false);
+                        player.setCurrentCharacter(null);
+                    });
+                    game.setCurrentPlayer(game.getCrownedPlayer());
+                    game.setPhase(GamePhaseEnum.SELECTION);
+                } else {
+                    game.setCurrentPlayer(playersLeft.get(0));
+                    game.getCurrentPlayer().setIsRevealed(true);
                 }
             }
             default -> log.warn("Unhandled phase {}", game.getPhase());

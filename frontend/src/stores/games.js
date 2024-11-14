@@ -1,9 +1,12 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
+import { GAME_UPDATE, RESOURCE } from "@/utils/const";
+import { useStateStore } from "@/stores/state";
 
 export const useGameStore = defineStore("game", () => {
   const requestStore = useRequestStore();
+  const stateStore = useStateStore();
   const urls = {
     details: (code) => `game/${code}/details`,
     select: (code) => `game/${code}/select`,
@@ -58,6 +61,36 @@ export const useGameStore = defineStore("game", () => {
   const gameUpdateHandler = function handleGameUpdate(msg) {
     const update = JSON.parse(msg.body);
     if (update.code === game.value.code) {
+      console.log(update.type);
+      switch (update.type) {
+        case GAME_UPDATE.NEXT_PLAYER: {
+          game.value.currentPlayer = game.value?.players.find(
+            (p) => p.id === update.change
+          );
+          break;
+        }
+        case GAME_UPDATE.PLAYER_TURN: {
+          console.log("statestore " + stateStore.getUser.id);
+          game.value.currentPlayer = game.value?.players.find(
+            (p) => p.id === stateStore.getUser.id
+          );
+          game.value.unavailableCharacters = update.change;
+          break;
+        }
+        case GAME_UPDATE.RESOURCE_COLLECTION: {
+          let player = game.value?.players.find(
+            (p) => p.id === game.value?.currentPlayer.id
+          );
+          player[
+            update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"
+          ] += update.change.amount;
+          game.value.currentPlayer = player;
+          break;
+        }
+        default: {
+          console.log(`UNKNOWN GAME UPDATE: ${update.type}`);
+        }
+      }
     }
   };
 
