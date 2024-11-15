@@ -107,6 +107,7 @@ export const CHAR_STATUS = {
 };
 
 export const GAME_MODAL = {
+  CHARACTER: "CHARACTER",
   RESOURCE: "RESOURCE",
   CARDS: "CARDS",
 };

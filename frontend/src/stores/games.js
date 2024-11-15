@@ -19,7 +19,7 @@ export const useGameStore = defineStore("game", () => {
 
   const getGame = computed(() => game.value);
   const getCurrentPlayer = computed(() =>
-    game.value.players.find((player) =>
+    game.value?.players.find((player) =>
       player.conditions.find(
         (condition) => condition.value === CONDITION.ON_TURN
       )
@@ -70,15 +70,11 @@ export const useGameStore = defineStore("game", () => {
     if (update.code === game.value.code) {
       switch (update.type) {
         case GAME_UPDATE.NEXT_PLAYER: {
-          game.value.currentPlayer = game.value.players.find(
-            (p) => p.id === update.change
-          );
+          setNextPlayer("id", update.change);
           break;
         }
         case GAME_UPDATE.PLAYER_TURN: {
-          game.value.currentPlayer = game.value.players.find(
-            (p) => p.userId === stateStore.getUser.id
-          );
+          setNextPlayer("userId", stateStore.getUser.id);
           game.value.unavailableCharacters = update.change;
           break;
         }
@@ -98,6 +94,19 @@ export const useGameStore = defineStore("game", () => {
       }
     }
   };
+
+  function setNextPlayer(field, value) {
+    game.value.players = game.value.players.map((p) => {
+      if (p[field] === value) {
+        p.conditions.push(CONDITION.ON_TURN);
+      } else {
+        p.conditions = p.conditions.filter(
+          (condition) => condition !== CONDITION.ON_TURN
+        );
+      }
+      return p;
+    });
+  }
 
   return {
     getGame: getGame,

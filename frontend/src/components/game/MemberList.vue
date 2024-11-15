@@ -17,9 +17,6 @@
             <template v-else-if="player.currentCharacter">
               <img
                 class="character-image"
-                :style="{
-                  width: '6vh',
-                }"
                 :src="
                   characterImages[
                     game.characters[player.currentCharacter - 1].id - 1
@@ -155,7 +152,10 @@ function tooltipPosition(playerIndex) {
 }
 
 .character-image {
-  border-radius: 9999px;
+  border-radius: 0 9999px 9999px 9999px;
+  width: 3vw;
+  height: 7vh;
+  object-fit: cover;
 }
 
 .order-number {

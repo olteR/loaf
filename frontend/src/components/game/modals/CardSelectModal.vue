@@ -23,7 +23,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import Button from "primevue/button";
-import GameModalDistrictCard from "@/components/game/GameModalDistrictCard.vue";
+import GameModalDistrictCard from "@/components/game/modals/GameModalDistrictCard.vue";
 
 const emit = defineEmits(["select"]);
 

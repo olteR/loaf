@@ -11,7 +11,10 @@
       <div
         class="district-cost items-center"
         :style="{ background: secondaryColor }"
-        v-tooltip:[tooltipPosition]="{ value: description, escape: false }"
+        v-tooltip:[tooltipPosition]="{
+          value: composeDistrictDescription(card, true),
+          escape: false,
+        }"
       >
         {{ props.card.cost }}
       </div>
@@ -21,8 +24,9 @@
 </template>
 
 <script setup>
-import { COLORS } from "@/utils/const";
 import { computed } from "vue";
+import { COLORS } from "@/utils/const";
+import { composeDistrictDescription } from "@/utils/utils";
 
 const props = defineProps({
   card: Object,
@@ -36,12 +40,6 @@ const primaryColor = computed(() => {
 
 const secondaryColor = computed(() => {
   return COLORS[props.card.type].SECONDARY;
-});
-
-const description = computed(() => {
-  return `<p>${props.card.name}</p>${props.card.abilities
-    .map((ability) => ability.description)
-    .join("")}`;
 });
 </script>
 

@@ -27,7 +27,10 @@
         <i
           v-if="props.card.type === DISTRICT_TYPE.UNIQUE"
           class="fa fa-circle-question"
-          v-tooltip="{ value: description, escape: false }"
+          v-tooltip="{
+            value: composeDistrictDescription(card),
+            escape: false,
+          }"
         />
       </div>
       <div
@@ -45,6 +48,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { COLORS, DISTRICT_TYPE } from "@/utils/const";
+import { composeDistrictDescription } from "@/utils/utils";
 
 const emit = defineEmits(["drag-begin", "drag-end"]);
 
@@ -68,10 +72,6 @@ const primaryColor = computed(() => {
 
 const secondaryColor = computed(() => {
   return COLORS[props.card.type].SECONDARY;
-});
-
-const description = computed(() => {
-  return props.card.abilities.map((ability) => ability.description).join("");
 });
 
 function dragMouseDown(event) {

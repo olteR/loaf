@@ -16,7 +16,7 @@
     <!--    ></CharacterList>-->
     <div class="annoucement-message">{{ currentMessage }}</div>
     <PlayerHand
-      :cards="cardStore.getCards.districts"
+      :cards="gameStore.getGame.hand"
       :card-images="cardStore.getDistrictImages"
       :can-build="canBuild"
       @build="(card, index) => buildDistrict(card, index)"
@@ -58,12 +58,17 @@
         :max-selects="1"
         @select="(cards) => drawCards(cards)"
       />
+      <CharacterSelectModal
+        v-else-if="currentModal === GAME_MODAL.CHARACTER"
+        :game="gameStore.getGame"
+        @select="(number) => selectCharacter(number)"
+      />
     </Dialog>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
@@ -74,13 +79,14 @@ import { useCardStore } from "@/stores/cards";
 import { useGameStore } from "@/stores/games";
 
 import ActionButtons from "@/components/game/ActionButtons.vue";
-import CardSelectModal from "@/components/game/CardSelectModal.vue";
+import CardSelectModal from "@/components/game/modals/CardSelectModal.vue";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
-import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
+import ResourceSelectModal from "@/components/game/modals/ResourceSelectModal.vue";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
+import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -95,10 +101,6 @@ const currentModal = ref();
 
 const onTurn = computed(() => {
   return gameStore.getCurrentPlayer.userId === stateStore.getUser.id;
-});
-
-const canSelect = computed(() => {
-  return onTurn.value && gameStore.getGame.phase === GAME_PHASE.SELECTION;
 });
 
 const canBuild = computed(() => {
@@ -132,6 +134,8 @@ const currentMessage = computed(() => {
 
 const modalHeader = computed(() => {
   switch (currentModal.value) {
+    case GAME_MODAL.CHARACTER:
+      return "Válassz karaktert!";
     case GAME_MODAL.RESOURCE:
       return "Válassz nyersanyagot!";
     case GAME_MODAL.CARDS:
@@ -145,12 +149,6 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGame(lobbyCode);
-  if (gameStore.getGame.phase === GAME_PHASE.RESOURCE && onTurn.value) {
-    currentModal.value =
-      gameStore.getGame.drawnCards.length === 0
-        ? GAME_MODAL.RESOURCE
-        : GAME_MODAL.CARDS;
-  }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
 });
@@ -158,6 +156,30 @@ onMounted(async () => {
 onBeforeRouteLeave(() => {
   websocketStore.unsubscribe();
 });
+
+watch(
+  () => gameStore.getCurrentPlayer,
+  (newValue) => {
+    if (newValue.userId === stateStore.getUser.id) {
+      if (gameStore.getGame.phase === GAME_PHASE.SELECTION) {
+        currentModal.value = GAME_MODAL.CHARACTER;
+      } else if (
+        gameStore.getGame.phase === GAME_PHASE.RESOURCE &&
+        onTurn.value
+      ) {
+        currentModal.value =
+          gameStore.getGame.drawnCards.length === 0
+            ? GAME_MODAL.RESOURCE
+            : GAME_MODAL.CARDS;
+      }
+    }
+  }
+);
+
+async function selectCharacter(number) {
+  await gameStore.selectCharacter(lobbyCode, number);
+  currentModal.value = null;
+}
 
 async function gatherResources(resource) {
   await gameStore.gatherResources(lobbyCode, resource);
@@ -198,7 +220,7 @@ async function buildDistrict(card, index) {
   width: 100%;
   position: absolute;
   margin-top: 5vh;
-  top: 9vw;
+  top: 22vh;
   text-align: center;
   font-size: min(2vw, 24px);
   user-select: none;

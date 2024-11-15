@@ -28,7 +28,10 @@
         <i
           v-if="district.type === DISTRICT_TYPE.UNIQUE"
           class="fa fa-circle-question"
-          v-tooltip="{ value: description, escape: false }"
+          v-tooltip="{
+            value: composeDistrictDescription(district),
+            escape: false,
+          }"
         />
       </div>
     </div>
@@ -38,6 +41,7 @@
 <script setup>
 import { computed } from "vue";
 import { COLORS, DISTRICT_TYPE } from "@/utils/const";
+import { composeDistrictDescription } from "@/utils/utils";
 
 const props = defineProps({
   district: Object,
@@ -64,12 +68,6 @@ const secondaryColor = computed(() => {
     : props.clickable
     ? COLORS.DISABLED.SECONDARY
     : COLORS.DEFAULT.SECONDARY;
-});
-
-const description = computed(() => {
-  return props.district.abilities
-    .map((ability) => ability.description)
-    .join("");
 });
 </script>
 
