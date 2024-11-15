@@ -3,8 +3,7 @@
     <Card
       v-for="(player, i) in game.players"
       :key="player.id"
-      class="ml-2 mb-2"
-      style="width: 15vw; outline: solid medium; border-radius: 4px"
+      style="width: 12vw; outline: solid medium; border-radius: 4px"
       :class="{
         player: player.userId === props.userId,
       }"
@@ -34,7 +33,7 @@
             class="font-bold"
             style="
               height: 3vh;
-              margin-left: 8vh;
+              margin-left: 4vw;
               font-size: 1.7vh;
               overflow: hidden;
             "
@@ -42,34 +41,85 @@
             {{ player.name }}
           </div>
           <div
-            class="inline-flex w-full align-middle"
-            style="height: 4vh; margin-left: 8vh; font-size: 2.5vh"
+            class="inline-flex align-middle justify-between"
+            style="
+              height: 4vh;
+              margin-left: 3.5vw;
+              font-size: 2.5vh;
+              width: 8vw;
+            "
           >
-            <Tag class="my-auto mr-2" style="width: 3vh; height: 3vh"
-              >{{ player.gold }}
-              <i class="fa fa-coins" style="margin-left: 0.2vh"></i
-            ></Tag>
+            <Tag
+              class="my-auto"
+              style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
+              v-tooltip:[tooltipPosition(i)]="{
+                value: `${player.name} kincstartalékában ${player.gold} arany van`,
+                escape: false,
+              }"
+            >
+              {{ player.gold }}
+              <i class="fa fa-coins" style="margin-left: 0.2vh"></i>
+            </Tag>
+            <Tag
+              class="my-auto"
+              style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
+              v-tooltip:[tooltipPosition(i)]="{
+                value: `${player.name} kezében ${player.handSize} lap van`,
+                escape: false,
+              }"
+            >
+              {{ player.handSize }}
+              <i class="fa fa-sheet-plastic" style="margin-left: 0.2vh"></i>
+            </Tag>
+            <Tag
+              class="my-auto"
+              style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
+              v-tooltip:[tooltipPosition(i)]="{
+                value: `${player.name} kerületei 0 pontot érnek`,
+                escape: false,
+              }"
+            >
+              0
+              <i class="fa fa-star" style="margin-left: 0.2vh"></i>
+            </Tag>
+          </div>
+          <div
+            class="inline-flex w-full align-middle"
+            style="height: 4vh; margin-top: 1vh; font-size: 2.5vh"
+          >
             <div
               v-for="condition in player.conditions"
               :key="condition.value"
-              class="mr-2"
+              style="margin-left: 0.5vw"
             >
               <i
                 :class="`fa fa-${condition.icon}`"
-                v-tooltip="{
+                v-tooltip:[tooltipPosition(i)]="{
                   value: `<p>${condition.name}</p>${condition.description}`,
                   escape: false,
                 }"
               ></i>
             </div>
           </div>
-          <div class="districts">
-            <BuiltDistrict
-              v-for="(card, i) in game.hand"
-              :key="i"
-              :card="card"
-              :image="districtImages[card.id - 1]"
-            ></BuiltDistrict>
+          <div class="districts-outer">
+            <div class="districts">
+              <BuiltDistrict
+                v-for="(card, j) in player.districts.slice(0, 5)"
+                :key="j"
+                :card="card"
+                :image="districtImages[card.id - 1]"
+                :tooltip-position="tooltipPosition(i)"
+              ></BuiltDistrict>
+            </div>
+            <div class="districts">
+              <BuiltDistrict
+                v-for="(card, j) in player.districts.slice(5, 10)"
+                :key="j"
+                :card="card"
+                :image="districtImages[card.id - 1]"
+                :tooltip-position="tooltipPosition(i)"
+              ></BuiltDistrict>
+            </div>
           </div>
         </div>
       </template>
@@ -88,11 +138,20 @@ const props = defineProps({
   districtImages: Array,
   userId: Number,
 });
+
+function tooltipPosition(playerIndex) {
+  if (playerIndex < Math.floor(props.game.players.length / 2)) {
+    return { position: "right" };
+  } else if (playerIndex >= Math.ceil(props.game.players.length / 2)) {
+    return { position: "left" };
+  }
+  return { position: "bottom" };
+}
 </script>
 
 <style scoped>
 .card-div {
-  height: 13vh;
+  height: 24vh;
 }
 
 .character-image {
@@ -102,37 +161,49 @@ const props = defineProps({
 .order-number {
   position: absolute;
   z-index: 100;
-  width: 6vh;
-  height: 6vh;
+  width: 3vw;
+  height: 7vh;
   outline: solid thick;
   border-radius: 4px 9999px 9999px 9999px;
   text-align: center;
   vertical-align: middle;
-  line-height: 6vh;
+  line-height: 7vh;
   font-size: 3vh;
   font-weight: 700;
   background: rgba(18, 18, 18, 0.87);
 }
 
 .members {
-  width: fit-content;
-  height: fit-content;
   position: absolute;
-  top: 0;
-  bottom: 0;
-  margin-top: auto;
-  margin-bottom: auto;
+  display: inline-flex;
+  justify-content: space-evenly;
+  width: 91vw;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  top: 0.5rem;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   z-index: 12;
 }
 
-.districts {
-  position: absolute;
-  display: inline-flex;
-  width: 100%;
+.districts-outer {
   height: 12vh;
+  display: inline-flex;
+  justify-content: space-around;
+  flex-direction: column;
+}
+
+.districts {
+  position: relative;
+  display: inline-flex;
+  justify-content: space-between;
+  margin-left: 0.5vw;
+  margin-right: 0.5vw;
+  width: 11vw;
+  height: 5.5vh;
 }
 
 .player {

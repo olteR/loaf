@@ -8,12 +8,12 @@
       :user-id="stateStore.getUser.id"
     ></MemberList>
     <ActionButtons v-if="onTurn"></ActionButtons>
-    <CharacterList
-      :game="gameStore.getGame"
-      :card-images="cardStore.getCharacterImages"
-      :can-select="canSelect"
-      @select="(number) => gameStore.selectCharacter(lobbyCode, number)"
-    ></CharacterList>
+    <!--    <CharacterList-->
+    <!--      :game="gameStore.getGame"-->
+    <!--      :card-images="cardStore.getCharacterImages"-->
+    <!--      :can-select="canSelect"-->
+    <!--      @select="(number) => gameStore.selectCharacter(lobbyCode, number)"-->
+    <!--    ></CharacterList>-->
     <div class="annoucement-message">{{ currentMessage }}</div>
     <PlayerHand
       :cards="cardStore.getCards.districts"
@@ -21,9 +21,12 @@
       :can-build="canBuild"
       @build="(card, index) => buildDistrict(card, index)"
     ></PlayerHand>
-    <Button class="absolute right-2 top-2" @click="router.push('/my-games')"
-      >Játék bezárása</Button
+    <Button
+      class="absolute right-2 top-2 min-w-0"
+      @click="router.push('/my-games')"
     >
+      <i class="fa fa-x"></i>
+    </Button>
     <Button
       :disabled="!onTurn || gameStore.getGame.phase !== 'TURN'"
       class="absolute right-2 bottom-2 block rounded-full"
@@ -72,7 +75,6 @@ import { useGameStore } from "@/stores/games";
 
 import ActionButtons from "@/components/game/ActionButtons.vue";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
-import CharacterList from "@/components/game/CharacterList.vue";
 import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
 import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";

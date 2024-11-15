@@ -3,7 +3,7 @@
     v-if="props.card"
     class="district"
     :style="{
-      outline: 'thin solid',
+      outline: 'medium solid',
       'outline-color': primaryColor,
     }"
   >
@@ -11,7 +11,7 @@
       <div
         class="district-cost items-center"
         :style="{ background: secondaryColor }"
-        v-tooltip="{ value: description, escape: false }"
+        v-tooltip:[tooltipPosition]="{ value: description, escape: false }"
       >
         {{ props.card.cost }}
       </div>
@@ -27,6 +27,7 @@ import { computed } from "vue";
 const props = defineProps({
   card: Object,
   image: Object,
+  tooltipPosition: Object,
 });
 
 const primaryColor = computed(() => {
@@ -48,10 +49,8 @@ const description = computed(() => {
 .district {
   width: 3vh;
   height: 4.5vh;
-  margin-top: 1vh;
+  margin-top: 0.5vh;
   color: white;
-  margin-left: 0.25vw;
-  margin-right: 0.25vw;
   border-radius: 4px;
 }
 .district-cost {
@@ -59,7 +58,7 @@ const description = computed(() => {
   text-align: center;
   width: 3vh;
   height: 3vh;
-  border-radius: 4px 4px 8px 8px;
+  border-radius: 4px 4px 9999px 9999px;
   opacity: 0.8;
 }
 </style>

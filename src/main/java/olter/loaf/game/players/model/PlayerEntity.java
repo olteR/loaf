@@ -10,6 +10,7 @@ import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,7 +34,7 @@ public class PlayerEntity extends BaseEntity {
     @ElementCollection
     @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))
     @Enumerated(EnumType.STRING)
-    private List<ConditionEnum> conditions;
+    private List<ConditionEnum> conditions = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))
