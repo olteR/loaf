@@ -1,31 +1,75 @@
 <template>
   <div class="members">
     <Card
-      v-for="(player, i) in players"
+      v-for="(player, i) in game.players"
       :key="player.id"
-      class="ml-2 mb-1"
+      class="ml-2 mb-2"
+      style="width: 15vw; outline: solid medium; border-radius: 4px"
       :class="{
-        'on-turn': player.id === props.currentPlayer.id,
+        player: player.userId === props.userId,
       }"
     >
       <template #content>
-        <div style="font-size: min(1.5vw, 32px)">
-          <span>{{ i + 1 + ". " }}</span>
-          <span class="mr-1"
-            ><Chip style="color: inherit; font-size: inherit">
-              <i class="fa fa-coins mr-1" />
-              {{ player.gold }}
-            </Chip></span
+        <div class="card-div">
+          <div class="order-number">
+            <template v-if="game.phase === 'SELECTION'">
+              {{ i + 1 }}
+            </template>
+            <template v-else-if="player.currentCharacter">
+              <img
+                class="character-image"
+                :style="{
+                  width: '6vh',
+                }"
+                :src="
+                  characterImages[
+                    game.characters[player.currentCharacter - 1].id - 1
+                  ].src
+                "
+              />
+            </template>
+            <template v-else>?</template>
+          </div>
+          <div
+            class="font-bold"
+            style="
+              height: 3vh;
+              margin-left: 8vh;
+              font-size: 1.7vh;
+              overflow: hidden;
+            "
           >
-          <span class="mr-1"
-            ><Chip style="color: inherit; font-size: inherit">
-              <i class="fa fa-sheet-plastic mr-1" />
-              {{ player.handSize }}
-            </Chip></span
+            {{ player.name }}
+          </div>
+          <div
+            class="inline-flex w-full align-middle"
+            style="height: 4vh; margin-left: 8vh; font-size: 2.5vh"
           >
-          <span>{{ player.name }}</span>
-          <div v-if="player.id === props.crownedPlayer.id" class="crowned-icon">
-            <i class="fa fa-crown" />
+            <Tag class="my-auto mr-2" style="width: 3vh; height: 3vh"
+              >{{ player.gold }}
+              <i class="fa fa-coins" style="margin-left: 0.2vh"></i
+            ></Tag>
+            <div
+              v-for="condition in player.conditions"
+              :key="condition.value"
+              class="mr-2"
+            >
+              <i
+                :class="`fa fa-${condition.icon}`"
+                v-tooltip="{
+                  value: `<p>${condition.name}</p>${condition.description}`,
+                  escape: false,
+                }"
+              ></i>
+            </div>
+          </div>
+          <div class="districts">
+            <BuiltDistrict
+              v-for="(card, i) in game.hand"
+              :key="i"
+              :card="card"
+              :image="districtImages[card.id - 1]"
+            ></BuiltDistrict>
           </div>
         </div>
       </template>
@@ -34,17 +78,42 @@
 </template>
 
 <script setup>
+import BuiltDistrict from "@/components/game/BuiltDistrict.vue";
 import Card from "primevue/card";
-import Chip from "primevue/chip";
+import Tag from "primevue/tag";
 
 const props = defineProps({
-  players: Array,
-  crownedPlayer: Object,
-  currentPlayer: Object,
+  game: Object,
+  characterImages: Array,
+  districtImages: Array,
+  userId: Number,
 });
 </script>
 
 <style scoped>
+.card-div {
+  height: 13vh;
+}
+
+.character-image {
+  border-radius: 9999px;
+}
+
+.order-number {
+  position: absolute;
+  z-index: 100;
+  width: 6vh;
+  height: 6vh;
+  outline: solid thick;
+  border-radius: 4px 9999px 9999px 9999px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 6vh;
+  font-size: 3vh;
+  font-weight: 700;
+  background: rgba(18, 18, 18, 0.87);
+}
+
 .members {
   width: fit-content;
   height: fit-content;
@@ -54,22 +123,26 @@ const props = defineProps({
   margin-top: auto;
   margin-bottom: auto;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   z-index: 12;
 }
-.crowned {
-  outline: 2px solid #f6e012;
-}
-.on-turn {
-  background: #9fa8da;
-  color: #121212;
-}
-.crowned-icon {
-  display: inline;
+
+.districts {
   position: absolute;
-  right: -2.25vw;
-  color: #f6e012;
+  display: inline-flex;
+  width: 100%;
+  height: 12vh;
 }
+
+.player {
+  color: #9fa8da;
+}
+
 ::v-deep(.p-card) {
+  .p-card-body {
+    padding: 0 !important;
+  }
   .p-card-content {
     padding: 0 !important;
   }

@@ -52,6 +52,6 @@ function getStatus(number) {
   margin-right: auto;
   left: 0;
   right: 0;
-  top: 5vh;
+  top: 0.5rem;
 }
 </style>

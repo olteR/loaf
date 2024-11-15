@@ -6,6 +6,15 @@
   >
     <ConfirmPopup></ConfirmPopup>
     <div>
+      <div
+        class="character-number"
+        :style="{
+          background: secondaryColor,
+          'outline-color': primaryColor,
+        }"
+      >
+        {{ props.character.number }}
+      </div>
       <img
         class="character-image"
         :style="{
@@ -37,15 +46,6 @@
         />
         <i v-else-if="props.status === 'SKIPPED'" class="fa fa-forward" />
       </div>
-    </div>
-    <div
-      class="character-number"
-      :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
-      }"
-    >
-      {{ props.character.number }}
     </div>
     <div
       class="character-text"
@@ -135,7 +135,6 @@ const openPopup = () => {
 .character-number {
   position: relative;
   z-index: 10;
-  top: -8.2vw;
   left: 50%;
   transform: translateX(-50%);
   width: 4vh;
@@ -155,7 +154,7 @@ const openPopup = () => {
 .character-text {
   position: relative;
   z-index: 11;
-  top: -5vh;
+  top: -1vh;
   left: 50%;
   transform: translateX(-50%);
   height: 3.2vh;
@@ -172,7 +171,7 @@ const openPopup = () => {
 }
 .character-color {
   position: absolute;
-  top: 0;
+  top: 4vh;
   opacity: 0.5;
   border-radius: 50%;
   margin-left: 0.5vw;

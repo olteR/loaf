@@ -1,11 +1,12 @@
 <template>
   <div v-if="gameStore.getGame">
     <div class="game-area"></div>
-    <NewMemberList
+    <MemberList
       :game="gameStore.getGame"
       :character-images="cardStore.getCharacterImages"
       :district-images="cardStore.getDistrictImages"
-    ></NewMemberList>
+      :user-id="stateStore.getUser.id"
+    ></MemberList>
     <ActionButtons v-if="onTurn"></ActionButtons>
     <CharacterList
       :game="gameStore.getGame"
@@ -15,7 +16,7 @@
     ></CharacterList>
     <div class="annoucement-message">{{ currentMessage }}</div>
     <PlayerHand
-      :cards="gameStore.getGame.hand"
+      :cards="cardStore.getCards.districts"
       :card-images="cardStore.getDistrictImages"
       :can-build="canBuild"
       @build="(card, index) => buildDistrict(card, index)"
@@ -72,7 +73,7 @@ import { useGameStore } from "@/stores/games";
 import ActionButtons from "@/components/game/ActionButtons.vue";
 import CardSelectModal from "@/components/game/CardSelectModal.vue";
 import CharacterList from "@/components/game/CharacterList.vue";
-import NewMemberList from "@/components/game/NewMemberList.vue";
+import MemberList from "@/components/game/MemberList.vue";
 import PlayerHand from "@/components/game/PlayerHand.vue";
 import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
 

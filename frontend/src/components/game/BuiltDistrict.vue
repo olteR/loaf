@@ -3,7 +3,7 @@
     v-if="props.card"
     class="district"
     :style="{
-      outline: 'medium solid',
+      outline: 'thin solid',
       'outline-color': primaryColor,
     }"
   >
@@ -48,9 +48,10 @@ const description = computed(() => {
 .district {
   width: 3vh;
   height: 4.5vh;
-  margin-top: 8vh;
+  margin-top: 1vh;
   color: white;
-  margin-right: 0.5vw;
+  margin-left: 0.25vw;
+  margin-right: 0.25vw;
   border-radius: 4px;
 }
 .district-cost {
@@ -58,8 +59,6 @@ const description = computed(() => {
   text-align: center;
   width: 3vh;
   height: 3vh;
-  margin-left: auto;
-  margin-right: auto;
   border-radius: 4px 4px 8px 8px;
   opacity: 0.8;
 }
