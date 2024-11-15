@@ -9,6 +9,7 @@ import olter.loaf.game.games.controller.GameService;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
+import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobbies.LobbyMapper;
@@ -112,8 +113,7 @@ public class LobbyService {
         lobby.setSecured(request.getSecured());
         if (request.getSecured()) {
             lobby.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-        else {
+        } else {
             lobby.setPassword(null);
         }
         lobbyRepository.save(lobby);
@@ -280,7 +280,9 @@ public class LobbyService {
     }
 
     // Broadcasts the update to all the members of the lobby
-    private void broadcastOnWebsocket(String code, List<UserEntity> members, LobbyUpdateTypeEnum updateType, Object change) {
+    private void broadcastOnWebsocket(String code, List<UserEntity> members, LobbyUpdateTypeEnum updateType,
+        Object change
+    ) {
         members.forEach(m -> {
             log.info("Broadcasting {} to {}", updateType.getValue(), m.getId());
             simpMessagingTemplate.convertAndSendToUser(String.valueOf(m.getId()), "/topic/lobby/update",

@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
-import { GAME_UPDATE, RESOURCE } from "@/utils/const";
+import { CONDITION, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import { useStateStore } from "@/stores/state";
 
 export const useGameStore = defineStore("game", () => {
@@ -18,6 +18,13 @@ export const useGameStore = defineStore("game", () => {
   const game = ref();
 
   const getGame = computed(() => game.value);
+  const getCurrentPlayer = computed(() =>
+    game.value.players.find((player) =>
+      player.conditions.find(
+        (condition) => condition.value === CONDITION.ON_TURN
+      )
+    )
+  );
 
   async function fetchGame(code) {
     const response = await requestStore.request(
@@ -94,6 +101,7 @@ export const useGameStore = defineStore("game", () => {
 
   return {
     getGame: getGame,
+    getCurrentPlayer: getCurrentPlayer,
     fetchGame,
     selectCharacter,
     gatherResources,

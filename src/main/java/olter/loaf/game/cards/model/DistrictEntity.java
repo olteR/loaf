@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import olter.loaf.game.players.model.ConditionEntity;
 
 import java.util.List;
 

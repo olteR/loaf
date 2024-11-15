@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
@@ -128,12 +128,21 @@ const playerSelect = computed(() => {
 });
 
 onMounted(() => {
-  selectedCrowned.value = props.settings.crownedPlayer
-    ? props.players?.find(
-        (player) => player.id === props.settings.crownedPlayer
-      )
-    : playerSelect.value[0];
+  setSelectedCrowned(props.settings.crownedPlayer);
 });
+
+watch(
+  () => props.settings.crownedPlayer,
+  (newValue) => {
+    setSelectedCrowned(newValue);
+  }
+);
+
+function setSelectedCrowned(userId) {
+  selectedCrowned.value = userId
+    ? props.players?.find((player) => player.id === userId)
+    : playerSelect.value[0];
+}
 
 function saveDistricts(districts) {
   emit("districts", districts);

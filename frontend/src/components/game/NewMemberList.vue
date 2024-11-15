@@ -4,10 +4,7 @@
       v-for="(player, i) in game.players"
       :key="player.id"
       class="ml-2 mb-2"
-      :class="{
-        'on-turn': player.id === game.currentPlayer.id,
-      }"
-      style="width: 12vw"
+      style="width: 15vw"
     >
       <template #content>
         <div class="card-div">
@@ -22,7 +19,7 @@
                   width: '6vh',
                 }"
                 :src="
-                  cardImages[
+                  characterImages[
                     game.characters[player.currentCharacter - 1].id - 1
                   ].src
                 "
@@ -30,9 +27,22 @@
             </template>
             <template v-else>?</template>
           </div>
+          <div class="districts">
+            <BuiltDistrict
+              v-for="(card, i) in game.hand"
+              :key="i"
+              :card="card"
+              :image="districtImages[card.id - 1]"
+            ></BuiltDistrict>
+          </div>
           <div
             class="font-bold"
-            style="margin-left: 8vh; font-size: min(2vh, 16px)"
+            style="
+              height: 3vh;
+              margin-left: 8vh;
+              font-size: 1.7vh;
+              overflow: hidden;
+            "
           >
             {{ player.name }}
           </div>
@@ -44,17 +54,18 @@
 
 <script setup>
 import Card from "primevue/card";
+import BuiltDistrict from "@/components/game/BuiltDistrict.vue";
 
 const props = defineProps({
   game: Object,
-  cardImages: Array,
+  characterImages: Array,
+  districtImages: Array,
 });
 </script>
 
 <style scoped>
 .card-div {
-  width: 12vw;
-  height: 8vh;
+  height: 13vh;
 }
 
 .character-image {
@@ -64,7 +75,6 @@ const props = defineProps({
 .order-number {
   position: absolute;
   z-index: 100;
-  margin-top: 1vh;
   width: 6vh;
   height: 6vh;
   outline: solid thick;
@@ -75,10 +85,6 @@ const props = defineProps({
   font-size: 3vh;
   font-weight: 700;
   background: rgba(18, 18, 18, 0.87);
-}
-
-.on-turn {
-  color: #9fa8da;
 }
 
 .members {
@@ -93,6 +99,13 @@ const props = defineProps({
   -webkit-user-select: none;
   -moz-user-select: none;
   z-index: 12;
+}
+
+.districts {
+  position: absolute;
+  display: inline-flex;
+  width: 100%;
+  height: 12vh;
 }
 
 ::v-deep(.p-card) {

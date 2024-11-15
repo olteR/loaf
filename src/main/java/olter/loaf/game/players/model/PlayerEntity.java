@@ -31,6 +31,11 @@ public class PlayerEntity extends BaseEntity {
     private String name;
 
     @ElementCollection
+    @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))
+    @Enumerated(EnumType.STRING)
+    private List<ConditionEnum> conditions;
+
+    @ElementCollection
     @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))
     private List<Integer> unavailableCharacters;
 

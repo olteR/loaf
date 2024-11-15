@@ -7,10 +7,12 @@ import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -20,9 +22,6 @@ import java.util.List;
 public class GameEntity extends BaseEntity {
     private Integer turn;
     private Integer downwardDiscard;
-    private Integer killedCharacter;
-    private Integer robbedCharacter;
-    private Integer bewitchedCharacter;
 
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;
@@ -36,14 +35,6 @@ public class GameEntity extends BaseEntity {
     @CollectionTable(name = "game_unique_districts", joinColumns = @JoinColumn(name = "game_id"))
     @Column(name = "district_id")
     private List<Long> uniqueDistricts;
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "crowned_player", referencedColumnName = "id")
-    private PlayerEntity crownedPlayer;
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "current_player", referencedColumnName = "id")
-    private PlayerEntity currentPlayer;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
@@ -62,4 +53,58 @@ public class GameEntity extends BaseEntity {
     @JoinTable(name = "game_deck", joinColumns = @JoinColumn(name = "game_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> deck;
+
+    public PlayerEntity getCurrentPlayer() {
+        return getConditionedPlayer(ConditionEnum.ON_TURN);
+    }
+
+    public void setCurrentPlayer(PlayerEntity player) {
+        setConditionedPlayer(ConditionEnum.ON_TURN, player);
+    }
+
+    public PlayerEntity getCrownedPlayer() {
+        return getConditionedPlayer(ConditionEnum.CROWNED);
+    }
+
+    public void setCrownedPlayer(PlayerEntity player) {
+        setConditionedPlayer(ConditionEnum.CROWNED, player);
+    }
+
+    public Integer getKilledCharacter() {
+        return getConditionedPlayer(ConditionEnum.KILLED).getCurrentCharacter();
+    }
+
+    public void setKilledCharacter(Integer character) {
+        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.KILLED);
+    }
+
+    public void setRobbedCharacter(Integer character) {
+        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.ROBBED);
+    }
+
+    public Integer getBewitchedCharacter() {
+        return getConditionedPlayer(ConditionEnum.BEWITCHED).getCurrentCharacter();
+    }
+
+    public void setBewitchedCharacter(Integer character) {
+        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.BEWITCHED);
+    }
+
+    private PlayerEntity getConditionedPlayer(ConditionEnum condition) {
+        return players.stream().filter(player -> player.getConditions().contains(condition)).findFirst().orElse(null);
+    }
+
+    private PlayerEntity getPlayerWithCharacter(Integer character) {
+        return players.stream().filter(player -> Objects.equals(player.getCurrentCharacter(), character)).findFirst()
+            .orElse(null);
+    }
+
+    private void setConditionedPlayer(ConditionEnum condition, PlayerEntity player) {
+        if (this.getConditionedPlayer(condition) != null) {
+            this.getConditionedPlayer(condition).getConditions().remove(condition);
+        }
+        if (player != null) {
+            player.getConditions().add(condition);
+        }
+    }
 }

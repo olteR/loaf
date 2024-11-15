@@ -12,14 +12,17 @@ INSERT INTO users VALUES (1, 'alfonz31@email.com', 'alfonz31', '$2a$10$yrIBgrnKf
 INSERT INTO lobbies VALUES (1, 'N0X5T4R7', 7, 'alfonz31 lobbija', 1, null, false, 'CREATED', 1),
                            (2, 'PR07XL08', 7, 'cirilla77 csapata', 3, '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS', true, 'CREATED', 2);
 
-INSERT INTO lobby_users VALUES (1, 1),
+INSERT INTO lobby_users VALUES (1, 1), (1, 2), (1, 3), (1, 4),
                                (2, 3);
 
 INSERT INTO games VALUES (1, null, null, null, 'NOT_STARTED', null, null, null, null),
                          (2, null, null, null, 'NOT_STARTED', null, null, null, null);
 
 INSERT INTO players VALUES (1, null, null, false, 1, 1, 1),
-                           (2, null, null, false, 1, 3, 2);
+                           (2, null, null, false, 2, 2, 1),
+                           (3, null, null, false, 3, 3, 1),
+                           (4, null, null, false, 4, 4, 1),
+                           (5, null, null, false, 1, 3, 2);
 
 INSERT INTO game_characters VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
                                    (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8);

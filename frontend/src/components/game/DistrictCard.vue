@@ -27,7 +27,7 @@
         <i
           v-if="props.card.type === DISTRICT_TYPE.UNIQUE"
           class="fa fa-circle-question"
-          v-tooltip="{ value: props.card.cardText, escape: false }"
+          v-tooltip="{ value: description, escape: false }"
         />
       </div>
       <div
@@ -68,6 +68,10 @@ const primaryColor = computed(() => {
 
 const secondaryColor = computed(() => {
   return COLORS[props.card.type].SECONDARY;
+});
+
+const description = computed(() => {
+  return props.card.abilities.map((ability) => ability.description).join("");
 });
 
 function dragMouseDown(event) {

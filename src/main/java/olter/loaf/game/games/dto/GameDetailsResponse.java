@@ -16,8 +16,6 @@ import java.util.List;
 public class GameDetailsResponse {
     private String code;
     private List<CharacterResponse> characters;
-    private PublicPlayerResponse crownedPlayer;
-    private PublicPlayerResponse currentPlayer;
     private Integer turn;
     private GamePhaseEnum phase;
     private Integer gold;

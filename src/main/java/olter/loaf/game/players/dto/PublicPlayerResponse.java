@@ -15,6 +15,7 @@ public class PublicPlayerResponse {
     private String name;
     private Integer gold;
     private Integer handSize;
-    private List<PlayerDistrictResponse> districts;
     private Integer currentCharacter;
+    private List<ConditionResponse> conditions;
+    private List<PlayerDistrictResponse> districts;
 }

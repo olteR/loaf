@@ -5,7 +5,6 @@
       :key="player.id"
       class="ml-2 mb-1"
       :class="{
-        crowned: player.id === props.crownedPlayer.id,
         'on-turn': player.id === props.currentPlayer.id,
       }"
     >

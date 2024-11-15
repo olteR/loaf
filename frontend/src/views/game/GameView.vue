@@ -1,17 +1,10 @@
 <template>
   <div v-if="gameStore.getGame">
     <div class="game-area"></div>
-    <Card class="m-2" style="width: 12vw; font-size: min(1.5vw, 32px)">
-      <template #content>
-        <div class="columns-2 text-center select-none">
-          <div><i class="fa fa-coins"></i> {{ gameStore.getGame.gold }}</div>
-          <div><i class="fa fa-star"></i> 0</div>
-        </div>
-      </template>
-    </Card>
     <NewMemberList
       :game="gameStore.getGame"
-      :card-images="cardStore.getCharacterImages"
+      :character-images="cardStore.getCharacterImages"
+      :district-images="cardStore.getDistrictImages"
     ></NewMemberList>
     <ActionButtons v-if="onTurn"></ActionButtons>
     <CharacterList
@@ -84,7 +77,6 @@ import PlayerHand from "@/components/game/PlayerHand.vue";
 import ResourceSelectModal from "@/components/game/ResourceSelectModal.vue";
 
 import Button from "primevue/button";
-import Card from "primevue/card";
 import Dialog from "primevue/dialog";
 
 const router = useRouter();
@@ -99,7 +91,7 @@ const lobbyCode = router.currentRoute.value.params.code;
 const currentModal = ref();
 
 const onTurn = computed(() => {
-  return gameStore.getGame.currentPlayer.userId === stateStore.getUser.id;
+  return gameStore.getCurrentPlayer.userId === stateStore.getUser.id;
 });
 
 const canSelect = computed(() => {
@@ -115,20 +107,20 @@ const currentMessage = computed(() => {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : gameStore.getGame.currentPlayer.name + " választ karaktert.";
+        : gameStore.getCurrentPlayer.name + " választ karaktert.";
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
-        : gameStore.getGame.currentPlayer.name + " gyűjt nyersanyagot.";
+        : gameStore.getCurrentPlayer.name + " gyűjt nyersanyagot.";
     case GAME_PHASE.TURN:
       return onTurn.value
         ? "Te vagy körön!"
         : "A(z) " +
             gameStore.getGame.characters[
-              gameStore.getGame.currentPlayer.currentCharacter - 1
+              gameStore.getCurrentPlayer.currentCharacter - 1
             ].name +
             " (" +
-            gameStore.getGame.currentPlayer.name +
+            gameStore.getCurrentPlayer.name +
             ") van körön.";
     default:
       return "";

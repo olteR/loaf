@@ -6,8 +6,6 @@ import olter.loaf.game.cards.model.*;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
-import olter.loaf.game.players.model.ConditionEntity;
-import olter.loaf.game.players.model.ConditionRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -21,7 +19,6 @@ import java.util.List;
 public class DefaultGameDataGenerator {
 
     private final AbilityRepository abilityRepository;
-    private final ConditionRepository conditionRepository;
     private final DistrictRepository districtRepository;
     private final CharacterRepository characterRepository;
     private final ConfigRepository configRepository;
@@ -98,30 +95,30 @@ public class DefaultGameDataGenerator {
         return abilities;
     }
 
-    private void generateDefaultConditions() {
-        List<ConditionEntity> conditions = List.of(
-            new ConditionEntity(1L, "Megkoronázva", "crown", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Nálad van a <i class=\"fa fa-crown\"></i>, te kezded a kíválasztási fázist.</p>"),
-            new ConditionEntity(2L, "Meggyilkolva", "skull", false, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Az orgyilkos megölt, kimaradsz ebből a körből.</p>"),
-            new ConditionEntity(3L, "Kirabolva", "sack-dollar", false, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>A tolvaj kirabolt, a köröd elején elveszi az összes <i class=\"fa fa-coins\"></i>-ad.</p>"),
-            new ConditionEntity(4L, "Védelem", "building-shield", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>A 8-as rangú karakter képességei nem használhatóak a <i class=\"fa fa-city\"></i>-eiden.</p>"),
-            new ConditionEntity(5L, "Megbabonázva", "wand-sparkles", false, true, ActivationEnum.AFTER_GATHERING, ConditionDurationEnum.END_OF_TURN, "<p>A boszorkány megbabonázott. Nyersanyag gyűjtés után vége a körödnek.</p>"),
-            new ConditionEntity(6L, "Duplikátumok", "clone", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetsz a városodban, amilyenek már léteznek.</p>"),
-            new ConditionEntity(7L, "Tengeren", "person-walking-luggage", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Nem építhetsz semmilyen kerületet ebben a körben.</p>"),
-            new ConditionEntity(8L, "Fejlődő kereskedelem", "piggy-bank", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Bármennyi <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületet építhetsz.</p>"),
-            new ConditionEntity(9L, "Aranybányászat", "coins", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p>"),
-            new ConditionEntity(10L, "Csillag jóslás", "binoculars", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több közül választhatsz.</p>"),
-            new ConditionEntity(11L, "Bevehetetlen erőd", "building-shield", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
-            new ConditionEntity(12L, "Tömeggyártás", "industry", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> megépítéséért.</p>"),
-            new ConditionEntity(13L, "Tudás könyvtára", "book", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több <i class=\"fa fa-sheet-plastic\"></i>-t tarts meg.</p>"),
-            new ConditionEntity(14L, "Kőfejtés", "person-digging", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Bármennyi egyforma <i class=\"fa fa-city\"></i>-t építhetsz a városodban.</p><p>8-as rangú karakter nem használhatja a képességét egyforma <i class=\"fa fa-city\"></i> megszerzésére.</p>"),
-            new ConditionEntity(15L, "A fal védelme", "building-shield", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városodban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>"),
-            new ConditionEntity(16L, "Friss levegő", "tree", true, true, ActivationEnum.END_OF_TURN, ConditionDurationEnum.INDEFINITE, "<p>Ha nincs <i class=\"fa fa-sheet-plastic\"></i> a kezedben a köröd végén, húzol két <i class=\"fa fa-sheet-plastic\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>"),
-            new ConditionEntity(17L, "Adomány", "coins", true, true, ActivationEnum.END_OF_TURN, ConditionDurationEnum.INDEFINITE, "<p>Ha nincs <i class=\"fa fa-coins\"></i> a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>"),
-            new ConditionEntity(18L, "Mágikus kerület", "hat-wizard", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda az általad választott típusú kerületnek számít.</p>")
-        );
-        conditionRepository.saveAll(conditions);
-        log.info("Conditions generated successfully!");
-    }
+//    private void generateDefaultConditions() {
+//        List<ConditionEntity> conditions = List.of(
+//            new ConditionEntity(1L, "Megkoronázva", "crown", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Nálad van a <i class=\"fa fa-crown\"></i>, te kezded a kíválasztási fázist.</p>"),
+//            new ConditionEntity(2L, "Meggyilkolva", "skull", false, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Az orgyilkos megölt, kimaradsz ebből a körből.</p>"),
+//            new ConditionEntity(3L, "Kirabolva", "sack-dollar", false, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>A tolvaj kirabolt, a köröd elején elveszi az összes <i class=\"fa fa-coins\"></i>-ad.</p>"),
+//            new ConditionEntity(4L, "Védelem", "building-shield", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>A 8-as rangú karakter képességei nem használhatóak a <i class=\"fa fa-city\"></i>-eiden.</p>"),
+//            new ConditionEntity(5L, "Megbabonázva", "wand-sparkles", false, true, ActivationEnum.AFTER_GATHERING, ConditionDurationEnum.END_OF_TURN, "<p>A boszorkány megbabonázott. Nyersanyag gyűjtés után vége a körödnek.</p>"),
+//            new ConditionEntity(6L, "Duplikátumok", "clone", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetsz a városodban, amilyenek már léteznek.</p>"),
+//            new ConditionEntity(7L, "Tengeren", "person-walking-luggage", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Nem építhetsz semmilyen kerületet ebben a körben.</p>"),
+//            new ConditionEntity(8L, "Fejlődő kereskedelem", "piggy-bank", true, true, ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>Bármennyi <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületet építhetsz.</p>"),
+//            new ConditionEntity(9L, "Aranybányászat", "coins", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p>"),
+//            new ConditionEntity(10L, "Csillag jóslás", "binoculars", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több közül választhatsz.</p>"),
+//            new ConditionEntity(11L, "Bevehetetlen erőd", "building-shield", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
+//            new ConditionEntity(12L, "Tömeggyártás", "industry", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> megépítéséért.</p>"),
+//            new ConditionEntity(13L, "Tudás könyvtára", "book", true, true, ActivationEnum.RESOURCE_GATHERING, ConditionDurationEnum.INDEFINITE, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több <i class=\"fa fa-sheet-plastic\"></i>-t tarts meg.</p>"),
+//            new ConditionEntity(14L, "Kőfejtés", "person-digging", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>Bármennyi egyforma <i class=\"fa fa-city\"></i>-t építhetsz a városodban.</p><p>8-as rangú karakter nem használhatja a képességét egyforma <i class=\"fa fa-city\"></i> megszerzésére.</p>"),
+//            new ConditionEntity(15L, "A fal védelme", "building-shield", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városodban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>"),
+//            new ConditionEntity(16L, "Friss levegő", "tree", true, true, ActivationEnum.END_OF_TURN, ConditionDurationEnum.INDEFINITE, "<p>Ha nincs <i class=\"fa fa-sheet-plastic\"></i> a kezedben a köröd végén, húzol két <i class=\"fa fa-sheet-plastic\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>"),
+//            new ConditionEntity(17L, "Adomány", "coins", true, true, ActivationEnum.END_OF_TURN, ConditionDurationEnum.INDEFINITE, "<p>Ha nincs <i class=\"fa fa-coins\"></i> a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>"),
+//            new ConditionEntity(18L, "Mágikus kerület", "hat-wizard", true, true, ActivationEnum.NONE, ConditionDurationEnum.INDEFINITE, "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda az általad választott típusú kerületnek számít.</p>")
+//        );
+//        conditionRepository.saveAll(conditions);
+//        log.info("Conditions generated successfully!");
+//    }
 
     private void generateDefaultDistricts(List<AbilityEntity> abilities) {
         List<DistrictEntity> districts =
@@ -273,10 +270,6 @@ public class DefaultGameDataGenerator {
         if (abilities.isEmpty()) {
             log.info("No Abilities found in database. Generating defaults...");
             abilities = generateDefaultAbilities();
-        }
-        if (conditionRepository.count() == 0) {
-            log.info("No Conditions found in database. Generating defaults...");
-            generateDefaultConditions();
         }
         if (districtRepository.count() == 0) {
             log.info("No Districts found in database. Generating default cards...");
