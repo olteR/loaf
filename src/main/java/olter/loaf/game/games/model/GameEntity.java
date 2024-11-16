@@ -11,6 +11,7 @@ import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,12 +37,20 @@ public class GameEntity extends BaseEntity {
     @Column(name = "district_id")
     private List<Long> uniqueDistricts;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "crowned_player", referencedColumnName = "id")
+    private PlayerEntity crownedPlayer;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "current_player", referencedColumnName = "id")
+    private PlayerEntity currentPlayer;
+
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
     @OrderBy("order ASC")
-    private List<PlayerEntity> players;
+    private List<PlayerEntity> players = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "game_characters", joinColumns = @JoinColumn(name = "game_id"),
@@ -53,22 +62,6 @@ public class GameEntity extends BaseEntity {
     @JoinTable(name = "game_deck", joinColumns = @JoinColumn(name = "game_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> deck;
-
-    public PlayerEntity getCurrentPlayer() {
-        return getConditionedPlayer(ConditionEnum.ON_TURN);
-    }
-
-    public void setCurrentPlayer(PlayerEntity player) {
-        setConditionedPlayer(ConditionEnum.ON_TURN, player);
-    }
-
-    public PlayerEntity getCrownedPlayer() {
-        return getConditionedPlayer(ConditionEnum.CROWNED);
-    }
-
-    public void setCrownedPlayer(PlayerEntity player) {
-        setConditionedPlayer(ConditionEnum.CROWNED, player);
-    }
 
     public Integer getKilledCharacter() {
         return getConditionedPlayer(ConditionEnum.KILLED).getCurrentCharacter();
@@ -97,14 +90,5 @@ public class GameEntity extends BaseEntity {
     private PlayerEntity getPlayerWithCharacter(Integer character) {
         return players.stream().filter(player -> Objects.equals(player.getCurrentCharacter(), character)).findFirst()
             .orElse(null);
-    }
-
-    private void setConditionedPlayer(ConditionEnum condition, PlayerEntity player) {
-        if (this.getConditionedPlayer(condition) != null) {
-            this.getConditionedPlayer(condition).getConditions().remove(condition);
-        }
-        if (player != null) {
-            player.getConditions().add(condition);
-        }
     }
 }

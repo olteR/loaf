@@ -30,6 +30,7 @@ export const useWebsocketStore = defineStore("websocket", () => {
   function disconnect() {
     stompClient.value?.disconnect();
     subType.value = null;
+    connected.value = false;
   }
 
   function subscribeToLobby() {

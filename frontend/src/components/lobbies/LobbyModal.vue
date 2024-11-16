@@ -119,12 +119,15 @@ onMounted(() => {
 
 async function createLobby() {
   loading.value = true;
-  if (props.editedLobby?.id) {
-    await lobbyStore.editLobby(lobbyForm.value, props.editedLobby.code);
-  } else {
-    await lobbyStore.createLobby(lobbyForm.value);
+  try {
+    if (props.editedLobby?.id) {
+      await lobbyStore.editLobby(lobbyForm.value, props.editedLobby.code);
+    } else {
+      await lobbyStore.createLobby(lobbyForm.value);
+    }
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
   emit("hide");
 }
 </script>

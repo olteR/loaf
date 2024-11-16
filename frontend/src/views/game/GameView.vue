@@ -44,7 +44,7 @@
     </Button>
     <Dialog
       :closable="false"
-      v-model:visible="currentModal"
+      v-model:visible="isModalOpen"
       modal
       :header="modalHeader"
     >
@@ -105,6 +105,10 @@ const onTurn = computed(() => {
 
 const canBuild = computed(() => {
   return onTurn.value && gameStore.getGame.phase === GAME_PHASE.TURN;
+});
+
+const isModalOpen = computed(() => {
+  return !!currentModal.value;
 });
 
 const currentMessage = computed(() => {

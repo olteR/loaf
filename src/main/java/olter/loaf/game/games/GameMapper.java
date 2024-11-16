@@ -14,15 +14,23 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring", uses = {PlayerMapper.class, CardMapper.class})
 public interface GameMapper {
 
+    @Mapping(target = "currentPlayer", qualifiedByName = "playerToId")
+    @Mapping(target = "crownedPlayer", qualifiedByName = "playerToId")
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
     GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, String code);
 
-    @Mapping(target = "crownedPlayer", qualifiedByName = "playerToId")
+    @Mapping(target = "crownedPlayer", qualifiedByName = "playerToUserId")
     @Mapping(target = "characters", qualifiedByName = "characterToId")
     GameSettingsResponse entityToSettingsResponse(GameEntity entity);
 
     @Named("playerToId")
     default Long playerToId(PlayerEntity player) {
+        if (player == null) return null;
+        return player.getId();
+    }
+
+    @Named("playerToUserId")
+    default Long playerToUserId(PlayerEntity player) {
         if (player == null) return null;
         return player.getUserId();
     }

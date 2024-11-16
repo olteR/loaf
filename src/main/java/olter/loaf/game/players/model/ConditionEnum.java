@@ -7,8 +7,6 @@ import olter.loaf.game.cards.model.ConditionDurationEnum;
 @Getter
 public enum ConditionEnum {
     // @formatter:off
-    ON_TURN("ON_TURN", "Körön", "gamepad", "<p>Ez a játékos következik.</p>"),
-    CROWNED("CROWNED", "Megkoronázva", "crown", "<p>Ennél a játékosnál van a <i class=\"fa fa-crown\"></i>, ő kezdi a kíválasztási fázist.</p>"),
     KILLED("KILLED", "Meggyilkolva", "skull", ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, false, "<p>Az orgyilkos megölt, kimaradsz ebből a körből.</p>"),
     ROBBED("ROBBED", "Kirabolva", "sack-dollar", ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, false, "<p>A tolvaj kirabolt, a köröd elején elveszi az összes <i class=\"fa fa-coins\"></i>-ad.</p>"),
     PROTECTED("PROTECTED", "Védelem", "building-shield", ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, "<p>A 8-as rangú karakter képességei nem használhatóak a játékos <i class=\"fa fa-city\"></i>-ein.</p>"),

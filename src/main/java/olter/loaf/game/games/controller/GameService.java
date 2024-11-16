@@ -14,13 +14,17 @@ import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.*;
-import olter.loaf.game.games.exception.*;
+import olter.loaf.game.games.exception.CorruptedGameException;
+import olter.loaf.game.games.exception.InvalidPhaseActionException;
+import olter.loaf.game.games.exception.NotInGameException;
+import olter.loaf.game.games.exception.NotOnTurnException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.game.players.PlayerMapper;
-import olter.loaf.game.players.model.*;
+import olter.loaf.game.players.model.PlayerEntity;
+import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobbies.model.LobbyEntity;
 import olter.loaf.statistics.LogService;
 import olter.loaf.users.model.UserEntity;
@@ -125,21 +129,29 @@ public class GameService {
         logService.logCharacterSelection(game);
 
         setNextPlayer(game);
-        game.getPlayers().forEach(p -> {
-            log.info("Broadcasting next player to {}", p.getUserId());
-            if (game.getCurrentPlayer().getId().equals(p.getId())) {
-                List<Integer> unavailableCharacters = new ArrayList<>(
-                    game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
-                        .toList());
-                unavailableCharacters.add(game.getDownwardDiscard());
-                p.setUnavailableCharacters(unavailableCharacters);
-                simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                    new GameUpdateDto(code, GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
-            } else {
-                simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                    new GameUpdateDto(code, GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
-            }
-        });
+        if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
+            game.getPlayers().forEach(p -> {
+                log.info("Broadcasting next player to {}", p.getUserId());
+                if (game.getCurrentPlayer().getId().equals(p.getId())) {
+                    List<Integer> unavailableCharacters = new ArrayList<>(
+                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
+                            .toList());
+                    if (game.getCurrentPlayer().getOrder() != 7) {
+                        unavailableCharacters.add(game.getDownwardDiscard());
+                    }
+                    p.setUnavailableCharacters(unavailableCharacters);
+                    simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                        new GameUpdateDto(code, GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
+                } else {
+                    simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                        new GameUpdateDto(code, GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
+                }
+            });
+        } else {
+            broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.CHARACTER_REVEAL,
+                playerMapper.entityToPublicResponse(game.getCurrentPlayer()));
+        }
+
         gameRepository.save(game);
         return skippedCharacters;
     }

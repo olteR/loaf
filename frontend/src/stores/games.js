@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
-import { CONDITION, GAME_UPDATE, RESOURCE } from "@/utils/const";
+import { GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import { useStateStore } from "@/stores/state";
 
 export const useGameStore = defineStore("game", () => {
@@ -18,12 +18,11 @@ export const useGameStore = defineStore("game", () => {
   const game = ref();
 
   const getGame = computed(() => game.value);
-  const getCurrentPlayer = computed(() =>
-    game.value?.players.find((player) =>
-      player.conditions.find(
-        (condition) => condition.value === CONDITION.ON_TURN
-      )
-    )
+  const getCurrentPlayer = computed(
+    () =>
+      game.value?.players.find(
+        (player) => player.id === game.value.currentPlayer
+      ) ?? {}
   );
 
   async function fetchGame(code) {
@@ -70,12 +69,23 @@ export const useGameStore = defineStore("game", () => {
     if (update.code === game.value.code) {
       switch (update.type) {
         case GAME_UPDATE.NEXT_PLAYER: {
-          setNextPlayer("id", update.change);
+          game.value.phase = GAME_PHASE.SELECTION;
+          game.value.currentPlayer = update.change;
           break;
         }
         case GAME_UPDATE.PLAYER_TURN: {
-          setNextPlayer("userId", stateStore.getUser.id);
+          game.value.currentPlayer = game.value.players.find(
+            (player) => player.userId === stateStore.getUser.id
+          ).id;
           game.value.unavailableCharacters = update.change;
+          break;
+        }
+        case GAME_UPDATE.CHARACTER_REVEAL: {
+          game.value.phase = GAME_PHASE.RESOURCE;
+          game.value.currentPlayer = update.change.id;
+          game.value.player = game.value.players.map((player) =>
+            player.id === update.change.id ? update.change : player
+          );
           break;
         }
         case GAME_UPDATE.RESOURCE_COLLECTION: {
@@ -94,19 +104,6 @@ export const useGameStore = defineStore("game", () => {
       }
     }
   };
-
-  function setNextPlayer(field, value) {
-    game.value.players = game.value.players.map((p) => {
-      if (p[field] === value) {
-        p.conditions.push(CONDITION.ON_TURN);
-      } else {
-        p.conditions = p.conditions.filter(
-          (condition) => condition !== CONDITION.ON_TURN
-        );
-      }
-      return p;
-    });
-  }
 
   return {
     getGame: getGame,

@@ -161,8 +161,6 @@ export const SUBSCRIPTION_TYPE = {
 };
 
 export const CONDITION = {
-  ON_TURN: "ON_TURN",
-  CROWNED: "CROWNED",
   KILLED: "KILLED",
   ROBBED: "ROBBED",
   PROTECTED: "PROTECTED",

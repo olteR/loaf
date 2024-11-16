@@ -6,6 +6,7 @@
       style="width: 12vw; outline: solid medium; border-radius: 4px"
       :class="{
         player: player.userId === props.userId,
+        'on-turn': player.id === game.currentPlayer,
       }"
     >
       <template #content>
@@ -36,6 +37,24 @@
             "
           >
             {{ player.name }}
+            <template v-if="player.userId === userId">
+              <i
+                class="fa fa-user"
+                v-tooltip:[tooltipPosition(i)]="{
+                  value: `A te karakterlapod`,
+                  escape: false,
+                }"
+              ></i>
+            </template>
+            <template v-if="player.id === game.crownedPlayer">
+              <i
+                class="fa fa-crown"
+                v-tooltip:[tooltipPosition(i)]="{
+                  value: `Ennél a játékosnál van a korona`,
+                  escape: false,
+                }"
+              ></i>
+            </template>
           </div>
           <div
             class="inline-flex align-middle justify-between"
@@ -182,7 +201,7 @@ function tooltipPosition(playerIndex) {
   margin-right: auto;
   left: 0;
   right: 0;
-  top: 0.5rem;
+  top: 1vh;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -206,8 +225,18 @@ function tooltipPosition(playerIndex) {
   height: 5.5vh;
 }
 
-.player {
+.on-turn {
   color: #9fa8da;
+  -webkit-transition: transform 0.2s;
+  -moz-transition: transform 0.2s;
+  -ms-transition: transform 0.2s;
+
+  z-index: 11;
+  --webkit-transform: scale(1.05);
+  --moz-transform: scale(1.05);
+  --o-transform: scale(1.05);
+  --ms-transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 ::v-deep(.p-card) {
