@@ -133,15 +133,8 @@ public class GameService {
             game.getPlayers().forEach(p -> {
                 log.info("Broadcasting next player to {}", p.getUserId());
                 if (game.getCurrentPlayer().getId().equals(p.getId())) {
-                    List<Integer> unavailableCharacters = new ArrayList<>(
-                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
-                            .toList());
-                    if (game.getCurrentPlayer().getOrder() != 7) {
-                        unavailableCharacters.add(game.getDownwardDiscard());
-                    }
-                    p.setUnavailableCharacters(unavailableCharacters);
                     simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                        new GameUpdateDto(code, GameUpdateTypeEnum.PLAYER_TURN, unavailableCharacters));
+                        new GameUpdateDto(code, GameUpdateTypeEnum.PLAYER_TURN, p.getUnavailableCharacters()));
                 } else {
                     simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
                         new GameUpdateDto(code, GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
@@ -203,8 +196,17 @@ public class GameService {
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
         setNextPlayer(game);
-        broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.NEXT_PLAYER,
-            playerMapper.entityToPublicResponse(game.getCurrentPlayer()));
+        if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
+            game.getPlayers().forEach(p -> {
+                log.info("Broadcasting next player to {}", p.getUserId());
+                simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                    new GameUpdateDto(code, GameUpdateTypeEnum.NEW_TURN,
+                        gameMapper.entityToDetailsResponse(game, p, code)));
+            });
+        } else {
+            broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.CHARACTER_REVEAL,
+                playerMapper.entityToPublicResponse(game.getCurrentPlayer()));
+        }
         gameRepository.save(game);
     }
 
@@ -225,7 +227,7 @@ public class GameService {
         int gameSize = game.getPlayers().size();
         Map<Integer, Integer> orderMap = assembleOrderMap(game.getCrownedPlayer().getOrder(), gameSize);
 
-        game.setTurn(1);
+        game.setTurn(game.getTurn() + 1);
         game.setPhase(GamePhaseEnum.SELECTION);
         game.setCurrentPlayer(game.getCrownedPlayer());
         game.setDownwardDiscard(r.nextInt(game.getCharacters().size()));
@@ -318,6 +320,13 @@ public class GameService {
                 if (game.getCurrentPlayer().getOrder() < game.getPlayers().size()) {
                     game.setCurrentPlayer(
                         game.getPlayers().get(game.getPlayers().indexOf(game.getCurrentPlayer()) + 1));
+                    List<Integer> unavailableCharacters = new ArrayList<>(
+                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
+                            .toList());
+                    if (game.getCurrentPlayer().getOrder() != 7) {
+                        unavailableCharacters.add(game.getDownwardDiscard());
+                    }
+                    game.getCurrentPlayer().setUnavailableCharacters(unavailableCharacters);
                 } else {
                     Integer firstChar =
                         game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).min(Integer::compareTo).get();
@@ -339,11 +348,11 @@ public class GameService {
                         player.setIsRevealed(false);
                         player.setCurrentCharacter(null);
                     });
-                    game.setCurrentPlayer(game.getCrownedPlayer());
-                    game.setPhase(GamePhaseEnum.SELECTION);
+                    startSelectionPhase(game);
                 } else {
                     game.setCurrentPlayer(playersLeft.get(0));
                     game.getCurrentPlayer().setIsRevealed(true);
+                    game.setPhase(GamePhaseEnum.RESOURCE);
                 }
             }
             default -> log.warn("Unhandled phase {}", game.getPhase());

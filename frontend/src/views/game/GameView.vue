@@ -26,6 +26,7 @@
       :disabled="!onTurn || gameStore.getGame.phase !== 'TURN'"
       class="absolute right-2 bottom-2 block rounded-full"
       style="width: 10vw; height: 10vw"
+      @click="gameStore.endTurn(lobbyCode)"
     >
       <div
         class="whitespace-nowrap"
@@ -108,25 +109,28 @@ const isModalOpen = computed(() => {
 });
 
 const currentMessage = computed(() => {
+  console.log(gameStore.getCurrentPlayer);
   switch (gameStore.getGame.phase) {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : gameStore.getCurrentPlayer.name + " választ karaktert.";
+        : `${gameStore.getCurrentPlayer.name} választ karaktert`;
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
-        : gameStore.getCurrentPlayer.name + " gyűjt nyersanyagot.";
+        : `A(z) ${
+            gameStore.getGame.characters[
+              gameStore.getCurrentPlayer.currentCharacter - 1
+            ].name
+          } (${gameStore.getCurrentPlayer.name}) gyűjt nyersanyagot`;
     case GAME_PHASE.TURN:
       return onTurn.value
         ? "Te vagy körön!"
-        : "A(z) " +
+        : `A(z) ${
             gameStore.getGame.characters[
               gameStore.getCurrentPlayer.currentCharacter - 1
-            ].name +
-            " (" +
-            gameStore.getCurrentPlayer.name +
-            ") van körön.";
+            ].name
+          } (${gameStore.getCurrentPlayer.name}) van körön`;
     default:
       return "";
   }

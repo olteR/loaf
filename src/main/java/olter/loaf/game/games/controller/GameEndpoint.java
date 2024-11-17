@@ -53,4 +53,11 @@ public class GameEndpoint {
         gameService.buildDistrict(code, request, user);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("game/{code}/end-turn")
+    public ResponseEntity<List<Integer>> selectCharacter(@PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user
+    ) {
+        gameService.endTurn(code, user);
+        return ResponseEntity.ok().build();
+    }
 }

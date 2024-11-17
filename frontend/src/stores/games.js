@@ -13,6 +13,7 @@ export const useGameStore = defineStore("game", () => {
     resource: (code) => `game/${code}/resource`,
     cards: (code) => `game/${code}/cards`,
     build: (code) => `game/${code}/build`,
+    endTurn: (code) => `game/${code}/end-turn`,
   };
 
   const game = ref();
@@ -64,6 +65,10 @@ export const useGameStore = defineStore("game", () => {
     await requestStore.request(urls.build(code), REQ_TYPE.POST, request);
   }
 
+  async function endTurn(code) {
+    await requestStore.request(urls.endTurn(code), REQ_TYPE.GET);
+  }
+
   const gameUpdateHandler = function handleGameUpdate(msg) {
     const update = JSON.parse(msg.body);
     if (update.code === game.value.code) {
@@ -80,21 +85,27 @@ export const useGameStore = defineStore("game", () => {
           break;
         }
         case GAME_UPDATE.CHARACTER_REVEAL: {
-          game.value.phase = GAME_PHASE.RESOURCE;
-          game.value.currentPlayer = update.change.id;
           game.value.player = game.value.players.map((player) =>
             player.id === update.change.id ? update.change : player
           );
+          game.value.currentPlayer = update.change.id;
+          game.value.phase = GAME_PHASE.RESOURCE;
           break;
         }
         case GAME_UPDATE.RESOURCE_COLLECTION: {
-          let player = game.value.players.find(
-            (p) => p.id === game.value.currentPlayer.id
-          );
-          player[
-            update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"
-          ] += update.change.amount;
-          game.value.currentPlayer = player;
+          game.value.players = game.value.players.map((player) => {
+            if (player.id === game.value.currentPlayer) {
+              player[
+                update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"
+              ] += parseInt(update.change.amount);
+            }
+            game.value.phase = GAME_PHASE.TURN;
+            return player;
+          });
+          break;
+        }
+        case GAME_UPDATE.NEW_TURN: {
+          game.value = update.change;
           break;
         }
         default: {
@@ -112,6 +123,7 @@ export const useGameStore = defineStore("game", () => {
     gatherResources,
     drawCards,
     buildDistrict,
+    endTurn,
     gameUpdateHandler,
   };
 });
