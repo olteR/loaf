@@ -12,6 +12,7 @@
             v-model="userForm.username"
             class="w-full"
             minlength="3"
+            maxlength="255"
           />
           <label for="name">Felhasználónév</label>
         </span>
@@ -22,6 +23,7 @@
             v-model="userForm.email"
             class="w-full"
             required
+            maxlength="255"
           />
           <label for="name">E-mail</label>
         </span>
@@ -33,7 +35,7 @@
             toggleMask
             class="w-full"
             required
-            :input-props="{ minlength: 8 }"
+            :input-props="{ minlength: 8, maxlength: 255 }"
           />
           <label for="password">Jelszó</label>
         </span>

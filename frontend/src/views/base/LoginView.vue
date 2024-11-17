@@ -10,6 +10,7 @@
             v-model="name"
             class="w-full"
             required
+            maxlength="255"
           />
           <label for="name">Felhasználónév</label>
         </span>
@@ -21,6 +22,7 @@
             toggleMask
             class="w-full"
             required
+            maxlength="255"
           />
           <label for="password">Jelszó</label>
         </span>

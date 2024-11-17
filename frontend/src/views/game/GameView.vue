@@ -8,12 +8,7 @@
       :user-id="stateStore.getUser.id"
     ></MemberList>
     <ActionButtons v-if="onTurn"></ActionButtons>
-    <!--    <CharacterList-->
-    <!--      :game="gameStore.getGame"-->
-    <!--      :card-images="cardStore.getCharacterImages"-->
-    <!--      :can-select="canSelect"-->
-    <!--      @select="(number) => gameStore.selectCharacter(lobbyCode, number)"-->
-    <!--    ></CharacterList>-->
+    <CharacterList :game="gameStore.getGame"></CharacterList>
     <div class="annoucement-message">{{ currentMessage }}</div>
     <PlayerHand
       :cards="gameStore.getGame.hand"
@@ -87,6 +82,7 @@ import ResourceSelectModal from "@/components/game/modals/ResourceSelectModal.vu
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
+import CharacterList from "@/components/game/CharacterList.vue";
 
 const router = useRouter();
 const toast = useToast();

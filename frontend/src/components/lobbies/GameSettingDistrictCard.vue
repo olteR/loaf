@@ -2,6 +2,7 @@
   <div
     v-if="district"
     class="list-card"
+    :class="{ hoverable: clickable }"
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
@@ -23,16 +24,14 @@
         'background-color': secondaryColor,
       }"
     >
-      <div class="mt-2 select-none">{{ district.name }}</div>
-      <div class="ml-auto mr-4 my-auto">
-        <i
-          v-if="district.type === DISTRICT_TYPE.UNIQUE"
-          class="fa fa-circle-question"
-          v-tooltip="{
-            value: composeDistrictDescription(district),
-            escape: false,
-          }"
-        />
+      <div
+        class="mt-2 select-none"
+        v-tooltip="{
+          value: composeDistrictDescription(district),
+          escape: false,
+        }"
+      >
+        {{ district.name }}
       </div>
     </div>
   </div>
@@ -40,7 +39,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS, DISTRICT_TYPE } from "@/utils/const";
+import { COLORS } from "@/utils/const";
 import { composeDistrictDescription } from "@/utils/utils";
 
 const props = defineProps({

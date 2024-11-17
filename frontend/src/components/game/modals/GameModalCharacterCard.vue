@@ -48,17 +48,12 @@
         :style="{
           background: secondaryColor,
         }"
+        v-tooltip:[tooltipPosition(character.number)]="{
+          value: composeCharacterDescription(character),
+          escape: false,
+        }"
       >
         {{ character.name }}
-      </div>
-      <div class="card-info">
-        <i
-          class="fa fa-circle-question"
-          v-tooltip:[tooltipPosition(character.number)]="{
-            value: composeCharacterDescription(character),
-            escape: false,
-          }"
-        />
       </div>
     </div>
   </div>
@@ -177,17 +172,5 @@ function select() {
   width: 140px;
   text-align: center;
   font-size: 7rem;
-}
-.hoverable:hover {
-  -webkit-transition: transform 0.2s;
-  -moz-transition: transform 0.2s;
-  -ms-transition: transform 0.2s;
-
-  z-index: 11;
-  --webkit-transform: scale(1.05);
-  --moz-transform: scale(1.05);
-  --o-transform: scale(1.05);
-  --ms-transform: scale(1.05);
-  transform: scale(1.05);
 }
 </style>

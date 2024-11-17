@@ -2,11 +2,16 @@
   <div
     v-if="character"
     class="list-card"
-    :class="isBig ? 'big-character' : 'small-character'"
+    :class="{
+      'big-character': isBig,
+      'small-character': !isBig,
+      hoverable: !selected,
+    }"
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
+      cursor: selected ? 'default' : 'pointer',
     }"
   >
     <div
@@ -24,17 +29,15 @@
         'background-color': secondaryColor,
       }"
     >
-      <div class="mt-3 select-none" :class="{ 'text-4xl': isBig }">
+      <div
+        class="mt-3 select-none"
+        :class="{ 'text-4xl': isBig }"
+        v-tooltip="{
+          value: composeCharacterDescription(character),
+          escape: false,
+        }"
+      >
         {{ character.name }}
-      </div>
-      <div class="ml-auto mr-4 my-auto">
-        <i
-          class="fa fa-circle-question"
-          v-tooltip="{
-            value: composeCharacterDescription(character),
-            escape: false,
-          }"
-        />
       </div>
     </div>
   </div>

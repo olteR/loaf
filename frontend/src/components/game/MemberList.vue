@@ -39,7 +39,7 @@
             {{ player.name }}
             <template v-if="player.userId === userId">
               <i
-                class="fa fa-user"
+                class="fa fa-user ml-1"
                 v-tooltip:[tooltipPosition(i)]="{
                   value: `A te karakterlapod`,
                   escape: false,
@@ -48,7 +48,7 @@
             </template>
             <template v-if="player.id === game.crownedPlayer">
               <i
-                class="fa fa-crown"
+                class="fa fa-crown ml-1"
                 v-tooltip:[tooltipPosition(i)]="{
                   value: `Ennél a játékosnál van a korona`,
                   escape: false,

@@ -7,6 +7,7 @@
           v-model="lobbyForm.name"
           class="w-full"
           required
+          maxlength="255"
         ></InputText>
         <label for="name">Név</label>
       </div>
@@ -20,6 +21,7 @@
           toggleMask
           class="w-full"
           :required="lobbyForm.secured"
+          maxlength="255"
         ></Password>
         <label for="password">Jelszó</label>
       </div>

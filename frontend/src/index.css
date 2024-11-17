@@ -3,3 +3,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.hoverable:hover {
+    -webkit-transition: transform 0.2s;
+    -moz-transition: transform 0.2s;
+    -ms-transition: transform 0.2s;
+
+    z-index: 11;
+    --webkit-transform: scale(1.05);
+    --moz-transform: scale(1.05);
+    --o-transform: scale(1.05);
+    --ms-transform: scale(1.05);
+    transform: scale(1.05);
+}

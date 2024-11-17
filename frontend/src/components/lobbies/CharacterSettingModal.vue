@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-3 gap-x-12 pt-1" style="margin-right: 1.25rem">
+  <div class="grid grid-cols-3 gap-x-12 pt-2" style="margin-right: 1.25rem">
     <div
       v-for="character in sortedCharacters"
       :key="character.id"
@@ -22,6 +22,7 @@
 import Button from "primevue/button";
 import { computed, onMounted, ref } from "vue";
 import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
+import { DISABLED_CHARACTERS } from "@/utils/const";
 
 const toggleValues = ref({});
 
@@ -33,7 +34,9 @@ const props = defineProps({
 });
 
 const sortedCharacters = computed(() => {
-  let chars = props.characters;
+  let chars = props.characters.filter(
+    (char) => !DISABLED_CHARACTERS.includes(char.id)
+  );
   return chars.sort(sortCharacters);
 });
 

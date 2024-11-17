@@ -69,7 +69,6 @@ export const useGameStore = defineStore("game", () => {
     if (update.code === game.value.code) {
       switch (update.type) {
         case GAME_UPDATE.NEXT_PLAYER: {
-          game.value.phase = GAME_PHASE.SELECTION;
           game.value.currentPlayer = update.change;
           break;
         }
