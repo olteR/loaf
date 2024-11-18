@@ -3,7 +3,7 @@
     v-if="character"
     class="list-card small-character"
     :style="{
-      'outline-color': primaryColor,
+      'outline-color': getPrimaryColor(character.districtTypeBonus),
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
     }"
@@ -11,8 +11,8 @@
     <div
       class="character-number"
       :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
+        background: getSecondaryColor(character.districtTypeBonus),
+        'outline-color': getPrimaryColor(character.districtTypeBonus),
       }"
     >
       {{ character.number }}
@@ -20,8 +20,8 @@
     <div
       class="character-status"
       :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
+        background: getSecondaryColor(character.districtTypeBonus),
+        'outline-color': getPrimaryColor(character.districtTypeBonus),
       }"
     >
       <i
@@ -32,7 +32,7 @@
     <div
       class="card-content"
       :style="{
-        'background-color': secondaryColor,
+        'background-color': getSecondaryColor(character.districtTypeBonus),
       }"
     >
       <div
@@ -50,8 +50,12 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS, CARD_POS, CHAR_STATUS } from "@/utils/const";
-import { composeCharacterDescription } from "@/utils/utils";
+import { CARD_POS, CHAR_STATUS } from "@/utils/const";
+import {
+  composeCharacterDescription,
+  getPrimaryColor,
+  getSecondaryColor,
+} from "@/utils/utils";
 
 const props = defineProps({
   character: Object,
@@ -62,18 +66,6 @@ const imageSource = computed(
   () =>
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
-const primaryColor = computed(() => {
-  return (
-    COLORS[props.character.districtTypeBonus]?.PRIMARY ?? COLORS.DEFAULT.PRIMARY
-  );
-});
-
-const secondaryColor = computed(() => {
-  return (
-    COLORS[props.character.districtTypeBonus]?.SECONDARY ??
-    COLORS.DEFAULT.SECONDARY
-  );
-});
 
 const resolvedStatus = computed(() => {
   if (props.status === CHAR_STATUS.KILLED) {

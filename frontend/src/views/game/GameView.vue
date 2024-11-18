@@ -7,7 +7,10 @@
       :district-images="cardStore.getDistrictImages"
       :user-id="stateStore.getUser.id"
     ></MemberList>
-    <ActionButtons v-if="onTurn"></ActionButtons>
+    <ActionButtons
+      :abilities="visibleAbilities"
+      :on-turn="onTurn"
+    ></ActionButtons>
     <CharacterList :game="gameStore.getGame"></CharacterList>
     <div class="annoucement-message">{{ currentMessage }}</div>
     <PlayerHand
@@ -66,8 +69,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { useToast } from "primevue/usetoast";
-import { GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
+import { ABILITY_TYPE, GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
 
 import { useStateStore } from "@/stores/state";
 import { useWebsocketStore } from "@/stores/websocket";
@@ -108,7 +110,6 @@ const isModalOpen = computed(() => {
 });
 
 const currentMessage = computed(() => {
-  console.log(gameStore.getCurrentPlayer);
   switch (gameStore.getGame.phase) {
     case GAME_PHASE.SELECTION:
       return onTurn.value
@@ -146,6 +147,41 @@ const modalHeader = computed(() => {
     default:
       return "";
   }
+});
+
+const visibleAbilities = computed(() => {
+  const characterAbilities =
+    gameStore.getCurrentCharacter?.abilities
+      .filter((ability) => ability.type === ABILITY_TYPE.MANUAL)
+      .map((ability) => {
+        ability.sourceName = gameStore.getCurrentCharacter.name;
+        ability.sourceType = gameStore.getCurrentCharacter.districtTypeBonus;
+        return ability;
+      }) ?? [];
+  const districtAbilities =
+    gameStore.getGame.players
+      .find((player) => player.userId === stateStore.getUser.id)
+      .districts.map((district) =>
+        district.abilities.map((ability) => {
+          ability.sourceName = district.name;
+          ability.sourceType = district.type;
+          return ability;
+        })
+      )
+      .flat(Infinity)
+      .filter((ability) => ability.type === ABILITY_TYPE.AFTER_BUILD) ?? [];
+  const handAbilities =
+    gameStore.getGame.hand
+      .map((district) =>
+        district.abilities.map((ability) => {
+          ability.sourceName = district.name;
+          ability.sourceType = district.type;
+          return ability;
+        })
+      )
+      .flat(Infinity)
+      .filter((ability) => ability.type === ABILITY_TYPE.BEFORE_BUILD) ?? [];
+  return characterAbilities.concat(districtAbilities).concat(handAbilities);
 });
 
 onMounted(async () => {

@@ -25,6 +25,12 @@ export const useGameStore = defineStore("game", () => {
         (player) => player.id === game.value.currentPlayer
       ) ?? {}
   );
+  const getCurrentCharacter = computed(
+    () =>
+      game.value?.characters.find(
+        (character) => character.number === game.value.currentCharacter
+      ) ?? null
+  );
 
   async function fetchGame(code) {
     const response = await requestStore.request(
@@ -132,6 +138,7 @@ export const useGameStore = defineStore("game", () => {
   return {
     getGame: getGame,
     getCurrentPlayer: getCurrentPlayer,
+    getCurrentCharacter: getCurrentCharacter,
     fetchGame,
     selectCharacter,
     gatherResources,

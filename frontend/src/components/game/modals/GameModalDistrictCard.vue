@@ -2,17 +2,17 @@
   <div
     v-if="district"
     class="list-card"
+    :class="{ hoverable: clickable }"
     :style="{
-      'outline-color': primaryColor,
+      'outline-color': COLORS[district.type].PRIMARY,
       'background-image': 'url(' + imageSource + ')',
-      cursor: clickable ? 'pointer' : 'default',
     }"
   >
     <div
       class="district-cost"
       :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
+        background: COLORS[district.type].SECONDARY,
+        'outline-color': COLORS[district.type].PRIMARY,
       }"
     >
       {{ district.cost }}
@@ -20,13 +20,15 @@
     <div
       class="card-content"
       :style="{
-        'background-color': selected ? 'transparent' : secondaryColor,
+        'background-color': selected
+          ? 'transparent'
+          : COLORS[district.type].SECONDARY,
       }"
     >
       <div
         class="card-name"
         :style="{
-          background: secondaryColor,
+          background: COLORS[district.type].SECONDARY,
         }"
       >
         {{ district.name }}
@@ -57,13 +59,6 @@ const imageSource = computed(
   () =>
     `${window.location.origin}/src/assets/districts/${props.district?.id}.jpg`
 );
-const primaryColor = computed(() => {
-  return COLORS[props.district.type].PRIMARY;
-});
-
-const secondaryColor = computed(() => {
-  return COLORS[props.district.type].SECONDARY;
-});
 </script>
 
 <style scoped>

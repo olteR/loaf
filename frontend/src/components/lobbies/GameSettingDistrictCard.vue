@@ -6,7 +6,6 @@
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
-      cursor: clickable ? 'pointer' : 'default',
     }"
   >
     <div

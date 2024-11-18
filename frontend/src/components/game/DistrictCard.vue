@@ -1,10 +1,10 @@
 <template>
   <div
-    v-if="props.card"
+    v-if="card"
     ref="districtCard"
     id="draggable-container"
     :style="{
-      'outline-color': primaryColor,
+      'outline-color': COLORS[card.type].PRIMARY,
       left: order * 4 + 'vw',
     }"
     @mousedown="dragMouseDown"
@@ -14,31 +14,31 @@
       <div
         class="district-cost"
         :style="{
-          background: secondaryColor,
-          'outline-color': primaryColor,
+          background: COLORS[card.type].SECONDARY,
+          'outline-color': COLORS[card.type].PRIMARY,
         }"
       >
-        {{ props.card.cost }}
+        {{ card.cost }}
       </div>
-      <img class="district-img" :src="props.image.src" />
+      <img class="district-img" :src="image.src" />
       <div
         class="district-text"
         :style="{
-          background: secondaryColor,
+          background: COLORS[card.type].SECONDARY,
         }"
         v-tooltip.top="{
           value: composeDistrictDescription(card),
           escape: false,
         }"
       >
-        {{ props.card.cardName }}
+        {{ card.cardName }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { COLORS } from "@/utils/const";
 import { composeDistrictDescription } from "@/utils/utils";
 
@@ -56,14 +56,6 @@ const positions = ref({
   clientY: undefined,
   movementX: 0,
   movementY: 0,
-});
-
-const primaryColor = computed(() => {
-  return COLORS[props.card.type].PRIMARY;
-});
-
-const secondaryColor = computed(() => {
-  return COLORS[props.card.type].SECONDARY;
 });
 
 function dragMouseDown(event) {

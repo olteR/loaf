@@ -4,13 +4,13 @@
     class="district"
     :style="{
       outline: 'medium solid',
-      'outline-color': primaryColor,
+      'outline-color': COLORS[props.card.type].PRIMARY,
     }"
   >
     <div>
       <div
         class="district-cost items-center"
-        :style="{ background: secondaryColor }"
+        :style="{ background: COLORS[props.card.type].SECONDARY }"
         v-tooltip:[tooltipPosition]="{
           value: composeDistrictDescription(card, true),
           escape: false,
@@ -24,7 +24,6 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import { COLORS } from "@/utils/const";
 import { composeDistrictDescription } from "@/utils/utils";
 
@@ -32,14 +31,6 @@ const props = defineProps({
   card: Object,
   image: Object,
   tooltipPosition: Object,
-});
-
-const primaryColor = computed(() => {
-  return COLORS[props.card.type].PRIMARY;
-});
-
-const secondaryColor = computed(() => {
-  return COLORS[props.card.type].SECONDARY;
 });
 </script>
 

@@ -11,7 +11,6 @@
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
-      cursor: selected ? 'default' : 'pointer',
     }"
   >
     <div
@@ -46,7 +45,11 @@
 <script setup>
 import { computed } from "vue";
 import { COLORS, CARD_POS } from "@/utils/const";
-import { composeCharacterDescription } from "@/utils/utils";
+import {
+  composeCharacterDescription,
+  getPrimaryColor,
+  getSecondaryColor,
+} from "@/utils/utils";
 
 const props = defineProps({
   character: Object,
@@ -60,15 +63,13 @@ const imageSource = computed(
 );
 const primaryColor = computed(() => {
   return props.selected
-    ? COLORS[props.character.districtTypeBonus]?.PRIMARY ??
-        COLORS.DEFAULT.PRIMARY
+    ? getPrimaryColor(props.character.districtTypeBonus)
     : COLORS.DISABLED.PRIMARY;
 });
 
 const secondaryColor = computed(() => {
   return props.selected
-    ? COLORS[props.character.districtTypeBonus]?.SECONDARY ??
-        COLORS.DEFAULT.SECONDARY
+    ? getSecondaryColor(props.character.districtTypeBonus)
     : COLORS.DISABLED.SECONDARY;
 });
 </script>

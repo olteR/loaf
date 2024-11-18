@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -16,8 +18,10 @@ public class AbilityEntity {
     @Id
     private Long id;
 
-    private String name;
-    private String icon;
+    @ElementCollection
+    @CollectionTable(name = "ability_icons", joinColumns = @JoinColumn(name = "ability_id"))
+    @Column(name = "icon")
+    private List<String> icons;
 
     @Enumerated(EnumType.STRING)
     private ActivationEnum type;

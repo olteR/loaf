@@ -6,7 +6,6 @@
     :style="{
       'outline-color': primaryColor,
       'background-image': 'url(' + imageSource + ')',
-      cursor: clickable ? 'pointer' : 'default',
     }"
     @click="select"
   >
@@ -61,8 +60,11 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS } from "@/utils/const";
-import { composeCharacterDescription } from "@/utils/utils";
+import {
+  composeCharacterDescription,
+  getPrimaryColor,
+  getSecondaryColor,
+} from "@/utils/utils";
 
 const emit = defineEmits(["select"]);
 const props = defineProps({
@@ -77,22 +79,15 @@ const imageSource = computed(
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  if (!clickable.value) {
-    return "#121212";
-  }
-  return (
-    COLORS[props.character.districtTypeBonus]?.PRIMARY ?? COLORS.DEFAULT.PRIMARY
-  );
+  return clickable.value
+    ? getPrimaryColor(props.character.districtTypeBonus)
+    : "#121212";
 });
 
 const secondaryColor = computed(() => {
-  if (!clickable.value) {
-    return "#121212";
-  }
-  return (
-    COLORS[props.character.districtTypeBonus]?.SECONDARY ??
-    COLORS.DEFAULT.SECONDARY
-  );
+  return clickable.value
+    ? getSecondaryColor(props.character.districtTypeBonus)
+    : "#121212";
 });
 
 const clickable = computed(() => {

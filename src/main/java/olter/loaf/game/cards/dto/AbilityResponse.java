@@ -7,15 +7,16 @@ import olter.loaf.game.cards.model.ActivationEnum;
 import olter.loaf.game.cards.model.AbilityTargetEnum;
 import olter.loaf.game.cards.model.AbilityUsageEnum;
 
+import java.util.List;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
 public class AbilityResponse {
     private Long id;
-    private String name;
-    private String icon;
     private ActivationEnum type;
     private AbilityUsageEnum useRule;
     private AbilityTargetEnum target;
     private String description;
+    private List<String> icons;
 }

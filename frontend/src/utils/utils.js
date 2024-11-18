@@ -1,4 +1,4 @@
-import { ABILITY_USE_RULE } from "@/utils/const";
+import { ABILITY_USE_RULE, COLORS } from "@/utils/const";
 
 export function composeCharacterDescription(character) {
   return character.abilities
@@ -11,8 +11,16 @@ export function composeCharacterDescription(character) {
 }
 
 export function composeDistrictDescription(district, withName = false) {
-  return withName
-    ? `<p>${district.name}</p>`
-    : "" +
-        `${district.abilities.map((ability) => ability.description).join("")}`;
+  return (
+    (withName ? `<p>${district.name}</p>` : "") +
+    `${district.abilities.map((ability) => ability.description).join("")}`
+  );
+}
+
+export function getPrimaryColor(type) {
+  return COLORS[type]?.PRIMARY ?? COLORS.DEFAULT.PRIMARY;
+}
+
+export function getSecondaryColor(type) {
+  return COLORS[type]?.SECONDARY ?? COLORS.DEFAULT.SECONDARY;
 }
