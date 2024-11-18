@@ -14,7 +14,7 @@
       :cards="gameStore.getGame.hand"
       :card-images="cardStore.getDistrictImages"
       :can-build="canBuild"
-      @build="(card, index) => buildDistrict(card, index)"
+      @build="(index) => buildDistrict(index)"
     ></PlayerHand>
     <Button
       class="absolute right-2 top-2 min-w-0"
@@ -86,7 +86,6 @@ import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.
 import CharacterList from "@/components/game/CharacterList.vue";
 
 const router = useRouter();
-const toast = useToast();
 
 const stateStore = useStateStore();
 const websocketStore = useWebsocketStore();
@@ -199,20 +198,9 @@ async function drawCards(cards) {
   currentModal.value = null;
 }
 
-async function buildDistrict(card, index) {
-  if (card.cost > gameStore.getGame.gold) {
-    toast.add({
-      severity: "warn",
-      summary: "Hiányzó arany",
-      detail: "Nincs elég aranyad, hogy megépítsd a kerületet!",
-      life: 3000,
-    });
-  } else {
-    await gameStore.buildDistrict(lobbyCode, {
-      districtId: card.id,
-      cardIndex: index,
-    });
-  }
+async function buildDistrict(index) {
+  await gameStore.buildDistrict(lobbyCode, index);
+  gameStore.getGame.hand.splice(index, 1);
 }
 </script>
 

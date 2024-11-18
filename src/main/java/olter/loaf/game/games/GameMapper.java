@@ -17,7 +17,8 @@ public interface GameMapper {
     @Mapping(target = "currentPlayer", qualifiedByName = "playerToId")
     @Mapping(target = "crownedPlayer", qualifiedByName = "playerToId")
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
-    GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, String code);
+    @Mapping(target = "currentCharacter", source = "playerCharacter")
+    GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, Integer playerCharacter, String code);
 
     @Mapping(target = "crownedPlayer", qualifiedByName = "playerToUserId")
     @Mapping(target = "characters", qualifiedByName = "characterToId")

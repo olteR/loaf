@@ -34,6 +34,7 @@ export const useWebsocketStore = defineStore("websocket", () => {
   }
 
   function subscribeToLobby() {
+    subscription.value?.unsubscribe();
     subscription.value = stompClient.value.subscribe(
       "/user/topic/lobby/update",
       lobbyStore.lobbyUpdateHandler
@@ -42,6 +43,7 @@ export const useWebsocketStore = defineStore("websocket", () => {
   }
 
   function subscribeToGame() {
+    subscription.value?.unsubscribe();
     subscription.value = stompClient.value.subscribe(
       "/user/topic/game/update",
       gameStore.gameUpdateHandler

@@ -7,12 +7,10 @@
       'outline-color': primaryColor,
       left: order * 4 + 'vw',
     }"
+    @mousedown="dragMouseDown"
+    @touchstart="dragTouchStart"
   >
-    <div
-      id="draggable-header"
-      @mousedown="dragMouseDown"
-      @touchstart="dragTouchStart"
-    >
+    <div id="draggable-header">
       <div
         class="district-cost"
         :style="{

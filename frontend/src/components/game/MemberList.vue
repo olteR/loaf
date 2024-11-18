@@ -91,11 +91,13 @@
               class="my-auto"
               style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
               v-tooltip:[tooltipPosition(i)]="{
-                value: `${player.name} kerületei 0 pontot érnek`,
+                value: `${player.name} kerületei ${calculatePoints(
+                  player
+                )} pontot érnek`,
                 escape: false,
               }"
             >
-              0
+              {{ calculatePoints(player) }}
               <i class="fa fa-star" style="margin-left: 0.2vh"></i>
             </Tag>
           </div>
@@ -162,6 +164,13 @@ function tooltipPosition(playerIndex) {
     return { position: "left" };
   }
   return { position: "bottom" };
+}
+
+function calculatePoints(player) {
+  return player.districts.reduce(
+    (partialSum, district) => partialSum + district.cost,
+    0
+  );
 }
 </script>
 

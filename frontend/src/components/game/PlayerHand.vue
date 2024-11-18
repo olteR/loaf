@@ -40,7 +40,7 @@
           :key="i"
           :hidden="!displayedCards.includes(card)"
           @drag-begin="isDragging = true"
-          @drag-end="(c) => onDragEnd(c, card, i)"
+          @drag-end="(c) => onDragEnd(c, i)"
         ></DistrictCard>
       </div>
       <button
@@ -87,9 +87,9 @@ onMounted(() => {
   });
 });
 
-function onDragEnd(elem, card, ind) {
+function onDragEnd(elem, ind) {
   if (doElementsCollide(elem.value, cardDropper.value)) {
-    emit("build", card, ind);
+    emit("build", ind);
   }
   isDragging.value = false;
 }

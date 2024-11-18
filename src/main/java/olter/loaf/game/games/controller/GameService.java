@@ -14,10 +14,7 @@ import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
 import olter.loaf.game.games.dto.*;
-import olter.loaf.game.games.exception.CorruptedGameException;
-import olter.loaf.game.games.exception.InvalidPhaseActionException;
-import olter.loaf.game.games.exception.NotInGameException;
-import olter.loaf.game.games.exception.NotOnTurnException;
+import olter.loaf.game.games.exception.*;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
@@ -58,6 +55,8 @@ public class GameService {
     private Integer STARTING_CARDS;
     @Value("${loaf.config.resource-gold}")
     private Integer RESOURCE_GOLD;
+    @Value("${loaf.config.build-limit}")
+    private Integer BUILD_LIMIT;
 
     public GameEntity createGameForLobby(LobbyEntity lobby) {
         log.info("Creating game for lobby {}", lobby.getCode());
@@ -72,7 +71,7 @@ public class GameService {
         p.setUserId(lobby.getOwner());
         p.setOrder(1);
         p.setGame(game);
-        p.setIsRevealed(false);
+        p.setRevealed(false);
         playerRepository.save(p);
         return game;
     }
@@ -103,14 +102,15 @@ public class GameService {
 
         PlayerEntity player = playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
             .orElseThrow(() -> new NotInGameException(code, loggedInUser.getId()));
+        Integer playerCharacter = player.getCurrentCharacter();
 
         game.getPlayers().forEach(p -> {
-            if (!p.getIsRevealed() && !p.getUserId().equals(loggedInUser.getId())) {
+            if (!p.getRevealed()) {
                 p.setCurrentCharacter(null);
             }
         });
 
-        return gameMapper.entityToDetailsResponse(game, player, code);
+        return gameMapper.entityToDetailsResponse(game, player, playerCharacter, code);
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
@@ -185,10 +185,19 @@ public class GameService {
         return drawnCards.stream().map(cardMapper::entityToResponse).toList();
     }
 
-    public void buildDistrict(String code, DistrictBuildRequest districtIndex, UserEntity loggedInUser) {
-        log.info("User {} building district {} in game {}", loggedInUser.getName(), districtIndex, code);
+    public void buildDistrict(String code, Integer handIndex, UserEntity loggedInUser) {
+        log.info("User {} building district {} in game {}", loggedInUser.getName(), handIndex, code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
+        validateBuild(game, handIndex);
+
+        PlayerEntity player = game.getCurrentPlayer();
+        DistrictEntity district = player.getHand().remove(handIndex.intValue());
+        player.getDistricts().add(district);
+        player.takeGold(district.getCost());
+        player.setBuildLimit(player.getBuildLimit() - 1);
+        playerRepository.save(player);
+        broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.BUILD, cardMapper.entityToResponse(district));
     }
 
     public void endTurn(String code, UserEntity loggedInUser) {
@@ -201,7 +210,7 @@ public class GameService {
                 log.info("Broadcasting next player to {}", p.getUserId());
                 simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
                     new GameUpdateDto(code, GameUpdateTypeEnum.NEW_TURN,
-                        gameMapper.entityToDetailsResponse(game, p, code)));
+                        gameMapper.entityToDetailsResponse(game, p, null, code)));
             });
         } else {
             broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.CHARACTER_REVEAL,
@@ -235,6 +244,7 @@ public class GameService {
             game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
             (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
         game.setPlayers(game.getPlayers().stream().peek(p -> {
+            p.setBuildLimit(BUILD_LIMIT);
             p.setOrder(orderMap.get(p.getOrder()));
             if (p.getId().equals(game.getCurrentPlayer().getId())) {
                 p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(game.getDownwardDiscard())));
@@ -334,7 +344,7 @@ public class GameService {
                         game.getPlayers().stream().filter(p -> p.getCurrentCharacter().equals(firstChar)).findFirst()
                             .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()));
 
-                    nextPlayer.setIsRevealed(true);
+                    nextPlayer.setRevealed(true);
                     game.setCurrentPlayer(nextPlayer);
                     game.setPhase(GamePhaseEnum.RESOURCE);
                 }
@@ -345,13 +355,13 @@ public class GameService {
                     .sorted(Comparator.comparingInt(PlayerEntity::getCurrentCharacter)).toList();
                 if (playersLeft.isEmpty()) {
                     game.getPlayers().forEach(player -> {
-                        player.setIsRevealed(false);
+                        player.setRevealed(false);
                         player.setCurrentCharacter(null);
                     });
                     startSelectionPhase(game);
                 } else {
                     game.setCurrentPlayer(playersLeft.get(0));
-                    game.getCurrentPlayer().setIsRevealed(true);
+                    game.getCurrentPlayer().setRevealed(true);
                     game.setPhase(GamePhaseEnum.RESOURCE);
                 }
             }
@@ -366,6 +376,24 @@ public class GameService {
         }
         if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
             throw new NotOnTurnException(game.getLobby().getCode(), userId);
+        }
+    }
+
+    // Validates if the district at the index is buildable
+    private void validateBuild(GameEntity game, Integer handIndex) {
+        PlayerEntity player = game.getCurrentPlayer();
+        if (player.getHand().size() <= handIndex) {
+            throw new InvalidDistricIndexException(player.getId(), handIndex);
+        }
+        if (player.getBuildLimit() == 0) {
+            throw new BuildLimitException(player.getId());
+        }
+        DistrictEntity district = game.getCurrentPlayer().getHand().get(handIndex);
+        if (district.getCost() > player.getGold()) {
+            throw new NotEnoughGoldException(player.getId(), district.getId());
+        }
+        if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId())) {
+            throw new AlreadyBuiltException(player.getId(), district.getId());
         }
     }
 

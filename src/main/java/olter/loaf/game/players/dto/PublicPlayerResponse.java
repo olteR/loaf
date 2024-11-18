@@ -3,6 +3,7 @@ package olter.loaf.game.players.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import olter.loaf.game.cards.dto.DistrictResponse;
 
 import java.util.List;
 
@@ -17,5 +18,5 @@ public class PublicPlayerResponse {
     private Integer handSize;
     private Integer currentCharacter;
     private List<ConditionResponse> conditions;
-    private List<PlayerDistrictResponse> districts;
+    private List<DistrictResponse> districts;
 }

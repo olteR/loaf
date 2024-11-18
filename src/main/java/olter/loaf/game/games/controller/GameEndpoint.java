@@ -46,11 +46,11 @@ public class GameEndpoint {
         return ResponseEntity.ok().body(gameService.drawCards(code, indexes, user));
     }
 
-    @PostMapping("game/{code}/build")
-    public ResponseEntity<Void> buildDistrict(@PathVariable String code, @RequestBody DistrictBuildRequest request,
+    @GetMapping("game/{code}/build")
+    public ResponseEntity<Void> buildDistrict(@PathVariable String code, @RequestParam Integer index,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
-        gameService.buildDistrict(code, request, user);
+        gameService.buildDistrict(code, index, user);
         return ResponseEntity.ok().build();
     }
 

@@ -61,8 +61,11 @@ export const useGameStore = defineStore("game", () => {
     game.value.hand.push(...response.data);
   }
 
-  async function buildDistrict(code, request) {
-    await requestStore.request(urls.build(code), REQ_TYPE.POST, request);
+  async function buildDistrict(code, index) {
+    await requestStore.request(
+      `${urls.build(code)}?index=${index}`,
+      REQ_TYPE.GET
+    );
   }
 
   async function endTurn(code) {
@@ -85,7 +88,7 @@ export const useGameStore = defineStore("game", () => {
           break;
         }
         case GAME_UPDATE.CHARACTER_REVEAL: {
-          game.value.player = game.value.players.map((player) =>
+          game.value.players = game.value.players.map((player) =>
             player.id === update.change.id ? update.change : player
           );
           game.value.currentPlayer = update.change.id;
@@ -99,7 +102,18 @@ export const useGameStore = defineStore("game", () => {
                 update.change.resource === RESOURCE.CARDS ? "handSize" : "gold"
               ] += parseInt(update.change.amount);
             }
-            game.value.phase = GAME_PHASE.TURN;
+            return player;
+          });
+          game.value.phase = GAME_PHASE.TURN;
+          break;
+        }
+        case GAME_UPDATE.BUILD: {
+          game.value.players = game.value.players.map((player) => {
+            if (player.id === game.value.currentPlayer) {
+              player.districts.push(update.change);
+              player.handSize -= 1;
+              player.gold -= update.change.cost;
+            }
             return player;
           });
           break;

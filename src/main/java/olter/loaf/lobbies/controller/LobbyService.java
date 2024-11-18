@@ -9,7 +9,6 @@ import olter.loaf.game.games.controller.GameService;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
-import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobbies.LobbyMapper;
@@ -138,7 +137,7 @@ public class LobbyService {
         p.setUserId(user.getId());
         p.setOrder(lobby.getMembers().size());
         p.setGame(lobby.getGame());
-        p.setIsRevealed(false);
+        p.setRevealed(false);
         playerRepository.save(p);
 
         return lobbyMapper.entityToDetailsResponse(lobby);

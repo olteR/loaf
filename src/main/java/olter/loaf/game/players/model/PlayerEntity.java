@@ -23,7 +23,8 @@ public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
     private Integer currentCharacter;
-    private Boolean isRevealed;
+    private Integer buildLimit;
+    private Boolean revealed;
 
     @Column(name = "player_order")
     private Integer order;
@@ -44,9 +45,10 @@ public class PlayerEntity extends BaseEntity {
     @CollectionTable(name = "player_skipped_characters", joinColumns = @JoinColumn(name = "player_id"))
     private List<Integer> skippedCharacters;
 
-    @ElementCollection
-    @CollectionTable(name = "player_districts", joinColumns = @JoinColumn(name = "player_id"))
-    private List<DistrictEmbeddable> districts;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "player_districts", joinColumns = @JoinColumn(name = "player_id"),
+        inverseJoinColumns = @JoinColumn(name = "district_id"))
+    private List<DistrictEntity> districts;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private GameEntity game;
