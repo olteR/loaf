@@ -9,17 +9,34 @@
         >
           <div
             v-for="ability in abilities"
-            :key="ability.id"
-            class="ability-div hoverable"
+            :key="ability.enum"
+            class="ability-div"
+            :class="{ hoverable: canUseAbility(ability) }"
             :style="{
-              'outline-color': COLORS[ability.sourceType ?? 'DEFAULT'].PRIMARY,
-              'background-color':
-                COLORS[ability.sourceType ?? 'DEFAULT'].SECONDARY,
+              'outline-color': primaryColorOrDisabled(
+                ability.sourceType,
+                canUseAbility(ability)
+              ),
+              'background-color': secondaryColorOrDisabled(
+                ability.sourceType,
+                canUseAbility(ability)
+              ),
+              color: primaryColorOrDisabled(
+                ability.sourceType,
+                canUseAbility(ability)
+              ),
             }"
             v-tooltip="{
-              value: `${ability.description}<p>Forrás: ${ability.sourceName}</p>`,
+              value: `${ability.description}<p>Forrás: ${
+                ability.sourceName
+              }</p>${
+                isAbilityUsed(ability)
+                  ? '<p><b>Ezt a képességet már használtad</b></p>'
+                  : ''
+              }`,
               escape: false,
             }"
+            @click="useAbility(ability)"
           >
             <div class="flex flex-row justify-evenly">
               <div v-for="(icon, i) in ability.icons" :key="i">
@@ -35,12 +52,31 @@
 
 <script setup>
 import Card from "primevue/card";
-import { COLORS } from "@/utils/const";
+import {
+  primaryColorOrDisabled,
+  secondaryColorOrDisabled,
+} from "@/utils/utils";
 
+const emit = defineEmits(["use-ability"]);
 const props = defineProps({
   abilities: Array,
+  usedAbilities: Array,
   onTurn: Boolean,
 });
+
+function isAbilityUsed(ability) {
+  return props.usedAbilities.includes(ability.enum);
+}
+
+function canUseAbility(ability) {
+  return props.onTurn && !isAbilityUsed(ability);
+}
+
+function useAbility(ability) {
+  if (canUseAbility(ability)) {
+    emit("use-ability", ability);
+  }
+}
 </script>
 
 <style scoped>

@@ -10,7 +10,7 @@ public class InvalidPhaseActionException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public InvalidPhaseActionException(String code, GamePhaseEnum phase) {
+    public InvalidPhaseActionException(String code) {
         super("Invalid action for current game phase in " + code, HttpStatus.FORBIDDEN);
         setUserMessage("Ebben a fázisban ez a cselekvés nem megengedett");
     }

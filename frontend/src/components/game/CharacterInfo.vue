@@ -3,7 +3,7 @@
     v-if="character"
     class="list-card small-character"
     :style="{
-      'outline-color': getPrimaryColor(character.type),
+      'outline-color': primaryColor(character.type),
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
     }"
@@ -11,8 +11,8 @@
     <div
       class="character-number"
       :style="{
-        background: getSecondaryColor(character.type),
-        'outline-color': getPrimaryColor(character.type),
+        background: secondaryColor(character.type),
+        'outline-color': primaryColor(character.type),
       }"
     >
       {{ character.number }}
@@ -20,8 +20,8 @@
     <div
       class="character-status"
       :style="{
-        background: getSecondaryColor(character.type),
-        'outline-color': getPrimaryColor(character.type),
+        background: secondaryColor(character.type),
+        'outline-color': primaryColor(character.type),
       }"
     >
       <i
@@ -32,7 +32,7 @@
     <div
       class="card-content"
       :style="{
-        'background-color': getSecondaryColor(character.type),
+        'background-color': secondaryColor(character.type),
       }"
     >
       <div
@@ -53,8 +53,8 @@ import { computed } from "vue";
 import { CARD_POS, CHAR_STATUS } from "@/utils/const";
 import {
   composeCharacterDescription,
-  getPrimaryColor,
-  getSecondaryColor,
+  primaryColor,
+  secondaryColor,
 } from "@/utils/utils";
 
 const props = defineProps({

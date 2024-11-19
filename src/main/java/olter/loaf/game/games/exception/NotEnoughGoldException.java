@@ -10,7 +10,7 @@ public class NotEnoughGoldException extends LoafException {
     private static final long serialVersionUID = 1L;
 
     public NotEnoughGoldException(Long playerId, Long districtId) {
-        super(playerId + " does not have enough gold to build " + districtId, HttpStatus.BAD_REQUEST);
+        super(playerId + " does not have enough gold to build " + districtId, HttpStatus.FORBIDDEN);
         setUserMessage("Nincs elég aranyad a megépítéshez");
     }
 }

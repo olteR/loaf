@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
+import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
@@ -36,6 +37,11 @@ public class PlayerEntity extends BaseEntity {
     @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))
     @Enumerated(EnumType.STRING)
     private List<ConditionEnum> conditions = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "player_used_abilities", joinColumns = @JoinColumn(name = "player_id"))
+    @Enumerated(EnumType.STRING)
+    private List<AbilityEnum> usedAbilities = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))

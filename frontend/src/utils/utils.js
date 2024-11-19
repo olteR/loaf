@@ -17,10 +17,18 @@ export function composeDistrictDescription(district, withName = false) {
   );
 }
 
-export function getPrimaryColor(type) {
+export function primaryColor(type) {
   return COLORS[type]?.PRIMARY ?? COLORS.DEFAULT.PRIMARY;
 }
 
-export function getSecondaryColor(type) {
+export function secondaryColor(type) {
   return COLORS[type]?.SECONDARY ?? COLORS.DEFAULT.SECONDARY;
+}
+
+export function primaryColorOrDisabled(type, condition) {
+  return condition ? primaryColor(type) : COLORS.DISABLED.PRIMARY;
+}
+
+export function secondaryColorOrDisabled(type, condition) {
+  return condition ? secondaryColor(type) : COLORS.DISABLED.SECONDARY;
 }

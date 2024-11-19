@@ -14,6 +14,7 @@ export const useGameStore = defineStore("game", () => {
     cards: (code) => `game/${code}/cards`,
     build: (code) => `game/${code}/build`,
     endTurn: (code) => `game/${code}/end-turn`,
+    ability: `game/ability`,
   };
 
   const game = ref();
@@ -78,6 +79,10 @@ export const useGameStore = defineStore("game", () => {
     await requestStore.request(urls.endTurn(code), REQ_TYPE.GET);
   }
 
+  async function useAbility(request) {
+    await requestStore.request(urls.ability, REQ_TYPE.POST, request);
+  }
+
   const gameUpdateHandler = function handleGameUpdate(msg) {
     const update = JSON.parse(msg.body);
     if (update.code === game.value.code) {
@@ -124,7 +129,8 @@ export const useGameStore = defineStore("game", () => {
           });
           break;
         }
-        case GAME_UPDATE.NEW_TURN: {
+        case GAME_UPDATE.NEW_TURN:
+        case GAME_UPDATE.USE_ABILITY: {
           game.value = update.change;
           break;
         }
@@ -145,6 +151,7 @@ export const useGameStore = defineStore("game", () => {
     drawCards,
     buildDistrict,
     endTurn,
+    useAbility,
     gameUpdateHandler,
   };
 });

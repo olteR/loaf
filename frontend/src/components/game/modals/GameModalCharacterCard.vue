@@ -4,7 +4,7 @@
     class="list-card"
     :class="{ hoverable: clickable }"
     :style="{
-      'outline-color': primaryColor,
+      'outline-color': getPrimaryColor,
       'background-image': 'url(' + imageSource + ')',
     }"
     @click="select"
@@ -12,8 +12,8 @@
     <div
       class="character-number"
       :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
+        background: getSecondaryColor,
+        'outline-color': getPrimaryColor,
       }"
     >
       {{ character.number }}
@@ -21,7 +21,7 @@
     <div
       class="card-content"
       :style="{
-        'background-color': selected ? 'transparent' : secondaryColor,
+        'background-color': selected ? 'transparent' : getSecondaryColor,
       }"
     >
       <div class="status-icon" v-if="unavailable">
@@ -62,8 +62,8 @@
 import { computed } from "vue";
 import {
   composeCharacterDescription,
-  getPrimaryColor,
-  getSecondaryColor,
+  primaryColor,
+  secondaryColor,
 } from "@/utils/utils";
 
 const emit = defineEmits(["select"]);
@@ -78,12 +78,12 @@ const imageSource = computed(
   () =>
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
-const primaryColor = computed(() => {
-  return clickable.value ? getPrimaryColor(props.character.type) : "#121212";
+const getPrimaryColor = computed(() => {
+  return clickable.value ? primaryColor(props.character.type) : "#121212";
 });
 
-const secondaryColor = computed(() => {
-  return clickable.value ? getSecondaryColor(props.character.type) : "#121212";
+const getSecondaryColor = computed(() => {
+  return clickable.value ? secondaryColor(props.character.type) : "#121212";
 });
 
 const clickable = computed(() => {

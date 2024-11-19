@@ -1,10 +1,10 @@
 package olter.loaf.game.cards.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.cards.model.AbilityTargetEnum;
-import olter.loaf.game.cards.model.AbilityUsageEnum;
 import olter.loaf.game.cards.model.ActivationEnum;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class AbilityResponse {
-    private Long id;
+    @JsonProperty("enum")
+    private String value;
     private ActivationEnum type;
-    private AbilityUsageEnum useRule;
     private AbilityTargetEnum target;
     private String description;
     private List<String> icons;

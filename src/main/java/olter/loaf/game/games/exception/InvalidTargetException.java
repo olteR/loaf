@@ -10,8 +10,8 @@ public class InvalidTargetException extends LoafException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public InvalidTargetException(AbilityEnum abilityEnum) {
-        super("Invalid targeting for ability " + abilityEnum.getValue(), HttpStatus.BAD_REQUEST);
+    public InvalidTargetException(AbilityEnum abilityEnum, Long playerId) {
+        super("Invalid targeting for ability " + abilityEnum.getValue() + " by player " + playerId, HttpStatus.BAD_REQUEST);
         setUserMessage("Nem megfelelő célpont ehhez a képességhez");
     }
 }

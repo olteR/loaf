@@ -4,7 +4,6 @@ import lombok.Getter;
 import olter.loaf.game.games.exception.InvalidTargetException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.model.ConditionEnum;
-import olter.loaf.game.players.model.PlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,7 @@ public enum AbilityEnum {
     ASSASSIN("ASSASSIN", List.of("user", "skull"), AbilityTargetEnum.CHARACTER, "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt karakter kihagyja az egész körét.</p>") {
         public void useAbility(GameEntity game, AbilityTargetDto target) {
             if (target.getIndex() < 2 || target.getIndex() > game.getCharacters().size()) {
-                throw new InvalidTargetException(ASSASSIN);
+                throw new InvalidTargetException(ASSASSIN, game.getCurrentPlayer().getId());
             }
             game.setKilledCharacter(target.getIndex());
         }
@@ -66,17 +65,17 @@ public enum AbilityEnum {
             if (target.getIndex() < 3 || target.getIndex() > game.getCharacters().size() &&
                 Objects.equals(game.getKilledCharacter(), target.getIndex()) ||
                 Objects.equals(game.getBewitchedCharacter(), target.getIndex())) {
-                throw new InvalidTargetException(THIEF);
+                throw new InvalidTargetException(THIEF, game.getCurrentPlayer().getId());
             }
             game.setRobbedCharacter(target.getIndex());
         }
     },
-    MAGICIAN_PLAYER("MAGICIAN_PLAYER", List.of("user", "sheet-plastic"), AbilityUsageEnum.OR, AbilityTargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>") {
+    MAGICIAN_PLAYER("MAGICIAN_PLAYER", List.of("user", "sheet-plastic"), AbilityTargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>") {
         public void useAbility(GameEntity game, AbilityTargetDto target) {
             // TODO
         }
     },
-    MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), AbilityUsageEnum.OR, AbilityTargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
+    MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), AbilityTargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
         public void useAbility(GameEntity game, AbilityTargetDto target) {
             // TODO
         }
@@ -111,10 +110,10 @@ public enum AbilityEnum {
             // TODO
         }
     },
-    WITCH("WITCH", List.of("user", "wand-sparkles"), AbilityUsageEnum.MUST, AbilityTargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz építkezni, és a <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül, amik nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a körének. Nem képes <i class=\"fa fa-city\"></i>-t építeni sem, karakterek képességeit használni — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül a megbabonázott karakter esetében, amik nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b> kezedben lévő <i class=\"fa fa-sheet-plastic\"></i>-okkal játszol, a <b>te</b> kincstartalékodban lévő <i class=\"fa fa-coins\"></i>-al fizetsz, a <b>te</b> városod <i class=\"fa fa-city\"></i>-eiből gyűjtesz nyersanyagokat, a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a megbabonázott játékos bírtokában lévő <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i>-ek hatásait.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
+    WITCH("WITCH", List.of("user", "wand-sparkles"), ActivationEnum.AFTER_GATHERING, AbilityTargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz építkezni, és a <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül, amik nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a körének. Nem képes <i class=\"fa fa-city\"></i>-t építeni sem, karakterek képességeit használni — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül a megbabonázott karakter esetében, amik nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b> kezedben lévő <i class=\"fa fa-sheet-plastic\"></i>-okkal játszol, a <b>te</b> kincstartalékodban lévő <i class=\"fa fa-coins\"></i>-al fizetsz, a <b>te</b> városod <i class=\"fa fa-city\"></i>-eiből gyűjtesz nyersanyagokat, a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a megbabonázott játékos bírtokában lévő <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i>-ek hatásait.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
         public void useAbility(GameEntity game, AbilityTargetDto target) {
             if (target.getIndex() < 2 || target.getIndex() > game.getCharacters().size()) {
-                throw new InvalidTargetException(WITCH);
+                throw new InvalidTargetException(WITCH,game.getCurrentPlayer().getId());
             }
             game.setBewitchedCharacter(target.getIndex());
         }
@@ -134,7 +133,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().getConditions().add(ConditionEnum.DUPLICATES);
         }
     },
-    EMPEROR("EMPEROR", List.of("crown", "user"), AbilityUsageEnum.MUST, AbilityTargetEnum.PLAYER, "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz érte nyersanyagot.</p>") {
+    EMPEROR("EMPEROR", List.of("crown", "user"), AbilityTargetEnum.PLAYER, "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz érte nyersanyagot.</p>") {
         public void useAbility(GameEntity game, AbilityTargetDto target) {
             // TODO
         }
@@ -189,24 +188,13 @@ public enum AbilityEnum {
     private final String value;
     private final List<String> icons;
     private final ActivationEnum type;
-    private final AbilityUsageEnum useRule;
     private final AbilityTargetEnum target;
     private final String description;
-
-    AbilityEnum(String value) {
-        this.value = value;
-        this.icons = List.of();
-        this.type = ActivationEnum.MANUAL;
-        this.useRule = AbilityUsageEnum.AND;
-        this.target = AbilityTargetEnum.NONE;
-        this.description = "";
-    }
 
     AbilityEnum(String value, List<String> icons, String description) {
         this.value = value;
         this.icons = icons;
         this.type = ActivationEnum.MANUAL;
-        this.useRule = AbilityUsageEnum.AND;
         this.target = AbilityTargetEnum.NONE;
         this.description = description;
     }
@@ -215,7 +203,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = icons;
         this.type = type;
-        this.useRule = AbilityUsageEnum.AND;
         this.target = AbilityTargetEnum.NONE;
         this.description = description;
     }
@@ -224,18 +211,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = icons;
         this.type = ActivationEnum.MANUAL;
-        this.useRule = AbilityUsageEnum.AND;
-        this.target = target;
-        this.description = description;
-    }
-
-    AbilityEnum(String value, List<String> icons, AbilityUsageEnum usage, AbilityTargetEnum target,
-        String description
-    ) {
-        this.value = value;
-        this.icons = icons;
-        this.type = ActivationEnum.MANUAL;
-        this.useRule = usage;
         this.target = target;
         this.description = description;
     }
@@ -246,7 +221,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = icons;
         this.type = activation;
-        this.useRule = AbilityUsageEnum.AND;
         this.target = target;
         this.description = description;
     }
@@ -255,24 +229,12 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = new ArrayList<>();
         this.type = activation;
-        this.useRule = AbilityUsageEnum.AND;
         this.target = AbilityTargetEnum.NONE;
         this.description = description;
     }
 
     public void useAbility(GameEntity game, AbilityTargetDto target) {
-        throw new InvalidTargetException(this);
-    }
-
-    protected PlayerEntity findPlayer(GameEntity game, Long targetId, AbilityEnum ability) {
-        return game.getPlayers().stream().filter(player -> player.getId().equals(targetId)).findFirst()
-            .orElseThrow(() -> new InvalidTargetException(ability));
-    }
-
-    protected void discardCard(GameEntity game, Long targetId) {
-        game.getCurrentPlayer().getHand().remove(
-            game.getCurrentPlayer().getHand().stream().filter(district -> district.getId().equals(targetId)).findFirst()
-                .orElseThrow(() -> new InvalidTargetException(MAGICIAN_DECK)));
+        throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
     }
 
     protected void getTypeGold(GameEntity game, DistrictTypeEnum type) {

@@ -10,7 +10,7 @@ public class AlreadyBuiltException extends LoafException {
     private static final long serialVersionUID = 1L;
 
     public AlreadyBuiltException(Long playerId, Long districtId) {
-        super(playerId + " already has district " + districtId, HttpStatus.BAD_REQUEST);
+        super(playerId + " already has district " + districtId, HttpStatus.FORBIDDEN);
         setUserMessage("Már van ilyen kerület a városodban");
     }
 }

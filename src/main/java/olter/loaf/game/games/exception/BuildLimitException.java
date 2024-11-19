@@ -10,7 +10,7 @@ public class BuildLimitException extends LoafException {
     private static final long serialVersionUID = 1L;
 
     public BuildLimitException(Long playerId) {
-        super(playerId + " build limit reached", HttpStatus.BAD_REQUEST);
+        super(playerId + " build limit reached", HttpStatus.FORBIDDEN);
         setUserMessage("Ebben a körben nem építhetsz több kerületet");
     }
 }

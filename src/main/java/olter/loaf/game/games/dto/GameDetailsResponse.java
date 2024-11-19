@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.cards.dto.CharacterResponse;
 import olter.loaf.game.cards.dto.DistrictResponse;
+import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.players.dto.PublicPlayerResponse;
 
@@ -34,4 +35,5 @@ public class GameDetailsResponse {
     private List<DistrictResponse> drawnCards;
     private List<Integer> unavailableCharacters;
     private List<Integer> skippedCharacters;
+    private List<AbilityEnum> usedAbilities;
 }

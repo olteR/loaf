@@ -181,8 +181,7 @@ public class GameService {
     public void buildDistrict(String code, Integer handIndex, UserEntity loggedInUser) {
         log.info("User {} building district {} in game {}", loggedInUser.getName(), handIndex, code);
         GameEntity game = findGame(code);
-        validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
-        validateBuild(game, handIndex);
+        validateBuild(game, loggedInUser.getId(), handIndex);
 
         PlayerEntity player = game.getCurrentPlayer();
         DistrictEntity district = player.getHand().remove(handIndex.intValue());
@@ -194,8 +193,12 @@ public class GameService {
     }
 
     public void useAbility(AbilityRequest request, UserEntity user) {
+        log.info("User {} using ability {} in game {}", user.getName(), request.getAbility().getValue(), request.getCode());
         GameEntity game = findGame(request.getCode());
+        validateAbilityUse(game, user.getId(), request.getAbility());
+
         request.getAbility().useAbility(game, request.getTarget());
+        game.getCurrentPlayer().getUsedAbilities().add(request.getAbility());
         gameRepository.save(game);
         game.getPlayers().forEach(p -> {
             log.info("Broadcasting ability use to {}", p.getUserId());
@@ -214,7 +217,7 @@ public class GameService {
             game.getPlayers().forEach(p -> {
                 log.info("Broadcasting next turn to {}", p.getUserId());
                 simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
-                    new GameUpdateDto(code, GameUpdateTypeEnum.NEW_TURN,
+                    new GameUpdateDto(code, GameUpdateTypeEnum.USE_ABILITY,
                         gameMapper.entityToDetailsResponse(game, p, code)));
             });
         } else {
@@ -368,7 +371,7 @@ public class GameService {
     // Validates if the game is in the given phase and the given player is on turn
     private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
         if (!Objects.equals(game.getPhase(), phase)) {
-            throw new InvalidPhaseActionException(game.getLobby().getCode(), phase);
+            throw new InvalidPhaseActionException(game.getLobby().getCode());
         }
         if (!Objects.equals(game.getCurrentPlayer().getUserId(), userId)) {
             throw new NotOnTurnException(game.getLobby().getCode(), userId);
@@ -376,7 +379,8 @@ public class GameService {
     }
 
     // Validates if the district at the index is buildable
-    private void validateBuild(GameEntity game, Integer handIndex) {
+    private void validateBuild(GameEntity game, Long userId, Integer handIndex) {
+        validateGameTurn(game, userId, GamePhaseEnum.TURN);
         PlayerEntity player = game.getCurrentPlayer();
         if (player.getHand().size() <= handIndex) {
             throw new InvalidDistricIndexException(player.getId(), handIndex);
@@ -390,6 +394,13 @@ public class GameService {
         }
         if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId())) {
             throw new AlreadyBuiltException(player.getId(), district.getId());
+        }
+    }
+
+    private void validateAbilityUse(GameEntity game, Long userId, AbilityEnum ability) {
+        validateGameTurn(game, userId, GamePhaseEnum.TURN);
+        if (!List.of(ActivationEnum.MANUAL, ActivationEnum.BEFORE_BUILD, ActivationEnum.AFTER_BUILD).contains(ability.getType())) {
+            throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
         }
     }
 

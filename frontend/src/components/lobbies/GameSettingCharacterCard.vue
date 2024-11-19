@@ -8,7 +8,7 @@
       hoverable: !selected,
     }"
     :style="{
-      'outline-color': primaryColor,
+      'outline-color': primaryColorOrDisabled(character.type, selected),
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
     }"
@@ -16,8 +16,8 @@
     <div
       class="character-number"
       :style="{
-        background: secondaryColor,
-        'outline-color': primaryColor,
+        background: secondaryColorOrDisabled(character.type, selected),
+        'outline-color': primaryColorOrDisabled(character.type, selected),
       }"
     >
       {{ character.number }}
@@ -25,7 +25,7 @@
     <div
       class="card-content"
       :style="{
-        'background-color': secondaryColor,
+        'background-color': secondaryColorOrDisabled(character.type, selected),
       }"
     >
       <div
@@ -44,11 +44,11 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS, CARD_POS } from "@/utils/const";
+import { CARD_POS } from "@/utils/const";
 import {
   composeCharacterDescription,
-  getPrimaryColor,
-  getSecondaryColor,
+  primaryColorOrDisabled,
+  secondaryColorOrDisabled,
 } from "@/utils/utils";
 
 const props = defineProps({
@@ -61,17 +61,6 @@ const imageSource = computed(
   () =>
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
-const primaryColor = computed(() => {
-  return props.selected
-    ? getPrimaryColor(props.character.type)
-    : COLORS.DISABLED.PRIMARY;
-});
-
-const secondaryColor = computed(() => {
-  return props.selected
-    ? getSecondaryColor(props.character.type)
-    : COLORS.DISABLED.SECONDARY;
-});
 </script>
 
 <style scoped>

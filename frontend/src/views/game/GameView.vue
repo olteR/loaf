@@ -9,7 +9,9 @@
     ></MemberList>
     <ActionButtons
       :abilities="visibleAbilities"
+      :used-abilities="gameStore.getGame.usedAbilities"
       :on-turn="onTurn"
+      @use-ability="(ability) => useAbility(ability)"
     ></ActionButtons>
     <CharacterList :game="gameStore.getGame"></CharacterList>
     <div class="annoucement-message">{{ currentMessage }}</div>
@@ -69,7 +71,13 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { ABILITY_TYPE, GAME_MODAL, GAME_PHASE, RESOURCE } from "@/utils/const";
+import {
+  ABILITY_TARGET,
+  ABILITY_TYPE,
+  GAME_MODAL,
+  GAME_PHASE,
+  RESOURCE,
+} from "@/utils/const";
 
 import { useStateStore } from "@/stores/state";
 import { useWebsocketStore } from "@/stores/websocket";
@@ -237,6 +245,17 @@ async function drawCards(cards) {
 async function buildDistrict(index) {
   await gameStore.buildDistrict(lobbyCode, index);
   gameStore.getGame.hand.splice(index, 1);
+}
+
+async function useAbility(ability) {
+  if (ability.target === ABILITY_TARGET.NONE) {
+    await gameStore.useAbility({
+      ability: ability.enum,
+      code: lobbyCode,
+    });
+  } else {
+    console.log(ability);
+  }
 }
 </script>
 
