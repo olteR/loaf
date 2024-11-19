@@ -14,18 +14,24 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 public class GameDetailsResponse {
+    // Lobby information
     private String code;
-    private List<CharacterResponse> characters;
-    private Long crownedPlayer;
-    private Long currentPlayer;
     private Integer turn;
+    private Long currentPlayer;
+    private Long crownedPlayer;
+    private Long killedCharacter;
+    private Long robbedCharacter;
+    private Long bewitchedCharacter;
     private GamePhaseEnum phase;
+    private List<Integer> discardedCharacters;
+    private List<CharacterResponse> characters;
+    private List<PublicPlayerResponse> players;
+
+    // Player information
     private Integer gold;
     private Integer currentCharacter;
     private List<DistrictResponse> hand;
     private List<DistrictResponse> drawnCards;
-    private List<Integer> discardedCharacters;
     private List<Integer> unavailableCharacters;
     private List<Integer> skippedCharacters;
-    private List<PublicPlayerResponse> players;
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class AbilityTarget {
+public class AbilityTargetDto {
     private Integer index;
     private List<Integer> indexes;
     private Long id;

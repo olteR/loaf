@@ -10,8 +10,8 @@ INSERT INTO users VALUES (1, 'alfonz31@email.com', 'alfonz31', '$2a$10$yrIBgrnKf
                          (10, 'jakab68@email.com', 'jakab68', '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS'),
                          (11, 'olter@email.com', 'olter', '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS');
 
-INSERT INTO games VALUES (1, null, 'NOT_STARTED', 0, null, null),
-                         (2, null, 'NOT_STARTED', 0, null, null);
+INSERT INTO games VALUES (1, null,null, null, 'NOT_STARTED', null, 0, null, null),
+                         (2, null, null, null, 'NOT_STARTED', null, 0, null, null);
 
 INSERT INTO lobbies VALUES (1, 'N0X5T4R7', 7, 'alfonz31 lobbija', 1, null, false, 'CREATED', 1),
                            (2, 'PR07XL08', 7, 'cirilla77 csapata', 3, '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS', true, 'CREATED', 2);

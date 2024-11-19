@@ -103,15 +103,7 @@ public class GameService {
 
         PlayerEntity player = playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
             .orElseThrow(() -> new NotInGameException(code, loggedInUser.getId()));
-        Integer playerCharacter = player.getCurrentCharacter();
-
-        game.getPlayers().forEach(p -> {
-            if (!p.getRevealed()) {
-                p.setCurrentCharacter(null);
-            }
-        });
-
-        return gameMapper.entityToDetailsResponse(game, player, playerCharacter, code);
+        return gameMapper.entityToDetailsResponse(game, player, code);
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
@@ -203,8 +195,14 @@ public class GameService {
 
     public void useAbility(AbilityRequest request, UserEntity user) {
         GameEntity game = findGame(request.getCode());
-        request.getAbility().useAbility(game);
+        request.getAbility().useAbility(game, request.getTarget());
         gameRepository.save(game);
+        game.getPlayers().forEach(p -> {
+            log.info("Broadcasting ability use to {}", p.getUserId());
+            simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
+                new GameUpdateDto(request.getCode(), GameUpdateTypeEnum.NEW_TURN,
+                    gameMapper.entityToDetailsResponse(game, p, request.getCode())));
+        });
     }
 
     public void endTurn(String code, UserEntity loggedInUser) {
@@ -214,10 +212,10 @@ public class GameService {
         setNextPlayer(game);
         if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
             game.getPlayers().forEach(p -> {
-                log.info("Broadcasting next player to {}", p.getUserId());
+                log.info("Broadcasting next turn to {}", p.getUserId());
                 simpMessagingTemplate.convertAndSendToUser(String.valueOf(p.getUserId()), "/topic/game/update",
                     new GameUpdateDto(code, GameUpdateTypeEnum.NEW_TURN,
-                        gameMapper.entityToDetailsResponse(game, p, null, code)));
+                        gameMapper.entityToDetailsResponse(game, p, code)));
             });
         } else {
             broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.CHARACTER_REVEAL,
