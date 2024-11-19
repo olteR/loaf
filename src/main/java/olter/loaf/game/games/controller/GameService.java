@@ -72,7 +72,6 @@ public class GameService {
         p.setUserId(lobby.getOwner());
         p.setOrder(1);
         p.setGame(game);
-        p.setRevealed(false);
         playerRepository.save(p);
         return game;
     }
@@ -116,9 +115,8 @@ public class GameService {
                     !selectedCharacter.equals(c) && !game.getCurrentPlayer().getUnavailableCharacters().contains(c))
             .collect(Collectors.toList());
 
-        game.getCurrentPlayer().setCurrentCharacter(selectedCharacter);
+        game.getCurrentPlayer().setCharacter(selectedCharacter);
         game.getCurrentPlayer().setSkippedCharacters(skippedCharacters);
-
         logService.logCharacterSelection(game);
 
         setNextPlayer(game);
@@ -182,9 +180,10 @@ public class GameService {
         log.info("User {} building district {} in game {}", loggedInUser.getName(), handIndex, code);
         GameEntity game = findGame(code);
         validateBuild(game, loggedInUser.getId(), handIndex);
-
         PlayerEntity player = game.getCurrentPlayer();
         DistrictEntity district = player.getHand().remove(handIndex.intValue());
+        logService.logDistrictBuilding(game, district.getId());
+
         player.getDistricts().add(district);
         player.takeGold(district.getCost());
         player.setBuildLimit(player.getBuildLimit() - 1);
@@ -193,7 +192,8 @@ public class GameService {
     }
 
     public void useAbility(AbilityRequest request, UserEntity user) {
-        log.info("User {} using ability {} in game {}", user.getName(), request.getAbility().getValue(), request.getCode());
+        log.info("User {} using ability {} in game {}", user.getName(), request.getAbility().getValue(),
+            request.getCode());
         GameEntity game = findGame(request.getCode());
         validateAbilityUse(game, user.getId(), request.getAbility());
 
@@ -252,6 +252,8 @@ public class GameService {
             game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
             (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
         game.setPlayers(game.getPlayers().stream().peek(p -> {
+            p.setCharacter(null);
+            p.setRevealed(false);
             p.setBuildLimit(BUILD_LIMIT);
             p.setOrder(orderMap.get(p.getOrder()));
             if (p.getId().equals(game.getCurrentPlayer().getId())) {
@@ -330,7 +332,7 @@ public class GameService {
                     game.setCurrentPlayer(
                         game.getPlayers().get(game.getPlayers().indexOf(game.getCurrentPlayer()) + 1));
                     List<Integer> unavailableCharacters = new ArrayList<>(
-                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).filter(Objects::nonNull)
+                        game.getPlayers().stream().map(PlayerEntity::getCharacterNumber).filter(Objects::nonNull)
                             .toList());
                     if (game.getCurrentPlayer().getOrder() != 7) {
                         unavailableCharacters.add(game.getDownwardDiscard());
@@ -338,34 +340,36 @@ public class GameService {
                     game.getCurrentPlayer().setUnavailableCharacters(unavailableCharacters);
                 } else {
                     Integer firstChar =
-                        game.getPlayers().stream().map(PlayerEntity::getCurrentCharacter).min(Integer::compareTo).get();
+                        game.getPlayers().stream().map(PlayerEntity::getCharacterNumber).min(Integer::compareTo).get();
                     PlayerEntity nextPlayer =
-                        game.getPlayers().stream().filter(p -> p.getCurrentCharacter().equals(firstChar)).findFirst()
+                        game.getPlayers().stream().filter(p -> p.getCharacterNumber().equals(firstChar)).findFirst()
                             .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()));
-
-                    nextPlayer.setRevealed(true);
-                    game.setCurrentPlayer(nextPlayer);
-                    game.setPhase(GamePhaseEnum.RESOURCE);
+                    revealPlayer(game, nextPlayer);
                 }
             }
             case TURN -> {
                 List<PlayerEntity> playersLeft = game.getPlayers().stream()
-                    .filter(player -> player.getCurrentCharacter() > game.getCurrentPlayer().getCurrentCharacter())
-                    .sorted(Comparator.comparingInt(PlayerEntity::getCurrentCharacter)).toList();
+                    .filter(player -> player.getCharacterNumber() > game.getCurrentPlayer().getCharacterNumber())
+                    .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
                 if (playersLeft.isEmpty()) {
-                    game.getPlayers().forEach(player -> {
-                        player.setRevealed(false);
-                        player.setCurrentCharacter(null);
-                    });
                     startSelectionPhase(game);
                 } else {
-                    game.setCurrentPlayer(playersLeft.get(0));
-                    game.getCurrentPlayer().setRevealed(true);
-                    game.setPhase(GamePhaseEnum.RESOURCE);
+                    revealPlayer(game, playersLeft.get(0));
                 }
             }
             default -> log.warn("Unhandled phase {}", game.getPhase());
         }
+    }
+
+    private void revealPlayer(GameEntity game, PlayerEntity player) {
+        game.setCurrentPlayer(player);
+        game.setPhase(GamePhaseEnum.RESOURCE);
+        game.getCurrentPlayer().setRevealed(true);
+        game.getCurrentPlayer().getCharacter().getAbilities().forEach(ability -> {
+            if (ability.getType() == ActivationEnum.START_OF_TURN) {
+                ability.useAbility(game, null);
+            }
+        });
     }
 
     // Validates if the game is in the given phase and the given player is on turn
@@ -397,10 +401,29 @@ public class GameService {
         }
     }
 
+    // Validates if the given ability can be used by the player
     private void validateAbilityUse(GameEntity game, Long userId, AbilityEnum ability) {
         validateGameTurn(game, userId, GamePhaseEnum.TURN);
-        if (!List.of(ActivationEnum.MANUAL, ActivationEnum.BEFORE_BUILD, ActivationEnum.AFTER_BUILD).contains(ability.getType())) {
-            throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+        switch (ability.getType()) {
+            case MANUAL:
+                if (!game.getCurrentPlayer().getCharacter().getAbilities().contains(ability)) {
+                    throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                }
+                break;
+            case BEFORE_BUILD:
+                if (!game.getCurrentPlayer().getHand().stream().flatMap(district -> district.getAbilities().stream())
+                    .toList().contains(ability)) {
+                    throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                }
+                break;
+            case AFTER_BUILD:
+                if (!game.getCurrentPlayer().getDistricts().stream()
+                    .flatMap(district -> district.getAbilities().stream()).toList().contains(ability)) {
+                    throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                }
+                break;
+            default:
+                throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
         }
     }
 

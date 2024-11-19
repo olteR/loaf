@@ -11,6 +11,8 @@ public interface UserMapper {
     UserResponse entityToResponse(UserEntity entity);
 
     @Mapping(target = "name", source = "username")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "lobbies", ignore = true)
     UserEntity registerRequestToEntity(RegisterRequest registerRequest);
 }

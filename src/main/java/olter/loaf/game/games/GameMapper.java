@@ -15,7 +15,7 @@ import org.mapstruct.Named;
 public interface GameMapper {
 
     @Mapping(target = "currentPlayer", qualifiedByName = "playerToId")
-    @Mapping(target = "crownedPlayer", qualifiedByName = "playerToId")
+    @Mapping(target = "character", source = "player.characterNumber")
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
     GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, String code);
 

@@ -26,10 +26,10 @@ export const useGameStore = defineStore("game", () => {
         (player) => player.id === game.value.currentPlayer
       ) ?? {}
   );
-  const getCurrentCharacter = computed(
+  const getCharacter = computed(
     () =>
       game.value?.characters.find(
-        (character) => character.number === game.value.currentCharacter
+        (character) => character.number === game.value.character
       ) ?? null
   );
 
@@ -46,7 +46,7 @@ export const useGameStore = defineStore("game", () => {
       urls.select(code) + "?character=" + character,
       REQ_TYPE.GET
     );
-    game.value.currentCharacter = character;
+    game.value.character = character;
     game.value.skippedCharacters = response.data;
   }
 
@@ -144,7 +144,7 @@ export const useGameStore = defineStore("game", () => {
   return {
     getGame: getGame,
     getCurrentPlayer: getCurrentPlayer,
-    getCurrentCharacter: getCurrentCharacter,
+    getCharacter: getCharacter,
     fetchGame,
     selectCharacter,
     gatherResources,

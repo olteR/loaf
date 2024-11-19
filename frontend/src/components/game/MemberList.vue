@@ -15,13 +15,12 @@
             <template v-if="game.phase === 'SELECTION'">
               {{ i + 1 }}
             </template>
-            <template v-else-if="player.currentCharacter">
+            <template v-else-if="player.character">
               <img
                 class="character-image"
                 :src="
-                  characterImages[
-                    game.characters[player.currentCharacter - 1].id - 1
-                  ].src
+                  characterImages[game.characters[player.character - 1].id - 1]
+                    .src
                 "
               />
             </template>
@@ -42,15 +41,6 @@
                 class="fa fa-user ml-1"
                 v-tooltip:[tooltipPosition(i)]="{
                   value: `A te karakterlapod`,
-                  escape: false,
-                }"
-              ></i>
-            </template>
-            <template v-if="player.id === game.crownedPlayer">
-              <i
-                class="fa fa-crown ml-1"
-                v-tooltip:[tooltipPosition(i)]="{
-                  value: `Ennél a játékosnál van a korona`,
                   escape: false,
                 }"
               ></i>

@@ -92,6 +92,7 @@ export const RESOURCE = {
 };
 
 export const GAME_PHASE = {
+  NOT_STARTED: "NOT_STARTED",
   SELECTION: "SELECTION",
   RESOURCE: "RESOURCE",
   TURN: "TURN",

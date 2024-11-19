@@ -7,6 +7,7 @@ import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
@@ -42,10 +43,6 @@ public class GameEntity extends BaseEntity {
     private List<Long> uniqueDistricts;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "crowned_player", referencedColumnName = "id")
-    private PlayerEntity crownedPlayer;
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "current_player", referencedColumnName = "id")
     private PlayerEntity currentPlayer;
 
@@ -76,6 +73,21 @@ public class GameEntity extends BaseEntity {
         return drawnCards;
     }
 
+    public PlayerEntity getCrownedPlayer() {
+        return players.stream().filter(player -> player.getConditions().contains(ConditionEnum.CROWNED)).findFirst()
+            .orElseThrow(() -> new CorruptedGameException(lobby.getCode()));
+    }
+
+    public void setCrownedPlayer(PlayerEntity player) {
+        players = players.stream().peek(p -> {
+            if (p.getId().equals(player.getId())) {
+                p.getConditions().add(ConditionEnum.CROWNED);
+            } else {
+                p.getConditions().remove(ConditionEnum.CROWNED);
+            }
+        }).toList();
+    }
+
     public void setKilledCharacter(Integer character) {
         killedCharacter = character;
         getPlayerWithCharacter(character).ifPresent(player -> player.getConditions().add(ConditionEnum.KILLED));
@@ -92,6 +104,6 @@ public class GameEntity extends BaseEntity {
     }
 
     private Optional<PlayerEntity> getPlayerWithCharacter(Integer character) {
-        return players.stream().filter(player -> Objects.equals(player.getCurrentCharacter(), character)).findFirst();
+        return players.stream().filter(player -> Objects.equals(player.getCharacterNumber(), character)).findFirst();
     }
 }

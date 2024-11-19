@@ -17,9 +17,7 @@ public class LogService {
     public void logCharacterSelection(GameEntity game) {
         LogEntity log = new LogEntity();
         log.setPlayerId(game.getCurrentPlayer().getId());
-        log.setTarget(String.valueOf(game.getCharacters().stream()
-            .filter(c -> c.getNumber().equals(game.getCurrentPlayer().getCurrentCharacter())).findFirst()
-            .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode())).getId()));
+        log.setTarget(String.valueOf(game.getCurrentPlayer().getCharacter().getId()));
         log.setTurn(game.getTurn());
         log.setLogType(LogTypeEnum.SELECT_CHARACTER);
         logRepository.save(log);
@@ -31,6 +29,15 @@ public class LogService {
         log.setTarget(resource.getValue());
         log.setTurn(game.getTurn());
         log.setLogType(LogTypeEnum.GATHER_RESOURCE);
+        logRepository.save(log);
+    }
+
+    public void logDistrictBuilding(GameEntity game, Long districtId) {
+        LogEntity log = new LogEntity();
+        log.setPlayerId(game.getCurrentPlayer().getId());
+        log.setTarget(String.valueOf(districtId));
+        log.setTurn(game.getTurn());
+        log.setLogType(LogTypeEnum.BUILD);
         logRepository.save(log);
     }
 }

@@ -1,13 +1,9 @@
-import { ABILITY_USE_RULE, COLORS } from "@/utils/const";
+import { COLORS } from "@/utils/const";
 
 export function composeCharacterDescription(character) {
   return character.abilities
     .map((ability) => ability.description)
-    .join(
-      character.abilities[0].useRule === ABILITY_USE_RULE.OR
-        ? "<p>VAGY</p>"
-        : ""
-    );
+    .join(character.id === 3 ? "<p><b>VAGY</b></p>" : "");
 }
 
 export function composeDistrictDescription(district, withName = false) {

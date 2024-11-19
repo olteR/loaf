@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.AbilityEnum;
+import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
@@ -23,9 +25,11 @@ import java.util.List;
 public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
-    private Integer currentCharacter;
     private Integer buildLimit;
     private Boolean revealed;
+
+    @Column(name = "character_number")
+    private Integer character;
 
     @Column(name = "player_order")
     private Integer order;
@@ -73,17 +77,23 @@ public class PlayerEntity extends BaseEntity {
         this.gold += gold;
     }
 
-    public Integer takeGold(Integer gold) {
-        Integer taken = gold;
+    public void takeGold(Integer gold) {
         if (gold > this.gold) {
-            taken = this.gold;
             this.gold = 0;
         }
         this.gold -= gold;
-        return taken;
     }
 
     public void giveCards(List<DistrictEntity> cards) {
         this.hand.addAll(cards);
+    }
+
+    public CharacterEntity getCharacter() {
+        return game.getCharacters().stream().filter(character -> character.getNumber().equals(this.character))
+            .findFirst().orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()));
+    }
+
+    public Integer getCharacterNumber() {
+        return this.character;
     }
 }

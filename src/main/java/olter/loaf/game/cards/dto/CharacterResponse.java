@@ -14,7 +14,6 @@ public class CharacterResponse {
     private Long id;
     private Integer number;
     private String name;
-    private String cardText;
     private DistrictTypeEnum type;
     private List<AbilityResponse> abilities;
 }

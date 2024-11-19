@@ -19,7 +19,6 @@ public class GameDetailsResponse {
     private String code;
     private Integer turn;
     private Long currentPlayer;
-    private Long crownedPlayer;
     private Long killedCharacter;
     private Long robbedCharacter;
     private Long bewitchedCharacter;
@@ -30,7 +29,7 @@ public class GameDetailsResponse {
 
     // Player information
     private Integer gold;
-    private Integer currentCharacter;
+    private Integer character;
     private List<DistrictResponse> hand;
     private List<DistrictResponse> drawnCards;
     private List<Integer> unavailableCharacters;

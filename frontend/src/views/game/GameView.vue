@@ -128,7 +128,7 @@ const currentMessage = computed(() => {
         ? "Gyűjts nyersanyagot!"
         : `A(z) ${
             gameStore.getGame.characters[
-              gameStore.getCurrentPlayer.currentCharacter - 1
+              gameStore.getCurrentPlayer.character - 1
             ].name
           } (${gameStore.getCurrentPlayer.name}) gyűjt nyersanyagot`;
     case GAME_PHASE.TURN:
@@ -136,7 +136,7 @@ const currentMessage = computed(() => {
         ? "Te vagy körön!"
         : `A(z) ${
             gameStore.getGame.characters[
-              gameStore.getCurrentPlayer.currentCharacter - 1
+              gameStore.getCurrentPlayer.character - 1
             ].name
           } (${gameStore.getCurrentPlayer.name}) van körön`;
     default:
@@ -159,11 +159,11 @@ const modalHeader = computed(() => {
 
 const visibleAbilities = computed(() => {
   const characterAbilities =
-    gameStore.getCurrentCharacter?.abilities
+    gameStore.getCharacter?.abilities
       .filter((ability) => ability.type === ABILITY_TYPE.MANUAL)
       .map((ability) => {
-        ability.sourceName = gameStore.getCurrentCharacter.name;
-        ability.sourceType = gameStore.getCurrentCharacter.type;
+        ability.sourceName = gameStore.getCharacter.name;
+        ability.sourceType = gameStore.getCharacter.type;
         return ability;
       }) ?? [];
   const districtAbilities =
@@ -196,6 +196,9 @@ onMounted(async () => {
   stateStore.setLoading(true);
   await cardStore.fetchCards();
   await gameStore.fetchGame(lobbyCode);
+  if (gameStore.getGame.phase === GAME_PHASE.NOT_STARTED) {
+    router.push(`/lobby/${lobbyCode}`);
+  }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
 });
