@@ -1,7 +1,6 @@
 package olter.loaf.game.games.exception;
 
 import olter.loaf.common.exception.LoafException;
-import olter.loaf.game.cards.model.AbilityEnum;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serial;

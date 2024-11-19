@@ -14,6 +14,7 @@ import olter.loaf.lobbies.model.LobbyEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -23,6 +24,9 @@ import java.util.Objects;
 public class GameEntity extends BaseEntity {
     private Integer turn;
     private Integer downwardDiscard;
+    private Integer killedCharacter;
+    private Integer robbedCharacter;
+    private Integer bewitchedCharacter;
 
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;
@@ -63,32 +67,31 @@ public class GameEntity extends BaseEntity {
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> deck;
 
-    public Integer getKilledCharacter() {
-        return getConditionedPlayer(ConditionEnum.KILLED).getCurrentCharacter();
+    // Removes n cards from the deck and returns them
+    public List<DistrictEntity> drawFromDeck(int cardCount) {
+        List<DistrictEntity> drawnCards = new ArrayList<>();
+        for (int i = 0; i < cardCount; i++) {
+            drawnCards.add(deck.remove(0));
+        }
+        return drawnCards;
     }
 
     public void setKilledCharacter(Integer character) {
-        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.KILLED);
+        killedCharacter = character;
+        getPlayerWithCharacter(character).ifPresent(player -> player.getConditions().add(ConditionEnum.KILLED));
     }
 
     public void setRobbedCharacter(Integer character) {
-        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.ROBBED);
-    }
-
-    public Integer getBewitchedCharacter() {
-        return getConditionedPlayer(ConditionEnum.BEWITCHED).getCurrentCharacter();
+        robbedCharacter = character;
+        getPlayerWithCharacter(character).ifPresent(player -> player.getConditions().add(ConditionEnum.ROBBED));
     }
 
     public void setBewitchedCharacter(Integer character) {
-        getPlayerWithCharacter(character).getConditions().add(ConditionEnum.BEWITCHED);
+        bewitchedCharacter = character;
+        getPlayerWithCharacter(character).ifPresent(player -> player.getConditions().add(ConditionEnum.BEWITCHED));
     }
 
-    private PlayerEntity getConditionedPlayer(ConditionEnum condition) {
-        return players.stream().filter(player -> player.getConditions().contains(condition)).findFirst().orElse(null);
-    }
-
-    private PlayerEntity getPlayerWithCharacter(Integer character) {
-        return players.stream().filter(player -> Objects.equals(player.getCurrentCharacter(), character)).findFirst()
-            .orElse(null);
+    private Optional<PlayerEntity> getPlayerWithCharacter(Integer character) {
+        return players.stream().filter(player -> Objects.equals(player.getCurrentCharacter(), character)).findFirst();
     }
 }

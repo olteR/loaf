@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.ResourceTypeEnum;
-import olter.loaf.game.players.model.PlayerEntity;
 import org.springframework.stereotype.Service;
 
 @Service

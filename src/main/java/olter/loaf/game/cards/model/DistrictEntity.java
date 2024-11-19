@@ -27,8 +27,9 @@ public class DistrictEntity {
     @Enumerated(EnumType.STRING)
     private DistrictTypeEnum type;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "district_abilities", joinColumns = @JoinColumn(name = "ability_id"),
-        inverseJoinColumns = @JoinColumn(name = "district_id"))
-    private List<AbilityEntity> abilities;
+    @ElementCollection
+    @CollectionTable(name = "district_abilities", joinColumns = @JoinColumn(name = "district_id"))
+    @Column(name = "ability")
+    @Enumerated(EnumType.STRING)
+    private List<AbilityEnum> abilities;
 }

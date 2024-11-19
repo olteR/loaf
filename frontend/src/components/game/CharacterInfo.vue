@@ -3,7 +3,7 @@
     v-if="character"
     class="list-card small-character"
     :style="{
-      'outline-color': getPrimaryColor(character.districtTypeBonus),
+      'outline-color': getPrimaryColor(character.type),
       'background-image': 'url(' + imageSource + ')',
       'background-position-y': CARD_POS[character.id],
     }"
@@ -11,8 +11,8 @@
     <div
       class="character-number"
       :style="{
-        background: getSecondaryColor(character.districtTypeBonus),
-        'outline-color': getPrimaryColor(character.districtTypeBonus),
+        background: getSecondaryColor(character.type),
+        'outline-color': getPrimaryColor(character.type),
       }"
     >
       {{ character.number }}
@@ -20,8 +20,8 @@
     <div
       class="character-status"
       :style="{
-        background: getSecondaryColor(character.districtTypeBonus),
-        'outline-color': getPrimaryColor(character.districtTypeBonus),
+        background: getSecondaryColor(character.type),
+        'outline-color': getPrimaryColor(character.type),
       }"
     >
       <i
@@ -32,7 +32,7 @@
     <div
       class="card-content"
       :style="{
-        'background-color': getSecondaryColor(character.districtTypeBonus),
+        'background-color': getSecondaryColor(character.type),
       }"
     >
       <div

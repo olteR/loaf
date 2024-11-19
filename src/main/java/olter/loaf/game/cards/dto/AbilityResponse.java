@@ -3,9 +3,9 @@ package olter.loaf.game.cards.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import olter.loaf.game.cards.model.ActivationEnum;
 import olter.loaf.game.cards.model.AbilityTargetEnum;
 import olter.loaf.game.cards.model.AbilityUsageEnum;
+import olter.loaf.game.cards.model.ActivationEnum;
 
 import java.util.List;
 

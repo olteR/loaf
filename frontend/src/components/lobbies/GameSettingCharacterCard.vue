@@ -63,13 +63,13 @@ const imageSource = computed(
 );
 const primaryColor = computed(() => {
   return props.selected
-    ? getPrimaryColor(props.character.districtTypeBonus)
+    ? getPrimaryColor(props.character.type)
     : COLORS.DISABLED.PRIMARY;
 });
 
 const secondaryColor = computed(() => {
   return props.selected
-    ? getSecondaryColor(props.character.districtTypeBonus)
+    ? getSecondaryColor(props.character.type)
     : COLORS.DISABLED.SECONDARY;
 });
 </script>

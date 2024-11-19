@@ -23,10 +23,11 @@ public class CharacterEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private DistrictTypeEnum districtTypeBonus;
+    private DistrictTypeEnum type;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "character_abilities", joinColumns = @JoinColumn(name = "ability_id"),
-        inverseJoinColumns = @JoinColumn(name = "character_id"))
-    private List<AbilityEntity> abilities;
+    @ElementCollection
+    @CollectionTable(name = "character_abilities", joinColumns = @JoinColumn(name = "character_id"))
+    @Column(name = "ability")
+    @Enumerated(EnumType.STRING)
+    private List<AbilityEnum> abilities;
 }

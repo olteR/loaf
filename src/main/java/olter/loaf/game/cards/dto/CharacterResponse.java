@@ -15,6 +15,6 @@ public class CharacterResponse {
     private Integer number;
     private String name;
     private String cardText;
-    private DistrictTypeEnum districtTypeBonus;
+    private DistrictTypeEnum type;
     private List<AbilityResponse> abilities;
 }

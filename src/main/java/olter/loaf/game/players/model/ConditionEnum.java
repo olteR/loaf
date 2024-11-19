@@ -46,8 +46,7 @@ public enum ConditionEnum {
         this.description = description;
     }
 
-    ConditionEnum(String value, String name, String icon, ActivationEnum activation, String description
-    ) {
+    ConditionEnum(String value, String name, String icon, ActivationEnum activation, String description) {
         this.value = value;
         this.name = name;
         this.icon = icon;
@@ -71,8 +70,8 @@ public enum ConditionEnum {
         this.description = description;
     }
 
-    ConditionEnum(String value, String name, String icon, ActivationEnum activation, ConditionDurationEnum duration, Boolean global,
-        String description
+    ConditionEnum(String value, String name, String icon, ActivationEnum activation, ConditionDurationEnum duration,
+        Boolean global, String description
     ) {
         this.value = value;
         this.name = name;

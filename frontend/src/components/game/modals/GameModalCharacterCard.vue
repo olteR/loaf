@@ -79,15 +79,11 @@ const imageSource = computed(
     `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
 );
 const primaryColor = computed(() => {
-  return clickable.value
-    ? getPrimaryColor(props.character.districtTypeBonus)
-    : "#121212";
+  return clickable.value ? getPrimaryColor(props.character.type) : "#121212";
 });
 
 const secondaryColor = computed(() => {
-  return clickable.value
-    ? getSecondaryColor(props.character.districtTypeBonus)
-    : "#121212";
+  return clickable.value ? getSecondaryColor(props.character.type) : "#121212";
 });
 
 const clickable = computed(() => {

@@ -155,7 +155,7 @@ const visibleAbilities = computed(() => {
       .filter((ability) => ability.type === ABILITY_TYPE.MANUAL)
       .map((ability) => {
         ability.sourceName = gameStore.getCurrentCharacter.name;
-        ability.sourceType = gameStore.getCurrentCharacter.districtTypeBonus;
+        ability.sourceType = gameStore.getCurrentCharacter.type;
         return ability;
       }) ?? [];
   const districtAbilities =

@@ -9,21 +9,21 @@ import java.io.Serial;
 @Getter
 public class LoafException extends RuntimeException {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  private final HttpStatus status;
+    private final HttpStatus status;
 
-  @Setter
-  private String userMessage;
+    @Setter
+    private String userMessage;
 
-  public LoafException(String message) {
-    super(message);
-    this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-  }
+    public LoafException(String message) {
+        super(message);
+        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
 
-  public LoafException(String message, HttpStatus status) {
-    super(message);
-    this.status = status;
-  }
+    public LoafException(String message, HttpStatus status) {
+        super(message);
+        this.status = status;
+    }
 }

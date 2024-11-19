@@ -2,8 +2,8 @@ package olter.loaf.game.games.controller;
 
 import lombok.RequiredArgsConstructor;
 import olter.loaf.common.security.SecurityAnnotations;
+import olter.loaf.game.cards.dto.AbilityRequest;
 import olter.loaf.game.cards.dto.DistrictResponse;
-import olter.loaf.game.games.dto.DistrictBuildRequest;
 import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.users.model.UserEntity;
@@ -40,8 +40,8 @@ public class GameEndpoint {
     }
 
     @PostMapping("game/{code}/cards")
-    public ResponseEntity<List<DistrictResponse>> drawCards(@PathVariable String code, @RequestBody List<Integer> indexes,
-        @SecurityAnnotations.GetLoggedInUser UserEntity user
+    public ResponseEntity<List<DistrictResponse>> drawCards(@PathVariable String code,
+        @RequestBody List<Integer> indexes, @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(gameService.drawCards(code, indexes, user));
     }
@@ -54,8 +54,17 @@ public class GameEndpoint {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("game/ability")
+    public ResponseEntity<Void> useAbility(@RequestBody AbilityRequest request,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
+    ) {
+        gameService.useAbility(request, user);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("game/{code}/end-turn")
-    public ResponseEntity<List<Integer>> selectCharacter(@PathVariable String code, @SecurityAnnotations.GetLoggedInUser UserEntity user
+    public ResponseEntity<List<Integer>> endTurn(@PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         gameService.endTurn(code, user);
         return ResponseEntity.ok().build();

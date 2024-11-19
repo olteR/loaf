@@ -1,7 +1,5 @@
 package olter.loaf.common.exception;
 
-import org.springframework.http.HttpStatus;
-
 import java.io.Serial;
 
 public class ResourceNotFoundException extends LoafException {

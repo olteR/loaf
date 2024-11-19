@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.CardMapper;
+import olter.loaf.game.cards.dto.AbilityRequest;
 import olter.loaf.game.cards.dto.DistrictResponse;
-import olter.loaf.game.cards.model.CharacterEntity;
-import olter.loaf.game.cards.model.CharacterRepository;
-import olter.loaf.game.cards.model.DistrictEntity;
-import olter.loaf.game.cards.model.DistrictRepository;
+import olter.loaf.game.cards.model.*;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
-import olter.loaf.game.games.dto.*;
+import olter.loaf.game.games.dto.GameDetailsResponse;
+import olter.loaf.game.games.dto.GameUpdateDto;
+import olter.loaf.game.games.dto.GameUpdateTypeEnum;
+import olter.loaf.game.games.dto.ResourceGatherResponse;
 import olter.loaf.game.games.exception.*;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
@@ -89,7 +90,7 @@ public class GameService {
         game.setDeck(assembleDeck(game.getUniqueDistricts()));
         game.setPlayers(game.getPlayers().stream().peek(p -> {
             p.setGold(STARTING_GOLD);
-            p.setHand(drawFromDeck(game, STARTING_CARDS));
+            p.setHand(game.drawFromDeck(STARTING_CARDS));
         }).collect(Collectors.toList()));
 
         startSelectionPhase(game);
@@ -162,7 +163,7 @@ public class GameService {
             broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
                 new ResourceGatherResponse(resource, RESOURCE_GOLD));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
-            game.getCurrentPlayer().setDrawnCards(drawFromDeck(game, 2));
+            game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(2));
             gameRepository.save(game);
             return game.getCurrentPlayer().getDrawnCards().stream().map(cardMapper::entityToResponse).toList();
         }
@@ -198,6 +199,12 @@ public class GameService {
         player.setBuildLimit(player.getBuildLimit() - 1);
         playerRepository.save(player);
         broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.BUILD, cardMapper.entityToResponse(district));
+    }
+
+    public void useAbility(AbilityRequest request, UserEntity user) {
+        GameEntity game = findGame(request.getCode());
+        request.getAbility().useAbility(game);
+        gameRepository.save(game);
     }
 
     public void endTurn(String code, UserEntity loggedInUser) {
@@ -256,15 +263,6 @@ public class GameService {
     private GameEntity findGame(String code) {
         return gameRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
-    }
-
-    // Removes n cards from the deck and returns them
-    private List<DistrictEntity> drawFromDeck(GameEntity game, int cardCount) {
-        List<DistrictEntity> drawnCards = new ArrayList<>();
-        for (int i = 0; i < cardCount; i++) {
-            drawnCards.add(game.getDeck().remove(0));
-        }
-        return drawnCards;
     }
 
     // Assembles the starting deck with the given unique districts
