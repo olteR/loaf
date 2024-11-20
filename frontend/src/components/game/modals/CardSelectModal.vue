@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-x-8 pt-3">
+  <div class="grid gap-x-8 pt-4">
     <div
       v-for="(district, ind) in options.cards"
       :key="district.id"

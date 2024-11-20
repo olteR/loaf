@@ -112,6 +112,7 @@ export const GAME_MODAL = {
   CHARACTER: "CHARACTER",
   RESOURCE: "RESOURCE",
   CARDS: "CARDS",
+  PLAYER: "PLAYER",
 };
 
 export const DISTRICT_TYPE = {

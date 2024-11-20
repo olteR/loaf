@@ -65,6 +65,12 @@
         :ability="modalSettings.ability"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
+      <PlayerSelectModal
+        v-else-if="modalSettings.type === GAME_MODAL.PLAYER"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+      />
     </Dialog>
   </div>
 </template>
@@ -97,6 +103,7 @@ import Dialog from "primevue/dialog";
 import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
 import CharacterList from "@/components/game/CharacterList.vue";
 import { hasCondition } from "@/utils/utils";
+import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 
 const router = useRouter();
 
@@ -265,7 +272,15 @@ async function selectCharacter(number) {
 async function gatherResources(resource) {
   await gameStore.gatherResources(lobbyCode, resource);
   if (resource === RESOURCE.CARDS) {
-    modalSettings.value.type = GAME_MODAL.CARDS;
+    openModal(GAME_MODAL.CARDS, drawCards, {
+      cards: gameStore.getGame.drawnCards,
+      selectCount: hasCondition(
+        gameStore.getCurrentPlayer,
+        CONDITIONS.KNOWLEDGE
+      )
+        ? 2
+        : 1,
+    });
   } else {
     closeModal();
   }
@@ -300,6 +315,11 @@ async function useAbility(ability) {
                 character.number <= gameStore.getCurrentPlayer.character
             )
             .map((character) => character.number),
+        });
+        break;
+      case ABILITY_TARGET.PLAYER:
+        openModal(GAME_MODAL.PLAYER, useTargetedAbility, {
+          players: gameStore.getGame.players,
         });
         break;
       default:

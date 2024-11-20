@@ -99,22 +99,6 @@ export const useGameStore = defineStore("game", () => {
           game.value.unavailableCharacters = update.change;
           break;
         }
-        case GAME_UPDATE.CHARACTER_REVEAL: {
-          const crowned = hasCondition(update.change, CONDITIONS.CROWNED);
-          game.value.players = game.value.players.map((player) => {
-            if (player.id === update.change.id) {
-              return update.change;
-            } else if (crowned) {
-              player.conditions = player.conditions.filter(
-                (condition) => condition.value !== CONDITIONS.CROWNED
-              );
-            }
-            return player;
-          });
-          game.value.currentPlayer = update.change.id;
-          game.value.phase = GAME_PHASE.RESOURCE;
-          break;
-        }
         case GAME_UPDATE.RESOURCE_COLLECTION: {
           game.value.players = game.value.players.map((player) => {
             if (player.id === game.value.currentPlayer) {
@@ -139,6 +123,7 @@ export const useGameStore = defineStore("game", () => {
           break;
         }
         case GAME_UPDATE.NEW_TURN:
+        case GAME_UPDATE.CHARACTER_REVEAL:
         case GAME_UPDATE.USE_ABILITY: {
           game.value = update.change;
           break;

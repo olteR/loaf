@@ -76,11 +76,14 @@ public class PlayerEntity extends BaseEntity {
         this.gold += gold;
     }
 
-    public void takeGold(Integer gold) {
+    public Integer takeGold(Integer gold) {
+        Integer taken = gold;
         if (gold > this.gold) {
+            taken = this.gold;
             this.gold = 0;
         }
         this.gold -= gold;
+        return taken;
     }
 
     public void giveCards(List<DistrictEntity> cards) {

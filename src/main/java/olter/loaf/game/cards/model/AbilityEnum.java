@@ -4,7 +4,9 @@ import lombok.Getter;
 import olter.loaf.game.cards.dto.AbilityTargetRequest;
 import olter.loaf.game.games.exception.InvalidTargetException;
 import olter.loaf.game.games.model.GameEntity;
+import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.game.players.model.ConditionEnum;
+import olter.loaf.game.players.model.PlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +75,17 @@ public enum AbilityEnum {
     },
     MAGICIAN_PLAYER("MAGICIAN_PLAYER", List.of("user", "sheet-plastic"), TargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            PlayerEntity player = game.getPlayer(target.getId());
+            List<DistrictEntity> tempHand = player.getHand();
+            player.setHand(game.getCurrentPlayer().getHand());
+            game.getCurrentPlayer().setHand(tempHand);
         }
     },
     MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), TargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            target.getIndexes()
+                .forEach(index -> game.getDeck().add(game.getCurrentPlayer().getHand().remove(index.intValue())));
+            game.getCurrentPlayer().giveCards(game.drawFromDeck(target.getIndexes().size()));
         }
     },
     BISHOP("BISHOP", ActivationEnum.START_OF_TURN, "<p>Ebben a körben a 8-as rangú karakter nem használhatja képességét a <i class=\"fa fa-city\"></i>-eiden.</p><p>Ha megölnek, nyolcas rangú karakter <b>tudja</b> használni a képességét a <i class=\"fa fa-city\"></i>-eiden. Ugyanígy, ha megbabonáznak, nyolcas rangú karakter <b>nem tudja</b> használni a képességeit a Boszorkány <i class=\"fa fa-city\"></i>-ein, de <b>képes</b> használni a képességét a Püspök <i class=\"fa fa-city\"></i>-ein.</p>") {
@@ -146,7 +153,15 @@ public enum AbilityEnum {
         }
     },
     ALCHEMIST("ALCHEMIST", ActivationEnum.END_OF_TURN, "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>"),
-    NAVIGATOR("NAVIGATOR", List.of("4", "coins", "sheet-plastic"), TargetEnum.GOLD_OR_CARDS, "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t.</p>"),
+    NAVIGATOR("NAVIGATOR", List.of("4", "coins", "sheet-plastic"), TargetEnum.GOLD_OR_CARDS, "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            if (target.getResource() == ResourceTypeEnum.GOLD) {
+                game.getCurrentPlayer().giveGold(4);
+            } else {
+                game.getCurrentPlayer().giveCards(game.drawFromDeck(4));
+            }
+        }
+    },
     CANT_BUILD("CANT_BUILD", ActivationEnum.START_OF_TURN, "<p>Nem építhetsz semmilyen kerületet ebben a körben.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.AT_SEA);
@@ -275,9 +290,7 @@ public enum AbilityEnum {
         this.description = description;
     }
 
-    AbilityEnum(String value, List<String> icons, ActivationEnum activation, TargetEnum target,
-        String description
-    ) {
+    AbilityEnum(String value, List<String> icons, ActivationEnum activation, TargetEnum target, String description) {
         this.value = value;
         this.icons = icons;
         this.type = activation;
