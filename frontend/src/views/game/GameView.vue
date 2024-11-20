@@ -94,14 +94,14 @@ import { useGameStore } from "@/stores/games";
 
 import ActionButtons from "@/components/game/ActionButtons.vue";
 import CardSelectModal from "@/components/game/modals/CardSelectModal.vue";
-import MemberList from "@/components/game/MemberList.vue";
-import PlayerHand from "@/components/game/PlayerHand.vue";
+import MemberList from "@/components/game/members/MemberList.vue";
+import PlayerHand from "@/components/game/hand/PlayerHand.vue";
 import ResourceSelectModal from "@/components/game/modals/ResourceSelectModal.vue";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
-import CharacterList from "@/components/game/CharacterList.vue";
+import CharacterList from "@/components/game/characters/CharacterList.vue";
 import { hasCondition } from "@/utils/utils";
 import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 
@@ -270,17 +270,24 @@ async function selectCharacter(number) {
 }
 
 async function gatherResources(resource) {
-  await gameStore.gatherResources(lobbyCode, resource);
+  const response = await gameStore.gatherResources(lobbyCode, resource);
   if (resource === RESOURCE.CARDS) {
-    openModal(GAME_MODAL.CARDS, drawCards, {
-      cards: gameStore.getGame.drawnCards,
-      selectCount: hasCondition(
-        gameStore.getCurrentPlayer,
-        CONDITIONS.KNOWLEDGE
-      )
-        ? 2
-        : 1,
-    });
+    const hasKnowledge = hasCondition(
+      gameStore.getCurrentPlayer,
+      CONDITIONS.KNOWLEDGE
+    );
+    if (
+      hasKnowledge &&
+      !hasCondition(gameStore.getCurrentPlayer, CONDITIONS.STAR_GUIDANCE)
+    ) {
+      gameStore.getCurrentPlayer.hand =
+        gameStore.getCurrentPlayer.hand.concat(response);
+    } else {
+      openModal(GAME_MODAL.CARDS, drawCards, {
+        cards: response,
+        selectCount: hasKnowledge ? 2 : 1,
+      });
+    }
   } else {
     closeModal();
   }
@@ -319,7 +326,9 @@ async function useAbility(ability) {
         break;
       case ABILITY_TARGET.PLAYER:
         openModal(GAME_MODAL.PLAYER, useTargetedAbility, {
-          players: gameStore.getGame.players,
+          players: gameStore.getGame.players.filter(
+            (player) => player.id !== gameStore.getGame.currentPlayer
+          ),
         });
         break;
       default:
@@ -339,6 +348,15 @@ async function useTargetedAbility(target, ability) {
         },
       });
       break;
+    case ABILITY_TARGET.PLAYER:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          id: target,
+        },
+      });
+      break;
     default:
       console.log(ability);
   }
@@ -350,6 +368,7 @@ async function useTargetedAbility(target, ability) {
 .p-card {
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
+
 .annoucement-message {
   width: 100%;
   position: absolute;
@@ -361,6 +380,7 @@ async function useTargetedAbility(target, ability) {
   -webkit-user-select: none;
   -moz-user-select: none;
 }
+
 .game-area {
   position: absolute;
   width: 100%;

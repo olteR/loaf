@@ -79,6 +79,7 @@ public enum AbilityEnum {
             List<DistrictEntity> tempHand = player.getHand();
             player.setHand(game.getCurrentPlayer().getHand());
             game.getCurrentPlayer().setHand(tempHand);
+            game.getCurrentPlayer().getUsedAbilities().add(MAGICIAN_DECK);
         }
     },
     MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), TargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
@@ -86,6 +87,7 @@ public enum AbilityEnum {
             target.getIndexes()
                 .forEach(index -> game.getDeck().add(game.getCurrentPlayer().getHand().remove(index.intValue())));
             game.getCurrentPlayer().giveCards(game.drawFromDeck(target.getIndexes().size()));
+            game.getCurrentPlayer().getUsedAbilities().add(MAGICIAN_PLAYER);
         }
     },
     BISHOP("BISHOP", ActivationEnum.START_OF_TURN, "<p>Ebben a körben a 8-as rangú karakter nem használhatja képességét a <i class=\"fa fa-city\"></i>-eiden.</p><p>Ha megölnek, nyolcas rangú karakter <b>tudja</b> használni a képességét a <i class=\"fa fa-city\"></i>-eiden. Ugyanígy, ha megbabonáznak, nyolcas rangú karakter <b>nem tudja</b> használni a képességeit a Boszorkány <i class=\"fa fa-city\"></i>-ein, de <b>képes</b> használni a képességét a Püspök <i class=\"fa fa-city\"></i>-ein.</p>") {

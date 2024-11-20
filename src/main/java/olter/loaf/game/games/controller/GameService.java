@@ -156,6 +156,8 @@ public class GameService {
                 !game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
                 game.getCurrentPlayer().giveCards(game.drawFromDeck(RESOURCE_CARDS));
                 game.setPhase(GamePhaseEnum.TURN);
+                broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
+                    new ResourceGatherResponse(resource, RESOURCE_CARDS));
             } else {
                 game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(
                     game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE) ? RESOURCE_CARDS + 1 :
@@ -194,6 +196,8 @@ public class GameService {
         player.getDistricts().add(district);
         player.takeGold(district.getCost());
         player.setBuildLimit(player.getBuildLimit() - 1);
+        district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
+            .forEach(ability -> ability.useAbility(game, null));
         playerRepository.save(player);
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, cardMapper.entityToResponse(district));
     }

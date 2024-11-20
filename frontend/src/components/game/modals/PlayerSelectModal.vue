@@ -1,9 +1,14 @@
 <template>
-  <div class="grid gap-x-8 pt-4 grid-cols-4">
+  <div class="grid gap-8 pt-4 grid-cols-3">
     <div v-for="player in options.players" :key="player.id" class="w-full">
-      {{ player.name }}
+      <GameModalPlayerCard
+        :player="player"
+        :tooltip-position="{ position: 'bottom' }"
+        :selected="selectedPlayer === player.id"
+        @click="selectedPlayer = player.id"
+      />
     </div>
-    <div class="col-span-4 ml-auto">
+    <div class="col-span-3 ml-auto">
       <Button :disabled="!selectedPlayer" @click="submit"> Kiválasztás </Button>
     </div>
   </div>
@@ -12,6 +17,7 @@
 <script setup>
 import { ref } from "vue";
 import Button from "primevue/button";
+import GameModalPlayerCard from "@/components/game/modals/GameModalPlayerCard.vue";
 
 const emit = defineEmits(["submit"]);
 

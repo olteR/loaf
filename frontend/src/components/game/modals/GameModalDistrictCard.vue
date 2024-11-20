@@ -30,15 +30,12 @@
         :style="{
           background: COLORS[district.type].SECONDARY,
         }"
+        v-tooltip.top="{
+          value: composeDistrictDescription(district),
+          escape: false,
+        }"
       >
         {{ district.name }}
-      </div>
-      <div class="card-info">
-        <i
-          v-if="district.type === DISTRICT_TYPE.UNIQUE"
-          class="fa fa-circle-question"
-          v-tooltip="{ value: district.cardText, escape: false }"
-        />
       </div>
     </div>
   </div>
@@ -46,7 +43,8 @@
 
 <script setup>
 import { computed } from "vue";
-import { COLORS, DISTRICT_TYPE } from "@/utils/const";
+import { COLORS } from "@/utils/const";
+import { composeDistrictDescription } from "@/utils/utils";
 
 const props = defineProps({
   district: Object,

@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import CharacterInfo from "@/components/game/CharacterInfo.vue";
+import CharacterInfo from "@/components/game/characters/CharacterInfo.vue";
 import { CHAR_STATUS } from "@/utils/const";
 
 const props = defineProps({

@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import DistrictCard from "@/components/game/DistrictCard.vue";
+import DistrictCard from "@/components/game/hand/DistrictCard.vue";
 import { computed, onMounted, ref } from "vue";
 
 const emit = defineEmits(["build"]);

@@ -52,11 +52,10 @@ export const useGameStore = defineStore("game", () => {
   }
 
   async function gatherResources(code, resource) {
-    const response = await requestStore.request(
+    return await requestStore.request(
       urls.resource(code) + "?type=" + resource,
       REQ_TYPE.GET
     );
-    game.value.drawnCards = response.data;
   }
 
   async function drawCards(code, cards) {
