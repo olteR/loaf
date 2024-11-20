@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.cards.model.ActivationEnum;
-import olter.loaf.game.cards.model.ConditionDurationEnum;
+import olter.loaf.game.players.model.ConditionDurationEnum;
 
 @Getter
 @Setter

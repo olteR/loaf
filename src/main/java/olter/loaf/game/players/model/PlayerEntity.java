@@ -9,7 +9,6 @@ import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
-import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
@@ -90,10 +89,22 @@ public class PlayerEntity extends BaseEntity {
 
     public CharacterEntity getCharacter() {
         return game.getCharacters().stream().filter(character -> character.getNumber().equals(this.character))
-            .findFirst().orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()));
+            .findFirst().orElse(null);
     }
 
     public Integer getCharacterNumber() {
         return this.character;
+    }
+
+    public void giveCondition(ConditionEnum condition) {
+        this.conditions.add(condition);
+    }
+
+    public void removeCondition(ConditionEnum condition) {
+        this.conditions.remove(condition);
+    }
+
+    public Boolean hasCondition(ConditionEnum condition) {
+        return this.conditions.contains(condition);
     }
 }

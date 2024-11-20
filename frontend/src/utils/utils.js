@@ -1,4 +1,4 @@
-import { COLORS } from "@/utils/const";
+import { COLORS, CONDITIONS } from "@/utils/const";
 
 export function composeCharacterDescription(character) {
   return character.abilities
@@ -27,4 +27,10 @@ export function primaryColorOrDisabled(type, condition) {
 
 export function secondaryColorOrDisabled(type, condition) {
   return condition ? secondaryColor(type) : COLORS.DISABLED.SECONDARY;
+}
+
+export function hasCondition(player, condition) {
+  return player.conditions
+    .map((condition) => condition.value)
+    .includes(condition);
 }

@@ -21,6 +21,7 @@ import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.game.players.PlayerMapper;
+import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
 import olter.loaf.lobbies.model.LobbyEntity;
@@ -56,6 +57,8 @@ public class GameService {
     private Integer STARTING_CARDS;
     @Value("${loaf.config.resource-gold}")
     private Integer RESOURCE_GOLD;
+    @Value("${loaf.config.resource-cards}")
+    private Integer RESOURCE_CARDS;
     @Value("${loaf.config.build-limit}")
     private Integer BUILD_LIMIT;
 
@@ -147,13 +150,22 @@ public class GameService {
         logService.logResourceGathering(game, resource);
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
-            game.getCurrentPlayer().giveGold(RESOURCE_GOLD);
+            game.getCurrentPlayer().giveGold(
+                game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
             broadcastOnWebsocket(code, game.getPlayers(), GameUpdateTypeEnum.RESOURCE_COLLECTION,
                 new ResourceGatherResponse(resource, RESOURCE_GOLD));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
-            game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(2));
+            if (game.getCurrentPlayer().hasCondition(ConditionEnum.KNOWLEDGE) &&
+                !game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
+                game.getCurrentPlayer().giveCards(game.drawFromDeck(RESOURCE_CARDS));
+                game.setPhase(GamePhaseEnum.TURN);
+            } else {
+                game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(
+                    game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE) ? RESOURCE_CARDS + 1 :
+                        RESOURCE_CARDS));
+            }
             gameRepository.save(game);
             return game.getCurrentPlayer().getDrawnCards().stream().map(cardMapper::entityToResponse).toList();
         }
@@ -247,7 +259,7 @@ public class GameService {
         game.setTurn(game.getTurn() + 1);
         game.setPhase(GamePhaseEnum.SELECTION);
         game.setCurrentPlayer(game.getCrownedPlayer());
-        game.setDownwardDiscard(r.nextInt(game.getCharacters().size()));
+        game.setDownwardDiscard(r.nextInt(game.getCharacters().size() + 1));
         game.setUpwardDiscard(discardCharacters(configRepository.findByTypeAndConfigId(
             game.getCharacters().size() == 9 ? ConfigTypeEnum.UPWARDS_CARDS_9C : ConfigTypeEnum.UPWARDS_CARDS_8C,
             (long) gameSize).getConfigValue(), gameSize, List.of(game.getDownwardDiscard(), 4)));
@@ -331,9 +343,9 @@ public class GameService {
                 if (game.getCurrentPlayer().getOrder() < game.getPlayers().size()) {
                     game.setCurrentPlayer(
                         game.getPlayers().get(game.getPlayers().indexOf(game.getCurrentPlayer()) + 1));
-                    List<Integer> unavailableCharacters = new ArrayList<>(
+                    List<Integer> unavailableCharacters =
                         game.getPlayers().stream().map(PlayerEntity::getCharacterNumber).filter(Objects::nonNull)
-                            .toList());
+                            .collect(Collectors.toList());
                     if (game.getCurrentPlayer().getOrder() != 7) {
                         unavailableCharacters.add(game.getDownwardDiscard());
                     }

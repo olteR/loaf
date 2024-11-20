@@ -39,10 +39,10 @@
 import Button from "primevue/button";
 import { RESOURCE } from "@/utils/const";
 
-const emit = defineEmits(["gather"]);
+const emit = defineEmits(["submit"]);
 
 function gatherResource(resource) {
-  emit("gather", resource);
+  emit("submit", resource);
 }
 </script>
 

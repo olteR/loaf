@@ -4,7 +4,7 @@ import lombok.Getter;
 
 // @formatter:off
 @Getter
-public enum AbilityTargetEnum {
+public enum TargetEnum {
     NONE("NONE"),
     GOLD_OR_CARDS("GOLD_OR_CARDS"),
     GOLD_OR_CARDS_MULTIPLE("GOLD_OR_CARDS_MULTIPLE"),
@@ -27,7 +27,7 @@ public enum AbilityTargetEnum {
 
     private final String value;
 
-    AbilityTargetEnum(String value) {
+    TargetEnum(String value) {
         this.value = value;
     }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="grid gap-x-8 pt-3">
     <div
-      v-for="(district, ind) in props.cards"
+      v-for="(district, ind) in options.cards"
       :key="district.id"
       class="w-full"
     >
@@ -13,7 +13,7 @@
       />
     </div>
     <div class="col-span-3 ml-auto">
-      <Button :disabled="selectedCount !== maxSelects" @click="select"
+      <Button :disabled="selectedCount !== options.selectCount" @click="select"
         >Kiválasztás</Button
       >
     </div>
@@ -25,11 +25,11 @@ import { computed, onMounted, ref } from "vue";
 import Button from "primevue/button";
 import GameModalDistrictCard from "@/components/game/modals/GameModalDistrictCard.vue";
 
-const emit = defineEmits(["select"]);
+const emit = defineEmits(["submit"]);
 
 const props = defineProps({
-  cards: Array,
-  maxSelects: Number,
+  options: Object,
+  ability: Object,
 });
 
 const toggleValues = ref([]);
@@ -39,12 +39,15 @@ const selectedCount = computed(
 );
 
 onMounted(() => {
-  toggleValues.value = props.cards.map(() => false);
+  toggleValues.value = props.options.cards.map(() => false);
 });
 
 function toggle(index) {
-  if (props.cards.length > 2) {
-    if (selectedCount.value < props.maxSelects || toggleValues.value[index]) {
+  if (props.options.cards.length > 2) {
+    if (
+      selectedCount.value < props.options.selectCount ||
+      toggleValues.value[index]
+    ) {
       toggleValues.value[index] = !toggleValues.value[index];
     }
   } else {
@@ -60,18 +63,20 @@ function toggle(index) {
 }
 
 function isClickable(index) {
-  return props.cards.length > 2
-    ? (selectedCount.value === props.maxSelects && toggleValues[index]) ||
-        selectedCount.value < props.maxSelects
+  return props.options.cards.length > 2
+    ? (selectedCount.value === props.options.selectCount &&
+        toggleValues[index]) ||
+        selectedCount.value < props.options.selectCount
     : true;
 }
 
 function select() {
   emit(
-    "select",
+    "submit",
     toggleValues.value
       .map((val, ind) => (val ? ind : null))
-      .filter((val) => val !== null)
+      .filter((val) => val !== null),
+    props.ability
   );
 }
 </script>

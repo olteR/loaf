@@ -24,20 +24,29 @@
         'background-color': selected ? 'transparent' : getSecondaryColor,
       }"
     >
-      <div class="status-icon" v-if="unavailable">
-        <i
-          class="fa fa-question"
-          v-tooltip:[tooltipPosition(character.number)]="{
-            value: 'Ez a karakter el lett dobva vagy már választva lett.',
-            escape: false,
-          }"
-        ></i>
-      </div>
       <div class="status-icon" v-if="discarded">
         <i
           class="fa fa-x"
           v-tooltip:[tooltipPosition(character.number)]="{
-            value: 'Ez a karakter el lett dobva.',
+            value: 'Ez a karakter el lett dobva',
+            escape: false,
+          }"
+        ></i>
+      </div>
+      <div class="status-icon" v-else-if="unavailable">
+        <i
+          class="fa fa-question"
+          v-tooltip:[tooltipPosition(character.number)]="{
+            value: 'Ez a karakter el lett dobva vagy már választva lett',
+            escape: false,
+          }"
+        ></i>
+      </div>
+      <div class="status-icon" v-else-if="untargetable">
+        <i
+          class="fa fa-circle-exclamation"
+          v-tooltip:[tooltipPosition(character.number)]="{
+            value: 'Ez a karakter nem célozható',
             escape: false,
           }"
         ></i>
@@ -72,6 +81,7 @@ const props = defineProps({
   selected: Boolean,
   unavailable: Boolean,
   discarded: Boolean,
+  untargetable: Boolean,
 });
 
 const imageSource = computed(
@@ -87,7 +97,7 @@ const getSecondaryColor = computed(() => {
 });
 
 const clickable = computed(() => {
-  return !props.unavailable && !props.discarded;
+  return !props.unavailable && !props.discarded && !props.untargetable;
 });
 
 function tooltipPosition(characterNumber) {

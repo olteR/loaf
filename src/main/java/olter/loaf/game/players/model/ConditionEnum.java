@@ -2,7 +2,6 @@ package olter.loaf.game.players.model;
 
 import lombok.Getter;
 import olter.loaf.game.cards.model.ActivationEnum;
-import olter.loaf.game.cards.model.ConditionDurationEnum;
 
 @Getter
 public enum ConditionEnum {
@@ -11,11 +10,11 @@ public enum ConditionEnum {
     KILLED("KILLED", "Meggyilkolva", "skull", ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, false, "<p>Az orgyilkos megölt, kimaradsz ebből a körből.</p>"),
     ROBBED("ROBBED", "Kirabolva", "sack-dollar", ActivationEnum.START_OF_TURN, ConditionDurationEnum.END_OF_TURN, false, "<p>A tolvaj kirabolt, a köröd elején elveszi az összes <i class=\"fa fa-coins\"></i>-ad.</p>"),
     PROTECTED("PROTECTED", "Védelem", "user-shield", ConditionDurationEnum.END_OF_TURN, "<p>A 8-as rangú karakter képességei nem használhatóak a játékos <i class=\"fa fa-city\"></i>-ein.</p>"),
-    MASTER_BUILDER("MASTER_BUILDER", "Építőmester", "gavel", ActivationEnum.END_OF_TURN, "<p>Ebben a körben az építkezési korlátod 3 <i class=\"fa fa-city\"></i>.</p>"),
+    MASTER_BUILDER("MASTER_BUILDER", "Építőmester", "gavel", ConditionDurationEnum.END_OF_TURN, "<p>Ebben a körben az építkezési korlátod 3 <i class=\"fa fa-city\"></i>.</p>"),
     BEWITCHED("BEWITCHED", "Megbabonázva", "wand-sparkles", ActivationEnum.AFTER_GATHERING, ConditionDurationEnum.END_OF_TURN, false, "<p>A boszorkány megbabonázott. Nyersanyag gyűjtés után vége a körödnek.</p>"),
     DUPLICATES("DUPLICATES", "Duplikátumok", "clone", ConditionDurationEnum.END_OF_TURN, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetőek a városban, amilyenek már léteznek.</p>"),
     AT_SEA("AT_SEA", "Tengeren", "person-walking-luggage", ConditionDurationEnum.END_OF_TURN, "<p>Nem építhet semmilyen kerületet ebben a körben.</p>"),
-    GREAT_BUILDER("GREAT_BUILDER", "Fejlett építő", "hammer", ActivationEnum.END_OF_TURN, "<p>Ebben a körben az építkezési korlátod 2 <i class=\"fa fa-city\"></i>.</p>"),
+    GREAT_BUILDER("GREAT_BUILDER", "Fejlett építő", "hammer", ConditionDurationEnum.END_OF_TURN, "<p>Ebben a körben az építkezési korlátod 2 <i class=\"fa fa-city\"></i>.</p>"),
     BLOOMING_TRADE("BLOOMING_TRADE", "Fejlődő kereskedelem", "piggy-bank", ConditionDurationEnum.END_OF_TURN, "<p>Bármennyi <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületet építhet.</p>"),
     GOLD_MINING("GOLD_MINING", "Aranybányászat", "coins", ActivationEnum.RESOURCE_GATHERING, "<p>Ha aranyat szerez nyersanyag gyűjtéskor, kap 1 <i class=\"fa fa-coins\"></i>-t.</p>"),
     STAR_GUIDANCE("STAR_GUIDANCE", "Csillag jóslás", "binoculars", ActivationEnum.RESOURCE_GATHERING, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húz nyersanyag gyűjtéskor, eggyel több közül választhat.</p>"),
@@ -65,19 +64,6 @@ public enum ConditionEnum {
         this.name = name;
         this.icon = icon;
         this.activation = ActivationEnum.NONE;
-        this.duration = duration;
-        this.global = true;
-        this.visible = true;
-        this.description = description;
-    }
-
-    ConditionEnum(String value, String name, String icon, ActivationEnum activation, ConditionDurationEnum duration,
-        String description
-    ) {
-        this.value = value;
-        this.name = name;
-        this.icon = icon;
-        this.activation = activation;
         this.duration = duration;
         this.global = true;
         this.visible = true;

@@ -1,5 +1,8 @@
-package olter.loaf.game.cards.model;
+package olter.loaf.game.players.model;
 
+import lombok.Getter;
+
+@Getter
 public enum ConditionDurationEnum {
     INDEFINITE("INDEFINITE"), END_OF_TURN("END_OF_TURN");
 

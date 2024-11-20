@@ -1,15 +1,16 @@
 <template>
   <div class="grid gap-x-8 pt-4 grid-cols-4">
     <div
-      v-for="character in props.game.characters"
+      v-for="character in options.characters"
       :key="character.id"
       class="w-full"
     >
       <GameModalCharacterCard
         :character="character"
         :selected="selectedCharacter === character.number"
-        :unavailable="game.unavailableCharacters.includes(character.number)"
-        :discarded="game.discardedCharacters.includes(character.number)"
+        :unavailable="options.unavailable?.includes(character.number)"
+        :discarded="options.discarded?.includes(character.number)"
+        :untargetable="options.untargetable?.includes(character.number)"
         @select="selectedCharacter = character.number"
       />
     </div>
@@ -26,16 +27,17 @@ import { ref } from "vue";
 import Button from "primevue/button";
 import GameModalCharacterCard from "@/components/game/modals/GameModalCharacterCard.vue";
 
-const emit = defineEmits(["select"]);
+const emit = defineEmits(["submit"]);
 
 const props = defineProps({
-  game: Object,
+  options: Object,
+  ability: Object,
 });
 
 const selectedCharacter = ref();
 
 function submit() {
-  emit("select", selectedCharacter.value);
+  emit("submit", selectedCharacter.value, props.ability);
 }
 </script>
 

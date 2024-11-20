@@ -1,8 +1,9 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
-import { GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
+import { CONDITIONS, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import { useStateStore } from "@/stores/state";
+import { hasCondition } from "@/utils/utils";
 
 export const useGameStore = defineStore("game", () => {
   const requestStore = useRequestStore();
@@ -99,9 +100,17 @@ export const useGameStore = defineStore("game", () => {
           break;
         }
         case GAME_UPDATE.CHARACTER_REVEAL: {
-          game.value.players = game.value.players.map((player) =>
-            player.id === update.change.id ? update.change : player
-          );
+          const crowned = hasCondition(update.change, CONDITIONS.CROWNED);
+          game.value.players = game.value.players.map((player) => {
+            if (player.id === update.change.id) {
+              return update.change;
+            } else if (crowned) {
+              player.conditions = player.conditions.filter(
+                (condition) => condition.value !== CONDITIONS.CROWNED
+              );
+            }
+            return player;
+          });
           game.value.currentPlayer = update.change.id;
           game.value.phase = GAME_PHASE.RESOURCE;
           break;

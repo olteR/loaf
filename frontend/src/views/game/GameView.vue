@@ -44,25 +44,26 @@
       </div>
     </Button>
     <Dialog
-      :closable="false"
-      v-model:visible="isModalOpen"
+      :closable="modalSettings.ability"
+      v-model:visible="modalSettings.visible"
       modal
       :header="modalHeader"
     >
       <ResourceSelectModal
-        v-if="currentModal === GAME_MODAL.RESOURCE"
-        @gather="(resource) => gatherResources(resource)"
+        v-if="modalSettings.type === GAME_MODAL.RESOURCE"
+        @submit="(target) => modalSettings.onSubmit(target)"
       />
       <CardSelectModal
-        v-else-if="currentModal === GAME_MODAL.CARDS"
-        :cards="gameStore.getGame.drawnCards"
-        :max-selects="1"
-        @select="(cards) => drawCards(cards)"
+        v-else-if="modalSettings.type === GAME_MODAL.CARDS"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
       <CharacterSelectModal
-        v-else-if="currentModal === GAME_MODAL.CHARACTER"
-        :game="gameStore.getGame"
-        @select="(number) => selectCharacter(number)"
+        v-else-if="modalSettings.type === GAME_MODAL.CHARACTER"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
     </Dialog>
   </div>
@@ -74,6 +75,7 @@ import { onBeforeRouteLeave, useRouter } from "vue-router";
 import {
   ABILITY_TARGET,
   ABILITY_TYPE,
+  CONDITIONS,
   GAME_MODAL,
   GAME_PHASE,
   RESOURCE,
@@ -94,6 +96,7 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
 import CharacterList from "@/components/game/CharacterList.vue";
+import { hasCondition } from "@/utils/utils";
 
 const router = useRouter();
 
@@ -103,7 +106,13 @@ const cardStore = useCardStore();
 const gameStore = useGameStore();
 const lobbyCode = router.currentRoute.value.params.code;
 
-const currentModal = ref();
+const modalSettings = ref({
+  visible: false,
+  type: null,
+  onSubmit: null,
+  options: {},
+  ability: null,
+});
 
 const onTurn = computed(() => {
   return gameStore.getCurrentPlayer.userId === stateStore.getUser.id;
@@ -111,10 +120,6 @@ const onTurn = computed(() => {
 
 const canBuild = computed(() => {
   return onTurn.value && gameStore.getGame.phase === GAME_PHASE.TURN;
-});
-
-const isModalOpen = computed(() => {
-  return !!currentModal.value;
 });
 
 const currentMessage = computed(() => {
@@ -145,7 +150,7 @@ const currentMessage = computed(() => {
 });
 
 const modalHeader = computed(() => {
-  switch (currentModal.value) {
+  switch (modalSettings.value.type) {
     case GAME_MODAL.CHARACTER:
       return "Válassz karaktert!";
     case GAME_MODAL.RESOURCE:
@@ -153,7 +158,7 @@ const modalHeader = computed(() => {
     case GAME_MODAL.CARDS:
       return "Válassz kártyát!";
     default:
-      return "";
+      return "Válassz!";
   }
 });
 
@@ -212,37 +217,63 @@ watch(
   (newValue) => {
     if (newValue.userId === stateStore.getUser.id) {
       if (gameStore.getGame.phase === GAME_PHASE.SELECTION) {
-        currentModal.value = GAME_MODAL.CHARACTER;
+        openModal(GAME_MODAL.CHARACTER, selectCharacter, {
+          characters: gameStore.getGame.characters,
+          unavailable: gameStore.getGame.unavailableCharacters,
+          discarded: gameStore.getGame.discardedCharacters,
+        });
       } else if (
         gameStore.getGame.phase === GAME_PHASE.RESOURCE &&
         onTurn.value
       ) {
-        currentModal.value =
-          gameStore.getGame.drawnCards.length === 0
-            ? GAME_MODAL.RESOURCE
-            : GAME_MODAL.CARDS;
+        if (gameStore.getGame.drawnCards.length === 0) {
+          openModal(GAME_MODAL.RESOURCE, gatherResources);
+        } else {
+          openModal(GAME_MODAL.CARDS, drawCards, {
+            cards: gameStore.getGame.drawnCards,
+            selectCount: hasCondition(
+              gameStore.getCurrentPlayer,
+              CONDITIONS.KNOWLEDGE
+            )
+              ? 2
+              : 1,
+          });
+        }
       }
     }
   }
 );
 
+function openModal(type, submit, options = {}) {
+  modalSettings.value.visible = true;
+  modalSettings.value.type = type;
+  modalSettings.value.onSubmit = submit;
+  modalSettings.value.options = options;
+}
+
+function closeModal() {
+  modalSettings.value.visible = false;
+  modalSettings.value.type = null;
+  modalSettings.value.ability = null;
+}
+
 async function selectCharacter(number) {
   await gameStore.selectCharacter(lobbyCode, number);
-  currentModal.value = null;
+  closeModal();
 }
 
 async function gatherResources(resource) {
   await gameStore.gatherResources(lobbyCode, resource);
   if (resource === RESOURCE.CARDS) {
-    currentModal.value = GAME_MODAL.CARDS;
+    modalSettings.value.type = GAME_MODAL.CARDS;
   } else {
-    currentModal.value = null;
+    closeModal();
   }
 }
 
 async function drawCards(cards) {
   await gameStore.drawCards(lobbyCode, cards);
-  currentModal.value = null;
+  closeModal();
 }
 
 async function buildDistrict(index) {
@@ -257,8 +288,41 @@ async function useAbility(ability) {
       code: lobbyCode,
     });
   } else {
-    console.log(ability);
+    modalSettings.value.ability = ability;
+    switch (ability.target) {
+      case ABILITY_TARGET.CHARACTER:
+        openModal(GAME_MODAL.CHARACTER, useTargetedAbility, {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          untargetable: gameStore.getGame.characters
+            .filter(
+              (character) =>
+                character.number <= gameStore.getCurrentPlayer.character
+            )
+            .map((character) => character.number),
+        });
+        break;
+      default:
+        console.log(ability);
+    }
   }
+}
+
+async function useTargetedAbility(target, ability) {
+  switch (ability.target) {
+    case ABILITY_TARGET.CHARACTER:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          index: target,
+        },
+      });
+      break;
+    default:
+      console.log(ability);
+  }
+  closeModal();
 }
 </script>
 

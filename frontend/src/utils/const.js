@@ -199,3 +199,8 @@ export const ABILITY_TARGET = {
   SHUFFLE: "SHUFFLE",
   SELECTOR: "SELECTOR",
 };
+
+export const CONDITIONS = {
+  CROWNED: "CROWNED",
+  KNOWLEDGE: "KNOWLEDGE",
+};
