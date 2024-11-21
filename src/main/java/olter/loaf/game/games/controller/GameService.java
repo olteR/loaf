@@ -63,7 +63,7 @@ public class GameService {
         GameEntity game = new GameEntity();
         game.setPhase(GamePhaseEnum.NOT_STARTED);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
-        game.setCharacters(getDefaultCharacters(lobby.getMaxMembers() == 8));
+        game.setCharacters(getDefaultCharacters(lobby.getMaxMembers().equals(8)));
         game.setTurn(0);
         gameRepository.save(game);
 
@@ -145,26 +145,27 @@ public class GameService {
         logService.logResourceGathering(game, resource);
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
-            game.getCurrentPlayer().giveGold(
-                game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD);
+            Integer amount = game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
+            game.getCurrentPlayer().giveGold(amount);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
             broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
-                new ResourceGatherResponse(resource, RESOURCE_GOLD));
+                new ResourceGatherResponse(resource, amount));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
-            if (game.getCurrentPlayer().hasCondition(ConditionEnum.KNOWLEDGE) &&
-                !game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
-                game.getCurrentPlayer().giveCards(game.drawFromDeck(RESOURCE_CARDS));
+            List<DistrictEntity> drawnCards = game.drawFromDeck(RESOURCE_CARDS);
+            if (game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
+                drawnCards.add(game.drawFromDeck(1).get(0));
+            }
+            if (game.getCurrentPlayer().hasCondition(ConditionEnum.KNOWLEDGE) && drawnCards.size() == RESOURCE_CARDS) {
+                game.getCurrentPlayer().giveCards(drawnCards);
                 game.setPhase(GamePhaseEnum.TURN);
                 broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
                     new ResourceGatherResponse(resource, RESOURCE_CARDS));
             } else {
-                game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(
-                    game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE) ? RESOURCE_CARDS + 1 :
-                        RESOURCE_CARDS));
+                game.getCurrentPlayer().setDrawnCards(drawnCards);
             }
             gameRepository.save(game);
-            return game.getCurrentPlayer().getDrawnCards().stream().map(cardMapper::entityToResponse).toList();
+            return drawnCards.stream().map(cardMapper::entityToResponse).toList();
         }
         return Collections.emptyList();
     }

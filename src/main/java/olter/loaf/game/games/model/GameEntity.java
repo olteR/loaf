@@ -125,6 +125,9 @@ public class GameEntity extends BaseEntity {
         turn++;
         phase = GamePhaseEnum.SELECTION;
         currentPlayer = getCrownedPlayer();
+        killedCharacter = null;
+        bewitchedCharacter = null;
+        robbedCharacter = null;
         downwardDiscard = r.nextInt(characters.size() + 1);
         upwardDiscard = discardCharacters(List.of(downwardDiscard, 4));
         players = players.stream().peek(p -> {
@@ -138,6 +141,7 @@ public class GameEntity extends BaseEntity {
             p.setConditions(p.getConditions().stream()
                 .filter(condition -> condition.getDuration() != ConditionDurationEnum.END_OF_TURN)
                 .collect(Collectors.toList()));
+            p.setUsedAbilities(new ArrayList<>());
         }).collect(Collectors.toList());
     }
 
@@ -168,6 +172,9 @@ public class GameEntity extends BaseEntity {
                     players.stream().filter(player -> player.getCharacterNumber() > currentPlayer.getCharacterNumber())
                         .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
                 if (playersLeft.isEmpty()) {
+                    if (Objects.equals(killedCharacter, 4) && getPlayer(4) != null) {
+                        setCrownedPlayer(getPlayer(4));
+                    }
                     newTurn();
                 } else {
                     revealPlayer(playersLeft.get(0));
@@ -180,13 +187,13 @@ public class GameEntity extends BaseEntity {
     // Reveals player's character and starts their turn
     private void revealPlayer(PlayerEntity player) {
         currentPlayer = player;
-        phase = GamePhaseEnum.RESOURCE;
         currentPlayer.setRevealed(true);
         if (player.hasCondition(ConditionEnum.KILLED)) {
             nextPlayer();
         } else if (player.hasCondition(ConditionEnum.ROBBED)) {
             getPlayer(2).giveGold(currentPlayer.takeGold(currentPlayer.getGold()));
         }
+        phase = GamePhaseEnum.RESOURCE;
         currentPlayer.getCharacter().getAbilities().forEach(ability -> {
             if (ability.getType() == ActivationEnum.START_OF_TURN) {
                 ability.useAbility(this, null);

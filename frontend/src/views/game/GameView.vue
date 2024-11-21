@@ -280,11 +280,11 @@ async function gatherResources(resource) {
       hasKnowledge &&
       !hasCondition(gameStore.getCurrentPlayer, CONDITIONS.STAR_GUIDANCE)
     ) {
-      gameStore.getCurrentPlayer.hand =
-        gameStore.getCurrentPlayer.hand.concat(response);
+      gameStore.getGame.hand = gameStore.getGame.hand.concat(response.data);
+      closeModal();
     } else {
       openModal(GAME_MODAL.CARDS, drawCards, {
-        cards: response,
+        cards: response.data,
         selectCount: hasKnowledge ? 2 : 1,
       });
     }
@@ -319,7 +319,9 @@ async function useAbility(ability) {
           untargetable: gameStore.getGame.characters
             .filter(
               (character) =>
-                character.number <= gameStore.getCurrentPlayer.character
+                character.number <= gameStore.getCurrentPlayer.character ||
+                character.number === gameStore.getGame.killedCharacter ||
+                character.number === gameStore.getGame.bewitchedCharacter
             )
             .map((character) => character.number),
         });

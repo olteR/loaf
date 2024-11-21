@@ -20,6 +20,9 @@ const props = defineProps({
 });
 
 function getStatus(number) {
+  if (props.game?.killedCharacter === number) return CHAR_STATUS.KILLED;
+  if (props.game?.bewitchedCharacter === number) return CHAR_STATUS.BEWITCHED;
+  if (props.game?.robbedCharacter === number) return CHAR_STATUS.ROBBED;
   if (number === props.game?.character) return CHAR_STATUS.SELECTED;
   if (props.game?.discardedCharacters?.includes(number))
     return CHAR_STATUS.DISCARDED;
