@@ -24,6 +24,7 @@ import java.util.List;
 public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
+    private Integer points;
     private Integer buildLimit;
     private Boolean revealed;
     private Long abilityTarget;
@@ -76,8 +77,28 @@ public class PlayerEntity extends BaseEntity {
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> drawnCards;
 
-    public void giveGold(Integer gold) {
-        this.gold += gold;
+    public void giveGold(Integer amount) {
+        gold += amount;
+    }
+
+    public void givePoints(Integer amount) {
+        points += amount;
+    }
+
+    public void giveDistrict(DistrictEntity district) {
+        districts.add(district);
+        points += district.getCost();
+    }
+
+    public DistrictEntity removeDistrict(int index) {
+        DistrictEntity removed = districts.remove(index);
+        points -= removed.getCost();
+        return removed;
+    }
+
+    public void removeDistrict(DistrictEntity district) {
+        points -= district.getCost();
+        districts.remove(district);
     }
 
     public Integer takeGold(Integer gold) {

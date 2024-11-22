@@ -15,9 +15,4 @@ public class InvalidActivationException extends LoafException {
         super(playerId + " invalid activation for ability " + abilityEnum.getValue(), HttpStatus.BAD_REQUEST);
         setUserMessage("Ezt a képességet nem használhatod ilyen módon");
     }
-
-    public InvalidActivationException(Long playerId, ConditionEnum conditionEnum) {
-        super(playerId + " invalid activation for ability " + conditionEnum.getValue());
-        setUserMessage("Ezt a képességet nem használhatod ilyen módon");
-    }
 }

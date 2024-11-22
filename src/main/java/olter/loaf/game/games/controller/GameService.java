@@ -91,6 +91,7 @@ public class GameService {
         game.setPlayers(game.getPlayers().stream().peek(p -> {
             p.setGold(STARTING_GOLD);
             p.setHand(game.drawFromDeck(STARTING_CARDS));
+            p.setPoints(0);
         }).collect(Collectors.toList()));
 
         game.newTurn();
@@ -196,7 +197,7 @@ public class GameService {
         DistrictEntity district = player.getHand().remove(handIndex.intValue());
         logService.logDistrictBuilding(game, district.getId());
 
-        player.getDistricts().add(district);
+        player.giveDistrict(district);
         player.takeGold(district.getCost());
         player.setBuildLimit(player.getBuildLimit() - 1);
         district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)

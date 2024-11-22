@@ -1,7 +1,9 @@
 <template>
   <div class="grid gap-8 grid-cols-3">
     <div
-      v-for="player in options.players.filter((p) => p.districts.length > 0)"
+      v-for="player in options.players.filter(
+        (p) => p.districts.length > 0 && p.districts.length < 7
+      )"
       :key="player.id"
       class="mt-1"
       style="width: 12vw"
@@ -21,6 +23,7 @@
             :image="districtImages[district.id - 1]"
             :selected="selectedPlayer === player.id && selectedDistrict === ind"
             :selectable="isSelectable(player, district)"
+            :protected="isProtected(player, district)"
             @click="toggle(player, district, ind)"
           ></GameModalBuiltDistrict>
         </div>
@@ -38,10 +41,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { ABILITY } from "@/utils/const";
+import { computed, ref } from "vue";
+import { ABILITY, CONDITIONS } from "@/utils/const";
 import Button from "primevue/button";
 import GameModalBuiltDistrict from "@/components/game/modals/GameModalBuiltDistrict.vue";
+import { hasCondition } from "@/utils/utils";
 
 const emit = defineEmits(["submit"]);
 
@@ -54,14 +58,34 @@ const props = defineProps({
 const selectedPlayer = ref();
 const selectedDistrict = ref();
 
+const isEightCharacter = computed(() => {
+  return [ABILITY.WARLORD, ABILITY.DIPLOMAT, ABILITY.MARSHAL].includes(
+    props.ability.enum
+  );
+});
+
+function isProtected(player, district) {
+  return (
+    district.abilities.includes(ABILITY.KEEP) ||
+    (isEightCharacter.value && hasCondition(player, CONDITIONS.PROTECTED))
+  );
+}
+
 function isSelectable(player, district) {
   if (props.ability.enum === ABILITY.WARLORD) {
     return district.cost <= props.options.gold + 1 && district.id !== 26;
   }
+  if (props.ability.enum === ABILITY.MARSHAL) {
+    return (
+      district.cost <= Math.min(props.options.gold, 3) &&
+      district.id !== 26 &&
+      !props.options.districts.includes(district.id)
+    );
+  }
 }
 
 function toggle(player, district, index) {
-  if (isSelectable(player, district)) {
+  if (isSelectable(player, district) && !isProtected(player, district)) {
     if (
       selectedPlayer.value === player.id &&
       selectedDistrict.value === index

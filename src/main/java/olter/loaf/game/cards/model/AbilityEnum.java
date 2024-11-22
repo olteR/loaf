@@ -2,6 +2,8 @@ package olter.loaf.game.cards.model;
 
 import lombok.Getter;
 import olter.loaf.game.cards.dto.AbilityTargetRequest;
+import olter.loaf.game.games.exception.CorruptedGameException;
+import olter.loaf.game.games.exception.InvalidActivationException;
 import olter.loaf.game.games.exception.InvalidTargetException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.ResourceTypeEnum;
@@ -122,13 +124,11 @@ public enum AbilityEnum {
     },
     WARLORD("WARLORD", List.of("city", "x"), TargetEnum.BUILT_DISTRICT, "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            PlayerEntity targetPlayer = game.getPlayer(target.getId());
-            int cost = targetPlayer.getDistricts().get(target.getIndex()).getCost() - 1;
-            if (cost > game.getCurrentPlayer().getGold()) {
+            DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
+            if (district.getCost() - 1 > game.getCurrentPlayer().getGold()) {
                 throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
             }
-            DistrictEntity district = game.getPlayer(target.getId()).getDistricts().remove(target.getIndex().intValue());
-            game.getCurrentPlayer().takeGold(cost);
+            game.getCurrentPlayer().takeGold(district.getCost() - 1);
             game.getDeck().add(district);
         }
     },
@@ -204,7 +204,16 @@ public enum AbilityEnum {
         }
     },
     SCHOLAR("SCHOLAR",List.of("7", "sheet-plastic"), TargetEnum.SELECTOR, "<p>Húzol 7 <i class=\"fa fa-sheet-plastic\"></i>-t és választasz egyet, amit megtarthatsz.</p>"),
-    MARSHAL("MARSHAL", List.of("city", "hand"), TargetEnum.CHEAP_BUILT_DISTRICT, ""),
+    MARSHAL("MARSHAL", List.of("city", "hand"), TargetEnum.OTHERS_BUILT_DISTRICT, "<p>Elvehetsz egy legfeljebb 3 <i class=\"fa fa-coins\"></i>-ba kerülő <i class=\"fa fa-city\"></i>-et egy másik játékos városából, a tulajdonosnak kifizetve az árát <i class=\"fa fa-coins\"></i>-ban.</p><p>Nem veheted el befejezett város kerületét, sem olyan kerületet amilyen már van a városodban.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
+            if (district.getCost() > 3 || game.getCurrentPlayer().getDistricts().contains(district)) {
+                throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
+            }
+            game.getCurrentPlayer().takeGold(district.getCost());
+            game.getCurrentPlayer().giveDistrict(district);
+        }
+    },
     TAX_COLLECTOR("TAX_COLLECTOR",List.of("users", "coins"), ""),
     GOLD_MINE("GOLD_MINE", ActivationEnum.ON_BUILD, "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
@@ -212,21 +221,46 @@ public enum AbilityEnum {
         }
     },
     FRAMEWORK("FRAMEWORK", List.of("city", "hammer"), ActivationEnum.AFTER_BUILD, TargetEnum.OWN_CARD, "<p>Megépítesz egy kerületet úgy, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a <i class=\"fa fa-city\"></i> árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített <i class=\"fa fa-city\"></i>-t.</p>"),
-    BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>"),
-    IMPERIAL_TREASURY("IMPERIAL_TREASURY", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a kincstartalékodban lévő minden <i class=\"fa fa-coins\"></i> után.</p>"),
+    BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            player.givePoints(
+                (int) player.getDistricts().stream().filter(district -> district.getCost() % 2 == 1).count());
+        }
+    },
+    IMPERIAL_TREASURY("IMPERIAL_TREASURY", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a kincstartalékodban lévő minden <i class=\"fa fa-coins\"></i> után.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            player.givePoints(player.getGold());
+        }
+    },
     CAPITOL("CAPITOL", ActivationEnum.END_OF_GAME, "<p>A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha  van legalább 3 egyforma típusú <i class=\"fa fa-city\"></i> a városodban.</p><p>A Capitolium csak egyszer adhat <i class=\"fa fa-star\"></i>-t.</p>"),
     OBSERVATORY("OBSERVATORY", ActivationEnum.ON_BUILD, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több közül választhatsz.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.STAR_GUIDANCE);
         }
     },
-    IVORY_TOWER("IVORY_TOWER", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha az Elefántcsonttorony az egyetlen <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> a városodban.</p>"),
+    IVORY_TOWER("IVORY_TOWER", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha az Elefántcsonttorony az egyetlen <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> a városodban.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            if (player.getDistricts().stream().filter(district -> district.getType() == DistrictTypeEnum.UNIQUE).count() > 1) {
+                player.givePoints(5);
+            }
+        }
+    },
     KEEP("KEEP", ActivationEnum.ON_BUILD, "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.BASTION);
         }
     },
-    ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, TargetEnum.BUILT_DISTRICT, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>"),
+    ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, TargetEnum.OTHERS_BUILT_DISTRICT, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.getPlayer(target.getId()).removeDistrict(target.getIndex());
+            game.getCurrentPlayer().removeDistrict(game.getCurrentPlayer().getDistricts().stream()
+                .filter(district -> district.getAbilities().contains(ARMORY)).findFirst()
+                .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode())));
+        }
+    },
     FACTORY("FACTORY", ActivationEnum.ON_BUILD, "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> megépítéséért.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.INDUSTRY);
@@ -238,8 +272,23 @@ public enum AbilityEnum {
         }
     },
     HAUNTED_QUARTER("HAUNTED_QUARTER", ActivationEnum.END_OF_GAME, "<p>A játék végén a Kísértetváros az általad választott típusú <i class=\"fa fa-city\"></i>-nek számít.</p><p>Ha a birtokos úgy dönt, hogy a Kísértetváros típusa nem <span style=\"font-variant: small-caps\">egyedi</span>, akkor többé nem számít annak.</p>"),
-    WISHING_WELL("WISHING_WELL", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a városodban lévő minden <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> után (beleértve a Kívánságkutat is).</p>"),
-    SMITHY("SMITHY", ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"></i>-ért 3 <i class=\"fa fa-sheet-plastic\"></i>-t húzhatsz.</p>"),
+    WISHING_WELL("WISHING_WELL", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a városodban lévő minden <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> után (beleértve a Kívánságkutat is).</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            player.givePoints(
+                (int) player.getDistricts().stream().filter(district -> district.getType() == DistrictTypeEnum.UNIQUE)
+                    .count());
+        }
+    },
+    SMITHY("SMITHY", ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"></i>-ért 3 <i class=\"fa fa-sheet-plastic\"></i>-t húzhatsz.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            if (game.getCurrentPlayer().getGold() < 2) {
+                throw new InvalidActivationException(game.getCurrentPlayer().getId(), SMITHY);
+            }
+            game.getCurrentPlayer().takeGold(2);
+            game.getCurrentPlayer().giveCards(game.drawFromDeck(3));
+        }
+    },
     LIBRARY("LIBRARY", ActivationEnum.ON_BUILD, "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több <i class=\"fa fa-sheet-plastic\"></i>-t tarts meg.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.KNOWLEDGE);
@@ -250,7 +299,12 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveCondition(ConditionEnum.STONE_MINING);
         }
     },
-    LABORATORY("LABORATORY", List.of("sheet-plastic", "left-right", "coins"), ActivationEnum.AFTER_BUILD, TargetEnum.OWN_CARD, "<p>A köröd folyamán egyszer eldobhatsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből és kapsz 2 <i class=\"fa fa-coins\"></i>-t.</p>"),
+    LABORATORY("LABORATORY", List.of("sheet-plastic", "left-right", "coins"), ActivationEnum.AFTER_BUILD, TargetEnum.OWN_CARD, "<p>A köröd folyamán egyszer eldobhatsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből és kapsz 2 <i class=\"fa fa-coins\"></i>-t.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.getDeck().add(game.getCurrentPlayer().getHand().remove(target.getIndex().intValue()));
+            game.getCurrentPlayer().giveGold(2);
+        }
+    },
     GREAT_WALL("GREAT_WALL", ActivationEnum.ON_BUILD, "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városodban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.GREAT_WALL);
@@ -261,15 +315,40 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveCondition(ConditionEnum.FRESH_AIR);
         }
     },
-    DRAGON_GATE("DRAGON_GATE", ActivationEnum.END_OF_GAME, "<p>A játék végén 2 <i class=\"fa fa-star\"></i> jár.</p>"),
+    DRAGON_GATE("DRAGON_GATE", ActivationEnum.END_OF_GAME, "<p>A játék végén 2 <i class=\"fa fa-star\"></i> jár.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.getPlayer(target.getId()).givePoints(2);
+        }
+    },
     POOR_HOUSE("POOR_HOUSE", ActivationEnum.ON_BUILD, "<p>Ha nincs <i class=\"fa fa-coins\"></i> a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.CHARITY);
         }
     },
-    STATUE("STATUE", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha nálad van a <i class=\"fa fa-crown\"></i>.</p>"),
-    NECROPOLIS("NECROPOLIS", List.of("city", "x", "hammer"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_BUILT_DISTRICT, "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy <i class=\"fa fa-city\"></i>-t a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>"),
-    MAP_ROOM("MAP_ROOM", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben maradt <i class=\"fa fa-sheet-plastic\"></i> után.</p>"),
+    STATUE("STATUE", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha nálad van a <i class=\"fa fa-crown\"></i>.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            if (player.hasCondition(ConditionEnum.CROWNED)) {
+                player.givePoints(5);
+            }
+        }
+    },
+    NECROPOLIS("NECROPOLIS", List.of("city", "x", "hammer"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_BUILT_DISTRICT, "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy <i class=\"fa fa-city\"></i>-t a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            DistrictEntity necropolis = game.getCurrentPlayer().getHand().stream()
+                .filter(district -> district.getAbilities().contains(NECROPOLIS)).findFirst()
+                .orElseThrow(() -> new InvalidActivationException(game.getCurrentPlayer().getId(), NECROPOLIS));
+            game.getDeck().add(game.getCurrentPlayer().removeDistrict(target.getIndex()));
+            game.getCurrentPlayer().getHand().remove(necropolis);
+            game.getCurrentPlayer().giveDistrict(necropolis);
+        }
+    },
+    MAP_ROOM("MAP_ROOM", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben maradt <i class=\"fa fa-sheet-plastic\"></i> után.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            player.givePoints(player.getHand().size());
+        }
+    },
     THIEVES_DEN("THIEVES_DEN", List.of("hammer", "sheet-plastic"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_CARDS, "<p>Építéskor a Tolvajtanya árát fizetheted részben <i class=\"fa fa-sheet-plastic\"></i>-okból (1 <i class=\"fa fa-sheet-plastic\"></i> = 1 <i class=\"fa fa-coins\"></i>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát csak az <i class=\"fa fa-coins\"></i>-t kapja vissza a tulajdonos.</p>"),
     SCHOOL_OF_MAGIC("SCHOOL_OF_MAGIC", ActivationEnum.ON_BUILD, "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karaktered típusának számít.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {

@@ -2,27 +2,28 @@
   <div
     v-if="card"
     class="district"
-    :class="{ hoverable: selectable }"
+    :class="{ hoverable: selectable && !props.protected }"
     :style="{
       outline: 'medium solid',
       'outline-color': getPrimaryColor,
     }"
   >
-    <div>
-      <div
-        class="district-cost items-center"
-        :style="{ background: getSecondaryColor }"
-        v-tooltip:[tooltipPosition]="{
-          value: `${composeDistrictDescription(card, true)}${
-            selectable ? '' : '<p><b>Ezt a kerületet nem választhatod.</b></p>'
-          }`,
-          escape: false,
-        }"
-      >
+    <div
+      class="district-cost inline-flex items-center justify-center"
+      :style="{ background: getSecondaryColor }"
+      v-tooltip:[tooltipPosition]="{
+        value: `${composeDistrictDescription(card, true)}${
+          selectable ? '' : '<p><b>Ezt a kerületet nem választhatod.</b></p>'
+        }`,
+        escape: false,
+      }"
+    >
+      <i v-if="props.protected" class="fa fa-shield-halved"></i>
+      <span v-else>
         {{ card.cost }}
-      </div>
-      <img class="district-img" :src="image.src" />
+      </span>
     </div>
+    <img class="district-img" :src="image.src" />
   </div>
 </template>
 
@@ -39,6 +40,7 @@ const props = defineProps({
   image: Object,
   selected: Boolean,
   selectable: Boolean,
+  protected: Boolean,
   tooltipPosition: Object,
 });
 

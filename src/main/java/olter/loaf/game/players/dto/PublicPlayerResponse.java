@@ -15,6 +15,7 @@ public class PublicPlayerResponse {
     private Long userId;
     private String name;
     private Integer gold;
+    private Integer points;
     private Integer handSize;
     private Integer character;
     private List<ConditionResponse> conditions;

@@ -387,6 +387,17 @@ async function useAbility(ability) {
           gold: gameStore.getCurrentPlayer.gold,
         });
         break;
+      case ABILITY_TARGET.OTHERS_BUILT_DISTRICT:
+        openModal(GAME_MODAL.DISTRICT, useTargetedAbility, {
+          players: gameStore.getGame.players.filter(
+            (player) => player.id !== gameStore.getGame.currentPlayer
+          ),
+          gold: gameStore.getCurrentPlayer.gold,
+          districts: gameStore.getCurrentPlayer.districts.map(
+            (district) => district.id
+          ),
+        });
+        break;
       case ABILITY_TARGET.GOLD_OR_CARDS:
         openModal(GAME_MODAL.RESOURCE, useTargetedAbility, {
           gold: 4,
