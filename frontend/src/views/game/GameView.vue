@@ -44,31 +44,42 @@
       </div>
     </Button>
     <Dialog
-      :closable="modalSettings.ability"
+      :closable="!!modalSettings.ability"
       v-model:visible="modalSettings.visible"
       modal
       :header="modalHeader"
     >
       <ResourceSelectModal
         v-if="modalSettings.type === GAME_MODAL.RESOURCE"
-        @submit="(target) => modalSettings.onSubmit(target)"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
       <CardSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.CARDS"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
+        :district-images="cardStore.getDistrictImages"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
       <CharacterSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.CHARACTER"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
+        :character-images="cardStore.getCharacterImages"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
       <PlayerSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.PLAYER"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+      />
+      <DistrictSelectModal
+        v-else-if="modalSettings.type === GAME_MODAL.DISTRICT"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        :district-images="cardStore.getDistrictImages"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
     </Dialog>
@@ -85,6 +96,8 @@ import {
   GAME_MODAL,
   GAME_PHASE,
   RESOURCE,
+  RESOURCE_CARDS,
+  RESOURCE_GOLD,
 } from "@/utils/const";
 
 import { useStateStore } from "@/stores/state";
@@ -104,6 +117,7 @@ import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.
 import CharacterList from "@/components/game/characters/CharacterList.vue";
 import { hasCondition } from "@/utils/utils";
 import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
+import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
 
 const router = useRouter();
 
@@ -134,14 +148,14 @@ const currentMessage = computed(() => {
     case GAME_PHASE.SELECTION:
       return onTurn.value
         ? "Válassz karaktert!"
-        : `${gameStore.getCurrentPlayer.name} választ karaktert`;
+        : `${gameStore.getCurrentPlayer?.name} választ karaktert`;
     case GAME_PHASE.RESOURCE:
       return onTurn.value
         ? "Gyűjts nyersanyagot!"
         : `A(z) ${
             gameStore.getGame.characters[
               gameStore.getCurrentPlayer.character - 1
-            ].name
+            ]?.name
           } (${gameStore.getCurrentPlayer.name}) gyűjt nyersanyagot`;
     case GAME_PHASE.TURN:
       return onTurn.value
@@ -149,7 +163,7 @@ const currentMessage = computed(() => {
         : `A(z) ${
             gameStore.getGame.characters[
               gameStore.getCurrentPlayer.character - 1
-            ].name
+            ]?.name
           } (${gameStore.getCurrentPlayer.name}) van körön`;
     default:
       return "";
@@ -163,7 +177,13 @@ const modalHeader = computed(() => {
     case GAME_MODAL.RESOURCE:
       return "Válassz nyersanyagot!";
     case GAME_MODAL.CARDS:
-      return "Válassz kártyát!";
+      return `Válassz ${
+        modalSettings.value.options.maxSelect > 1 ? "kártyákat" : "kártyát"
+      }!`;
+    case GAME_MODAL.PLAYER:
+      return "Válassz játékost!";
+    case GAME_MODAL.DISTRICT:
+      return "Válassz kerületet!";
     default:
       return "Válassz!";
   }
@@ -233,17 +253,30 @@ watch(
         gameStore.getGame.phase === GAME_PHASE.RESOURCE &&
         onTurn.value
       ) {
+        const isGoldMining = hasCondition(
+          gameStore.getCurrentPlayer,
+          CONDITIONS.GOLD_MINING
+        );
+        const hasStarGuidance = hasCondition(
+          gameStore.getCurrentPlayer,
+          CONDITIONS.STAR_GUIDANCE
+        );
+        const hasKnowledge = hasCondition(
+          gameStore.getCurrentPlayer,
+          CONDITIONS.KNOWLEDGE
+        );
+        const selectCount = hasKnowledge ? 2 : 1;
         if (gameStore.getGame.drawnCards.length === 0) {
-          openModal(GAME_MODAL.RESOURCE, gatherResources);
+          openModal(GAME_MODAL.RESOURCE, gatherResources, {
+            gold: isGoldMining ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
+            cards: hasStarGuidance ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
+            cardsToKeep: selectCount,
+          });
         } else {
           openModal(GAME_MODAL.CARDS, drawCards, {
             cards: gameStore.getGame.drawnCards,
-            selectCount: hasCondition(
-              gameStore.getCurrentPlayer,
-              CONDITIONS.KNOWLEDGE
-            )
-              ? 2
-              : 1,
+            minSelect: selectCount,
+            maxSelect: selectCount,
           });
         }
       }
@@ -285,7 +318,8 @@ async function gatherResources(resource) {
     } else {
       openModal(GAME_MODAL.CARDS, drawCards, {
         cards: response.data,
-        selectCount: hasKnowledge ? 2 : 1,
+        minSelect: hasKnowledge ? 2 : 1,
+        maxSelect: hasKnowledge ? 2 : 1,
       });
     }
   } else {
@@ -333,6 +367,33 @@ async function useAbility(ability) {
           ),
         });
         break;
+      case ABILITY_TARGET.OWN_CARD:
+        openModal(GAME_MODAL.CARDS, useTargetedAbility, {
+          cards: gameStore.getGame.hand,
+          minSelect: 1,
+          maxSelect: 1,
+        });
+        break;
+      case ABILITY_TARGET.OWN_CARDS:
+        openModal(GAME_MODAL.CARDS, useTargetedAbility, {
+          cards: gameStore.getGame.hand,
+          minSelect: 1,
+          maxSelect: gameStore.getGame.hand.length,
+        });
+        break;
+      case ABILITY_TARGET.BUILT_DISTRICT:
+        openModal(GAME_MODAL.DISTRICT, useTargetedAbility, {
+          players: gameStore.getGame.players,
+          gold: gameStore.getCurrentPlayer.gold,
+        });
+        break;
+      case ABILITY_TARGET.GOLD_OR_CARDS:
+        openModal(GAME_MODAL.RESOURCE, useTargetedAbility, {
+          gold: 4,
+          cards: 4,
+          cardsToKeep: 4,
+        });
+        break;
       default:
         console.log(ability);
     }
@@ -359,8 +420,42 @@ async function useTargetedAbility(target, ability) {
         },
       });
       break;
+    case ABILITY_TARGET.OWN_CARD:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          index: target[0],
+        },
+      });
+      break;
+    case ABILITY_TARGET.OWN_CARDS:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          indexes: target,
+        },
+      });
+      break;
+    case ABILITY_TARGET.BUILT_DISTRICT:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target,
+      });
+      break;
+    case ABILITY_TARGET.GOLD_OR_CARDS:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          resource: target,
+        },
+      });
+      break;
     default:
-      console.log(ability);
+      console.log(target, ability);
   }
   closeModal();
 }

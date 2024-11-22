@@ -5,7 +5,7 @@
     :class="{ hoverable: clickable }"
     :style="{
       'outline-color': COLORS[district.type].PRIMARY,
-      'background-image': 'url(' + imageSource + ')',
+      'background-image': 'url(' + props.image.src + ')',
     }"
   >
     <div
@@ -42,21 +42,16 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import { COLORS } from "@/utils/const";
 import { composeDistrictDescription } from "@/utils/utils";
 
 const props = defineProps({
   district: Object,
+  image: Object,
   selected: Boolean,
   selectable: Boolean,
   clickable: Boolean,
 });
-
-const imageSource = computed(
-  () =>
-    `${window.location.origin}/src/assets/districts/${props.district?.id}.jpg`
-);
 </script>
 
 <style scoped>

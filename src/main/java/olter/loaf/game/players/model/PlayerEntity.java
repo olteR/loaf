@@ -26,6 +26,7 @@ public class PlayerEntity extends BaseEntity {
     private Integer gold;
     private Integer buildLimit;
     private Boolean revealed;
+    private Long abilityTarget;
 
     @Column(name = "character_number")
     private Integer character;
@@ -35,6 +36,9 @@ public class PlayerEntity extends BaseEntity {
 
     @Formula("(SELECT u.name FROM users u WHERE u.id = user_id)")
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private AbilityEnum usingAbility;
 
     @ElementCollection
     @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))

@@ -9,7 +9,7 @@
           <i
             class="fa fa-coins"
             v-tooltip="{
-              value: '2 arany',
+              value: `${options.gold} arany`,
               escape: false,
             }"
           ></i>
@@ -25,7 +25,10 @@
           <i
             class="fa fa-sheet-plastic"
             v-tooltip="{
-              value: '2 lap húzása a pakliból, amiből egyet választhatsz',
+              value:
+                options.cards === options.cardsToKeep
+                  ? `${options.cards} lap húzása a pakliból`
+                  : `${options.cards} lap húzása a pakliból, amiből ${options.cardsToKeep}-t választhatsz`,
               escape: false,
             }"
           ></i>
@@ -40,9 +43,13 @@ import Button from "primevue/button";
 import { RESOURCE } from "@/utils/const";
 
 const emit = defineEmits(["submit"]);
+const props = defineProps({
+  options: Object,
+  ability: Object,
+});
 
 function gatherResource(resource) {
-  emit("submit", resource);
+  emit("submit", resource, props.ability);
 }
 </script>
 

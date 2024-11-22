@@ -24,6 +24,8 @@ export const BREADCRUMB = {
 export const MAX_UNIQUE_DISTRICTS = 14;
 export const MIN_LOBBY_PLAYERS = 4;
 export const MAX_LOBBY_PLAYERS = 7;
+export const RESOURCE_GOLD = 2;
+export const RESOURCE_CARDS = 2;
 
 export const COLORS = {
   NOBLE: {
@@ -113,6 +115,7 @@ export const GAME_MODAL = {
   RESOURCE: "RESOURCE",
   CARDS: "CARDS",
   PLAYER: "PLAYER",
+  DISTRICT: "DISTRICT",
 };
 
 export const DISTRICT_TYPE = {
@@ -153,10 +156,8 @@ export const LOBBY_STATUS = {
   ENDED: "ENDED",
 };
 
-export const ABILITY_USE_RULE = {
-  AND: "AND",
-  OR: "OR",
-  MUST: "",
+export const ABILITY = {
+  WARLORD: "WARLORD",
 };
 
 export const ABILITY_TYPE = {
@@ -203,6 +204,7 @@ export const ABILITY_TARGET = {
 
 export const CONDITIONS = {
   CROWNED: "CROWNED",
+  GOLD_MINING: "GOLD_MINING",
   STAR_GUIDANCE: "STAR_GUIDANCE",
   KNOWLEDGE: "KNOWLEDGE",
 };

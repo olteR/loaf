@@ -5,7 +5,7 @@
     :class="{ hoverable: clickable }"
     :style="{
       'outline-color': getPrimaryColor,
-      'background-image': 'url(' + imageSource + ')',
+      'background-image': 'url(' + props.image.src + ')',
     }"
     @click="select"
   >
@@ -78,16 +78,13 @@ import {
 const emit = defineEmits(["select"]);
 const props = defineProps({
   character: Object,
+  image: Object,
   selected: Boolean,
   unavailable: Boolean,
   discarded: Boolean,
   untargetable: Boolean,
 });
 
-const imageSource = computed(
-  () =>
-    `${window.location.origin}/src/assets/characters/${props.character?.id}.jpg`
-);
 const getPrimaryColor = computed(() => {
   return clickable.value ? primaryColor(props.character.type) : "#121212";
 });

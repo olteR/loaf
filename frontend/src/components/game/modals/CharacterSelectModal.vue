@@ -7,6 +7,7 @@
     >
       <GameModalCharacterCard
         :character="character"
+        :image="characterImages[character.id - 1]"
         :selected="selectedCharacter === character.number"
         :unavailable="options.unavailable?.includes(character.number)"
         :discarded="options.discarded?.includes(character.number)"
@@ -32,6 +33,7 @@ const emit = defineEmits(["submit"]);
 const props = defineProps({
   options: Object,
   ability: Object,
+  characterImages: Array,
 });
 
 const selectedCharacter = ref();

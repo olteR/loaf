@@ -28,10 +28,7 @@ export const useGameStore = defineStore("game", () => {
       ) ?? {}
   );
   const getCharacter = computed(
-    () =>
-      game.value?.characters.find(
-        (character) => character.number === game.value.character
-      ) ?? null
+    () => game.value?.characters[game.value.character - 1]
   );
 
   async function fetchGame(code) {
@@ -113,9 +110,7 @@ export const useGameStore = defineStore("game", () => {
         case GAME_UPDATE.BUILD: {
           game.value.players = game.value.players.map((player) => {
             if (player.id === game.value.currentPlayer) {
-              player.districts.push(update.change);
-              player.handSize -= 1;
-              player.gold -= update.change.cost;
+              return update.change;
             }
             return player;
           });

@@ -19,11 +19,11 @@ INSERT INTO lobbies VALUES (1, 'N0X5T4R7', 7, 'alfonz31 lobbija', 1, null, false
 INSERT INTO lobby_users VALUES (1, 1), (1, 2), (1, 3), (1, 4),
                                (2, 3);
 
-INSERT INTO players VALUES (1, null, null, null, 1, false, 1, 1),
-                           (2, null, null, null, 2, false, 2, 1),
-                           (3, null, null, null, 3, false, 3, 1),
-                           (4, null, null, null, 4, false, 4, 1),
-                           (5, null, null, null, 1, false, 3, 2);
+INSERT INTO players VALUES (1, null, null, null, 1, false, 1, 1, null, null),
+                           (2, null, null, null, 2, false, 2, 1, null, null),
+                           (3, null, null, null, 3, false, 3, 1, null, null),
+                           (4, null, null, null, 4, false, 4, 1, null, null),
+                           (5, null, null, null, 1, false, 3, 2, null, null);
 
 INSERT INTO game_characters VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
                                    (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8);

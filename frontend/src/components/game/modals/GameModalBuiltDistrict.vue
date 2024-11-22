@@ -2,17 +2,20 @@
   <div
     v-if="card"
     class="district"
+    :class="{ hoverable: selectable }"
     :style="{
       outline: 'medium solid',
-      'outline-color': COLORS[card.type].PRIMARY,
+      'outline-color': getPrimaryColor,
     }"
   >
     <div>
       <div
         class="district-cost items-center"
-        :style="{ background: COLORS[card.type].SECONDARY }"
+        :style="{ background: getSecondaryColor }"
         v-tooltip:[tooltipPosition]="{
-          value: composeDistrictDescription(card, true),
+          value: `${composeDistrictDescription(card, true)}${
+            selectable ? '' : '<p><b>Ezt a kerületet nem választhatod.</b></p>'
+          }`,
           escape: false,
         }"
       >
@@ -24,13 +27,27 @@
 </template>
 
 <script setup>
-import { COLORS } from "@/utils/const";
-import { composeDistrictDescription } from "@/utils/utils";
+import {
+  composeDistrictDescription,
+  primaryColor,
+  secondaryColor,
+} from "@/utils/utils";
+import { computed } from "vue";
 
 const props = defineProps({
   card: Object,
   image: Object,
+  selected: Boolean,
+  selectable: Boolean,
   tooltipPosition: Object,
+});
+
+const getPrimaryColor = computed(() => {
+  return props.selected ? primaryColor(props.card.type) : "#121212";
+});
+
+const getSecondaryColor = computed(() => {
+  return props.selected ? secondaryColor(props.card.type) : "#121212";
 });
 </script>
 

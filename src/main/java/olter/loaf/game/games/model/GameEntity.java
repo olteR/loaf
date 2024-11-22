@@ -111,7 +111,7 @@ public class GameEntity extends BaseEntity {
     // Removes n cards from the deck and returns them
     public List<DistrictEntity> drawFromDeck(int cardCount) {
         List<DistrictEntity> drawnCards = new ArrayList<>();
-        for (int i = 0; i < cardCount; i++) {
+        for (int i = 0; i < cardCount && !deck.isEmpty(); i++) {
             drawnCards.add(deck.remove(0));
         }
         return drawnCards;

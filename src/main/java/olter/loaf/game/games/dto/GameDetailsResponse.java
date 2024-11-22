@@ -28,7 +28,6 @@ public class GameDetailsResponse {
     private List<PublicPlayerResponse> players;
 
     // Player information
-    private Integer gold;
     private Integer character;
     private List<DistrictResponse> hand;
     private List<DistrictResponse> drawnCards;

@@ -20,6 +20,7 @@ import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
+import olter.loaf.game.players.PlayerMapper;
 import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
@@ -46,6 +47,7 @@ public class GameService {
     private final DistrictRepository districtRepository;
     private final LogService logService;
     private final GameMapper gameMapper;
+    private final PlayerMapper playerMapper;
     private final CardMapper cardMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -200,7 +202,7 @@ public class GameService {
         district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
             .forEach(ability -> ability.useAbility(game, null));
         playerRepository.save(player);
-        broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, cardMapper.entityToResponse(district));
+        broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, playerMapper.entityToPublicResponse(player));
     }
 
     public void useAbility(AbilityRequest request, UserEntity user) {

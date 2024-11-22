@@ -29,7 +29,7 @@ public enum ConditionEnum {
     GREAT_WALL("GREAT_WALL", "A fal védelme", "shield-halved", "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>"),
     FRESH_AIR("FRESH_AIR", "Friss levegő", "tree", ActivationEnum.END_OF_TURN, "<p>Ha nincs <i class=\"fa fa-sheet-plastic\"></i> a játékos kezében a köre végén, húz két <i class=\"fa fa-sheet-plastic\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>"),
     CHARITY("CHARITY", "Adomány", "hand-holding-dollar", ActivationEnum.END_OF_TURN, "<p>Ha nincs <i class=\"fa fa-coins\"></i> a játékos kincstartalékában a köre végén, kap 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>"),
-    MAGICAL_DISTRICT("MAGICAL_DISTRICT", "Mágikus kerület", "hat-wizard", "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karakterhez tartozó kerületnek számít.</p>");
+    MAGICAL_DISTRICT("MAGICAL_DISTRICT", "Mágikus kerület", "hat-wizard", "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karaktered típusának számít.</p>");
     // @formatter:on
 
     private final String value;

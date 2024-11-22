@@ -50,7 +50,7 @@ public enum AbilityEnum {
             getTypeGold(game, DistrictTypeEnum.MILITARY);
         }
     },
-    TAKE_CROWN("TAKE_CROWN", List.of(), ActivationEnum.START_OF_TURN, "<p>A köröd során elveszed a <i class=\"fa fa-crown\"></i>-t. A karakter választási fázisban te választasz először karaktert, amíg egy másik játékos nem választja a Királyt.</p><p>Ha meggyilkolnak, akkor ugyanúgy kihagyod a körödet, mint bármely más karakter, a <i class=\"fa fa-crown\"></i> pedig nálad marad, mint trónörökösnél.</p><p>Ha megbabonáznak, attól még megtartod a <i class=\"fa fa-crown\"></i>-t.</p>") {
+    TAKE_CROWN("TAKE_CROWN", List.of(), ActivationEnum.START_OF_TURN, "<p>A köröd elején elveszed a <i class=\"fa fa-crown\"></i>-t. A karakter választási fázisban te választasz először karaktert, amíg egy másik játékos nem választja a Királyt.</p><p>Ha meggyilkolnak, akkor ugyanúgy kihagyod a körödet, mint bármely más karakter, a <i class=\"fa fa-crown\"></i> pedig nálad marad, mint trónörökösnél.</p><p>Ha megbabonáznak, attól még megtartod a <i class=\"fa fa-crown\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.setCrownedPlayer(game.getCurrentPlayer());
         }
@@ -84,9 +84,18 @@ public enum AbilityEnum {
     },
     MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), TargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            target.getIndexes()
-                .forEach(index -> game.getDeck().add(game.getCurrentPlayer().getHand().remove(index.intValue())));
-            game.getCurrentPlayer().giveCards(game.drawFromDeck(target.getIndexes().size()));
+            List<DistrictEntity> newHand = new ArrayList<>();
+            List<DistrictEntity> discardedCards = new ArrayList<>();
+            for (int i = 0; i < game.getCurrentPlayer().getHand().size(); i++) {
+                if (target.getIndexes().contains(i)) {
+                    discardedCards.add(game.getCurrentPlayer().getHand().get(i));
+                } else {
+                    newHand.add(game.getCurrentPlayer().getHand().get(i));
+                }
+            }
+            game.getDeck().addAll(discardedCards);
+            newHand.addAll(game.drawFromDeck(discardedCards.size()));
+            game.getCurrentPlayer().setHand(newHand);
             game.getCurrentPlayer().getUsedAbilities().add(MAGICIAN_PLAYER);
         }
     },
@@ -113,7 +122,14 @@ public enum AbilityEnum {
     },
     WARLORD("WARLORD", List.of("city", "x"), TargetEnum.BUILT_DISTRICT, "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            int cost = targetPlayer.getDistricts().get(target.getIndex()).getCost() - 1;
+            if (cost > game.getCurrentPlayer().getGold()) {
+                throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
+            }
+            DistrictEntity district = game.getPlayer(target.getId()).getDistricts().remove(target.getIndex().intValue());
+            game.getCurrentPlayer().takeGold(cost);
+            game.getDeck().add(district);
         }
     },
     QUEEN("QUEEN", List.of("crown", "coins"), "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>") {
@@ -170,7 +186,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(0);
         }
     },
-    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), TargetEnum.BUILT_DISTRICT, "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>"),
+    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), TargetEnum.SWAP_DISTRICT, "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>"),
     ARTIST("ARTIST", List.of("city", "paintbrush"), TargetEnum.OWN_BUILT_DISTRICT, "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
     MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), TargetEnum.WARRANTS, ""),
     BLACKMAILER("BLACKMAILER", List.of("user", "mask"), TargetEnum.THREAT_MARKERS, ""),
@@ -255,7 +271,7 @@ public enum AbilityEnum {
     NECROPOLIS("NECROPOLIS", List.of("city", "x", "hammer"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_BUILT_DISTRICT, "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy <i class=\"fa fa-city\"></i>-t a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>"),
     MAP_ROOM("MAP_ROOM", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben maradt <i class=\"fa fa-sheet-plastic\"></i> után.</p>"),
     THIEVES_DEN("THIEVES_DEN", List.of("hammer", "sheet-plastic"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_CARDS, "<p>Építéskor a Tolvajtanya árát fizetheted részben <i class=\"fa fa-sheet-plastic\"></i>-okból (1 <i class=\"fa fa-sheet-plastic\"></i> = 1 <i class=\"fa fa-coins\"></i>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát csak az <i class=\"fa fa-coins\"></i>-t kapja vissza a tulajdonos.</p>"),
-    SCHOOL_OF_MAGIC("SCHOOL_OF_MAGIC", ActivationEnum.ON_BUILD, "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda az általad választott típusú kerületnek számít.</p>") {
+    SCHOOL_OF_MAGIC("SCHOOL_OF_MAGIC", ActivationEnum.ON_BUILD, "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karaktered típusának számít.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.MAGICAL_DISTRICT);
         }
