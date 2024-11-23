@@ -48,6 +48,7 @@
       v-model:visible="modalSettings.visible"
       modal
       :header="modalHeader"
+      @hide="closeModal"
     >
       <ResourceSelectModal
         v-if="modalSettings.type === GAME_MODAL.RESOURCE"
@@ -90,6 +91,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import {
+  ABILITY,
   ABILITY_TARGET,
   ABILITY_TYPE,
   CONDITIONS,
@@ -118,8 +120,10 @@ import CharacterList from "@/components/game/characters/CharacterList.vue";
 import { hasCondition } from "@/utils/utils";
 import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
+import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
+const toast = useToast();
 
 const stateStore = useStateStore();
 const websocketStore = useWebsocketStore();
@@ -130,10 +134,14 @@ const lobbyCode = router.currentRoute.value.params.code;
 const modalSettings = ref({
   visible: false,
   type: null,
+  header: null,
   onSubmit: null,
   options: {},
   ability: null,
 });
+
+const modalChain = ref([]);
+const targetBuffer = ref({});
 
 const onTurn = computed(() => {
   return gameStore.getCurrentPlayer.userId === stateStore.getUser.id;
@@ -171,6 +179,7 @@ const currentMessage = computed(() => {
 });
 
 const modalHeader = computed(() => {
+  if (modalSettings.value.header) return modalSettings.value.header;
   switch (modalSettings.value.type) {
     case GAME_MODAL.CHARACTER:
       return "Válassz karaktert!";
@@ -244,10 +253,14 @@ watch(
   (newValue) => {
     if (newValue.userId === stateStore.getUser.id) {
       if (gameStore.getGame.phase === GAME_PHASE.SELECTION) {
-        openModal(GAME_MODAL.CHARACTER, selectCharacter, {
-          characters: gameStore.getGame.characters,
-          unavailable: gameStore.getGame.unavailableCharacters,
-          discarded: gameStore.getGame.discardedCharacters,
+        modalChain.value.push({
+          type: GAME_MODAL.CHARACTER,
+          submit: selectCharacter,
+          options: {
+            characters: gameStore.getGame.characters,
+            unavailable: gameStore.getGame.unavailableCharacters,
+            discarded: gameStore.getGame.discardedCharacters,
+          },
         });
       } else if (
         gameStore.getGame.phase === GAME_PHASE.RESOURCE &&
@@ -267,34 +280,64 @@ watch(
         );
         const selectCount = hasKnowledge ? 2 : 1;
         if (gameStore.getGame.drawnCards.length === 0) {
-          openModal(GAME_MODAL.RESOURCE, gatherResources, {
-            gold: isGoldMining ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
-            cards: hasStarGuidance ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
-            cardsToKeep: selectCount,
+          modalChain.value.push({
+            type: GAME_MODAL.RESOURCE,
+            submit: gatherResources,
+            options: {
+              gold: isGoldMining ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
+              cards: hasStarGuidance ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
+              cardsToKeep: selectCount,
+            },
           });
         } else {
-          openModal(GAME_MODAL.CARDS, drawCards, {
-            cards: gameStore.getGame.drawnCards,
-            minSelect: selectCount,
-            maxSelect: selectCount,
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: drawCards,
+            options: {
+              cards: gameStore.getGame.drawnCards,
+              minSelect: selectCount,
+              maxSelect: selectCount,
+            },
           });
         }
       }
+      openNextModal();
     }
   }
 );
 
-function openModal(type, submit, options = {}) {
-  modalSettings.value.visible = true;
-  modalSettings.value.type = type;
-  modalSettings.value.onSubmit = submit;
-  modalSettings.value.options = options;
+function openNextModal(target) {
+  if (target) {
+    targetBuffer.value = { ...target, ...targetBuffer.value };
+    console.log(targetBuffer.value);
+  }
+  if (modalChain.value.length > 0) {
+    const modal = modalChain.value.shift();
+    modalSettings.value.visible = true;
+    modalSettings.value.header = modal.header;
+    modalSettings.value.type = modal.type;
+    modalSettings.value.onSubmit = modal.submit;
+    modalSettings.value.options = modal.options;
+    if (
+      modalSettings.value.ability.enum === ABILITY.DIPLOMAT &&
+      targetBuffer.value.index != null
+    ) {
+      modalSettings.value.options.maxCost +=
+        gameStore.getCurrentPlayer.districts[targetBuffer.value.index].cost;
+      console.log(modalSettings.value.options);
+    }
+  } else {
+    closeModal();
+  }
 }
 
 function closeModal() {
   modalSettings.value.visible = false;
   modalSettings.value.type = null;
   modalSettings.value.ability = null;
+  modalSettings.value.header = null;
+  targetBuffer.value = {};
+  modalChain.value = [];
 }
 
 async function selectCharacter(number) {
@@ -316,11 +359,16 @@ async function gatherResources(resource) {
       gameStore.getGame.hand = gameStore.getGame.hand.concat(response.data);
       closeModal();
     } else {
-      openModal(GAME_MODAL.CARDS, drawCards, {
-        cards: response.data,
-        minSelect: hasKnowledge ? 2 : 1,
-        maxSelect: hasKnowledge ? 2 : 1,
+      modalChain.value.push({
+        type: GAME_MODAL.CARDS,
+        submit: drawCards,
+        options: {
+          cards: response.data,
+          minSelect: hasKnowledge ? 2 : 1,
+          maxSelect: hasKnowledge ? 2 : 1,
+        },
       });
+      openNextModal();
     }
   } else {
     closeModal();
@@ -347,67 +395,170 @@ async function useAbility(ability) {
     modalSettings.value.ability = ability;
     switch (ability.target) {
       case ABILITY_TARGET.CHARACTER:
-        openModal(GAME_MODAL.CHARACTER, useTargetedAbility, {
-          characters: gameStore.getGame.characters,
-          discarded: gameStore.getGame.discardedCharacters,
-          untargetable: gameStore.getGame.characters
-            .filter(
-              (character) =>
-                character.number <= gameStore.getCurrentPlayer.character ||
-                character.number === gameStore.getGame.killedCharacter ||
-                character.number === gameStore.getGame.bewitchedCharacter
-            )
-            .map((character) => character.number),
+        modalChain.value.push({
+          type: GAME_MODAL.CHARACTER,
+          submit: useTargetedAbility,
+          options: {
+            characters: gameStore.getGame.characters,
+            discarded: gameStore.getGame.discardedCharacters,
+            untargetable: gameStore.getGame.characters
+              .filter(
+                (character) =>
+                  character.number <= gameStore.getCurrentPlayer.character ||
+                  character.number === gameStore.getGame.killedCharacter ||
+                  character.number === gameStore.getGame.bewitchedCharacter
+              )
+              .map((character) => character.number),
+          },
         });
         break;
       case ABILITY_TARGET.PLAYER:
-        openModal(GAME_MODAL.PLAYER, useTargetedAbility, {
-          players: gameStore.getGame.players.filter(
-            (player) => player.id !== gameStore.getGame.currentPlayer
-          ),
+        modalChain.value.push({
+          type: GAME_MODAL.PLAYER,
+          submit: useTargetedAbility,
+          options: {
+            players: gameStore.getGame.players.filter(
+              (player) => player.id !== gameStore.getGame.currentPlayer
+            ),
+          },
+        });
+        break;
+      case ABILITY_TARGET.PLAYER_AND_RESOURCE:
+        modalChain.value.push({
+          type: GAME_MODAL.PLAYER,
+          submit: (target) => openNextModal({ id: target }),
+          options: {
+            players: gameStore.getGame.players.filter(
+              (player) =>
+                player.id !== gameStore.getGame.currentPlayer &&
+                !hasCondition(player, CONDITIONS.CROWNED)
+            ),
+          },
+        });
+        modalChain.value.push({
+          type: GAME_MODAL.RESOURCE,
+          submit: useTargetedAbility,
+          options: {
+            gold: 1,
+            cards: 1,
+            cardsToKeep: 1,
+          },
         });
         break;
       case ABILITY_TARGET.OWN_CARD:
-        openModal(GAME_MODAL.CARDS, useTargetedAbility, {
-          cards: gameStore.getGame.hand,
-          minSelect: 1,
-          maxSelect: 1,
-        });
+        if (gameStore.getGame.hand > 0) {
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: useTargetedAbility,
+            options: {
+              cards: gameStore.getGame.hand,
+              minSelect: 1,
+              maxSelect: 1,
+            },
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Nincs lapod!",
+            detail:
+              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+            life: 3000,
+          });
+        }
         break;
       case ABILITY_TARGET.OWN_CARDS:
-        openModal(GAME_MODAL.CARDS, useTargetedAbility, {
-          cards: gameStore.getGame.hand,
-          minSelect: 1,
-          maxSelect: gameStore.getGame.hand.length,
-        });
+        if (gameStore.getGame.hand > 0) {
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: useTargetedAbility,
+            options: {
+              cards: gameStore.getGame.hand,
+              minSelect: 1,
+              maxSelect: gameStore.getGame.hand.length,
+            },
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Nincs lapod!",
+            detail:
+              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+            life: 3000,
+          });
+        }
         break;
       case ABILITY_TARGET.BUILT_DISTRICT:
-        openModal(GAME_MODAL.DISTRICT, useTargetedAbility, {
-          players: gameStore.getGame.players,
-          gold: gameStore.getCurrentPlayer.gold,
+        modalChain.value.push({
+          type: GAME_MODAL.DISTRICT,
+          submit: useTargetedAbility,
+          options: {
+            players: gameStore.getGame.players,
+            maxCost: gameStore.getCurrentPlayer.gold + 1,
+          },
         });
         break;
+      case ABILITY_TARGET.SWAP_DISTRICT:
+        if (gameStore.getCurrentPlayer.districts.length > 0) {
+          modalChain.value.push({
+            header: "Válassz saját kerületet!",
+            type: GAME_MODAL.DISTRICT,
+            submit: openNextModal,
+            options: {
+              players: [gameStore.getCurrentPlayer],
+              isOwn: true,
+            },
+          });
+          modalChain.value.push({
+            header: "Válassz cserélendő kerületet!",
+            type: GAME_MODAL.DISTRICT,
+            submit: useTargetedAbility,
+            options: {
+              players: gameStore.getGame.players.filter(
+                (player) => player.id !== gameStore.getGame.currentPlayer
+              ),
+              maxCost: gameStore.getCurrentPlayer.gold,
+            },
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Nincs kerületed!",
+            detail:
+              "Ezt a képességet nem használhatod úgy, hogy nincs kerületed építve!",
+            life: 3000,
+          });
+        }
+        break;
       case ABILITY_TARGET.OTHERS_BUILT_DISTRICT:
-        openModal(GAME_MODAL.DISTRICT, useTargetedAbility, {
-          players: gameStore.getGame.players.filter(
-            (player) => player.id !== gameStore.getGame.currentPlayer
-          ),
-          gold: gameStore.getCurrentPlayer.gold,
-          districts: gameStore.getCurrentPlayer.districts.map(
-            (district) => district.id
-          ),
+        modalChain.value.push({
+          type: GAME_MODAL.DISTRICT,
+          submit: useTargetedAbility,
+          options: {
+            players: gameStore.getGame.players.filter(
+              (player) => player.id !== gameStore.getGame.currentPlayer
+            ),
+            maxCost: Math.min(gameStore.getCurrentPlayer.gold, 3),
+            districts: gameStore.getCurrentPlayer.districts.map(
+              (district) => district.id
+            ),
+          },
         });
         break;
       case ABILITY_TARGET.GOLD_OR_CARDS:
-        openModal(GAME_MODAL.RESOURCE, useTargetedAbility, {
-          gold: 4,
-          cards: 4,
-          cardsToKeep: 4,
+        modalChain.value.push({
+          type: GAME_MODAL.RESOURCE,
+          submit: useTargetedAbility,
+          options: {
+            gold: 4,
+            cards: 4,
+            cardsToKeep: 4,
+          },
         });
         break;
       default:
         console.log(ability);
     }
+    openNextModal();
   }
 }
 
@@ -431,6 +582,13 @@ async function useTargetedAbility(target, ability) {
         },
       });
       break;
+    case ABILITY_TARGET.PLAYER_AND_RESOURCE:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: { resource: target, ...targetBuffer.value },
+      });
+      break;
     case ABILITY_TARGET.OWN_CARD:
       await gameStore.useAbility({
         ability: ability.enum,
@@ -450,6 +608,24 @@ async function useTargetedAbility(target, ability) {
       });
       break;
     case ABILITY_TARGET.BUILT_DISTRICT:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target,
+      });
+      break;
+    case ABILITY_TARGET.SWAP_DISTRICT:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          secondaryId: target.id,
+          secondaryIndex: target.index,
+          ...targetBuffer.value,
+        },
+      });
+      break;
+    case ABILITY_TARGET.OTHERS_BUILT_DISTRICT:
       await gameStore.useAbility({
         ability: ability.enum,
         code: lobbyCode,

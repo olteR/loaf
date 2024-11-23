@@ -1,9 +1,10 @@
 <template>
-  <div class="grid gap-8 grid-cols-3">
+  <div
+    class="grid gap-8"
+    :class="`grid-cols-${Math.min(visiblePlayers.length, 3)}`"
+  >
     <div
-      v-for="player in options.players.filter(
-        (p) => p.districts.length > 0 && p.districts.length < 7
-      )"
+      v-for="player in visiblePlayers"
       :key="player.id"
       class="mt-1"
       style="width: 12vw"
@@ -29,7 +30,10 @@
         </div>
       </div>
     </div>
-    <div class="col-span-3 ml-auto">
+    <div
+      class="ml-auto"
+      :class="`col-span-${Math.min(visiblePlayers.length, 3)}`"
+    >
       <Button
         :disabled="selectedPlayer == null || selectedDistrict == null"
         @click="submit"
@@ -64,6 +68,15 @@ const isEightCharacter = computed(() => {
   );
 });
 
+const visiblePlayers = computed(() => {
+  if (props.options.isOwn) {
+    return props.options.players;
+  }
+  return props.options.players.filter(
+    (p) => p.districts.length > 0 && p.districts.length < 7
+  );
+});
+
 function isProtected(player, district) {
   return (
     district.abilities.includes(ABILITY.KEEP) ||
@@ -72,16 +85,17 @@ function isProtected(player, district) {
 }
 
 function isSelectable(player, district) {
-  if (props.ability.enum === ABILITY.WARLORD) {
-    return district.cost <= props.options.gold + 1 && district.id !== 26;
+  if (
+    (isEightCharacter.value && district.id === 26) ||
+    (props.ability.enum === ABILITY.MARSHAL &&
+      props.options.districts.includes(district.id))
+  ) {
+    return false;
   }
-  if (props.ability.enum === ABILITY.MARSHAL) {
-    return (
-      district.cost <= Math.min(props.options.gold, 3) &&
-      district.id !== 26 &&
-      !props.options.districts.includes(district.id)
-    );
+  if (props.options.isOwn) {
+    return true;
   }
+  return district.cost <= props.options.maxCost ?? Infinity;
 }
 
 function toggle(player, district, index) {

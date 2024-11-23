@@ -54,7 +54,7 @@
       <div
         class="card-name"
         :style="{
-          background: secondaryColor,
+          background: getSecondaryColor,
         }"
         v-tooltip:[tooltipPosition(character.number)]="{
           value: composeCharacterDescription(character),

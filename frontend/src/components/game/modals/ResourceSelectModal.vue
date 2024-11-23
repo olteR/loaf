@@ -27,8 +27,8 @@
             v-tooltip="{
               value:
                 options.cards === options.cardsToKeep
-                  ? `${options.cards} lap húzása a pakliból`
-                  : `${options.cards} lap húzása a pakliból, amiből ${options.cardsToKeep}-t választhatsz`,
+                  ? `${options.cards} lap húzása`
+                  : `${options.cards} lap húzása, amiből ${options.cardsToKeep}-t választhatsz`,
               escape: false,
             }"
           ></i>

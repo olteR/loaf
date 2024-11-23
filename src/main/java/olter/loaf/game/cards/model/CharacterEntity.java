@@ -30,4 +30,8 @@ public class CharacterEntity {
     @Column(name = "ability")
     @Enumerated(EnumType.STRING)
     private List<AbilityEnum> abilities;
+
+    public Boolean hasAbility(AbilityEnum ability) {
+        return abilities.contains(ability);
+    }
 }

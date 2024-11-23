@@ -13,8 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AbilityTargetRequest {
     private Integer index;
+    private Integer secondaryIndex;
     private List<Integer> indexes;
     private Long id;
+    private Long secondaryId;
     private List<Long> targetIds;
     private ResourceTypeEnum resource;
     private DistrictTypeEnum type;

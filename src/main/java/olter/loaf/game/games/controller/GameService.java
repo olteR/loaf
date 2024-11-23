@@ -148,7 +148,8 @@ public class GameService {
         logService.logResourceGathering(game, resource);
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
-            Integer amount = game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
+            Integer amount =
+                game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
             game.getCurrentPlayer().giveGold(amount);
             game.setPhase(GamePhaseEnum.TURN);
             gameRepository.save(game);
@@ -194,12 +195,17 @@ public class GameService {
         GameEntity game = findGame(code);
         validateBuild(game, loggedInUser.getId(), handIndex);
         PlayerEntity player = game.getCurrentPlayer();
-        DistrictEntity district = player.getHand().remove(handIndex.intValue());
+        DistrictEntity district = player.takeCard(handIndex);
         logService.logDistrictBuilding(game, district.getId());
 
         player.giveDistrict(district);
         player.takeGold(district.getCost());
-        player.setBuildLimit(player.getBuildLimit() - 1);
+        if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE)) {
+            player.setBuildLimit(player.getBuildLimit() - 1);
+        }
+        if (player.getCharacter().hasAbility(AbilityEnum.ALCHEMIST)) {
+            player.setAbilityTarget(Long.valueOf(district.getCost()));
+        }
         district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
             .forEach(ability -> ability.useAbility(game, null));
         playerRepository.save(player);
@@ -222,6 +228,11 @@ public class GameService {
         log.info("User {} ending turn in game {}", loggedInUser.getName(), code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
+        if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.ALCHEMIST) &&
+            game.getCurrentPlayer().getAbilityTarget() != null) {
+            game.getCurrentPlayer().giveGold(game.getCurrentPlayer().getAbilityTarget().intValue());
+            game.getCurrentPlayer().setAbilityTarget(null);
+        }
         game.nextPlayer();
         if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
             broadcastOnWebsocket(code, game, GameUpdateTypeEnum.NEW_TURN);
@@ -322,7 +333,8 @@ public class GameService {
         if (district.getCost() > player.getGold()) {
             throw new NotEnoughGoldException(player.getId(), district.getId());
         }
-        if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId())) {
+        if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId()) &&
+            !player.hasCondition(ConditionEnum.DUPLICATES) && !player.hasCondition(ConditionEnum.STONE_MINING)) {
             throw new AlreadyBuiltException(player.getId(), district.getId());
         }
     }
@@ -332,7 +344,7 @@ public class GameService {
         validateGameTurn(game, userId, GamePhaseEnum.TURN);
         switch (ability.getType()) {
             case MANUAL:
-                if (!game.getCurrentPlayer().getCharacter().getAbilities().contains(ability)) {
+                if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {
                     throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
                 }
                 break;

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
+import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.ActivationEnum;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
@@ -66,21 +67,21 @@ public class GameEntity extends BaseEntity {
     private List<DistrictEntity> deck;
 
     public PlayerEntity getPlayer(Long id) {
-        return players.stream().filter(player -> player.getId().equals(id)).findFirst()
+        return this.players.stream().filter(player -> player.getId().equals(id)).findFirst()
             .orElse(null);
     }
 
     public PlayerEntity getPlayer(Integer character) {
-        return players.stream().filter(player -> player.getCharacterNumber().equals(character)).findFirst()
+        return this.players.stream().filter(player -> player.getCharacterNumber().equals(character)).findFirst()
             .orElse(null);
     }
 
     public PlayerEntity getCrownedPlayer() {
-        return players.stream().filter(player -> player.hasCondition(ConditionEnum.CROWNED)).findFirst().orElse(null);
+        return this.players.stream().filter(player -> player.hasCondition(ConditionEnum.CROWNED)).findFirst().orElse(null);
     }
 
     public void setCrownedPlayer(PlayerEntity player) {
-        players = players.stream().peek(p -> {
+        this.players = this.players.stream().peek(p -> {
             if (p.getId().equals(player.getId())) {
                 p.giveCondition(ConditionEnum.CROWNED);
             } else {
@@ -90,29 +91,29 @@ public class GameEntity extends BaseEntity {
     }
 
     public void setKilledCharacter(Integer character) {
-        killedCharacter = character;
+        this.killedCharacter = character;
         getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.KILLED));
     }
 
     public void setRobbedCharacter(Integer character) {
-        robbedCharacter = character;
+        this.robbedCharacter = character;
         getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.ROBBED));
     }
 
     public void setBewitchedCharacter(Integer character) {
-        bewitchedCharacter = character;
+        this.bewitchedCharacter = character;
         getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.BEWITCHED));
     }
 
     private Optional<PlayerEntity> getPlayerWithCharacter(Integer character) {
-        return players.stream().filter(player -> Objects.equals(player.getCharacterNumber(), character)).findFirst();
+        return this.players.stream().filter(player -> Objects.equals(player.getCharacterNumber(), character)).findFirst();
     }
 
     // Removes n cards from the deck and returns them
     public List<DistrictEntity> drawFromDeck(int cardCount) {
         List<DistrictEntity> drawnCards = new ArrayList<>();
-        for (int i = 0; i < cardCount && !deck.isEmpty(); i++) {
-            drawnCards.add(deck.remove(0));
+        for (int i = 0; i < cardCount && !this.deck.isEmpty(); i++) {
+            drawnCards.add(this.deck.remove(0));
         }
         return drawnCards;
     }
@@ -120,23 +121,23 @@ public class GameEntity extends BaseEntity {
     // Starts a new turn
     public void newTurn() {
         Random r = new Random();
-        Map<Integer, Integer> orderMap = assembleOrderMap(getCrownedPlayer().getOrder(), players.size());
+        Map<Integer, Integer> orderMap = assembleOrderMap(getCrownedPlayer().getOrder(), this.players.size());
 
-        turn++;
-        phase = GamePhaseEnum.SELECTION;
-        currentPlayer = getCrownedPlayer();
-        killedCharacter = null;
-        bewitchedCharacter = null;
-        robbedCharacter = null;
-        downwardDiscard = r.nextInt(characters.size() + 1);
-        upwardDiscard = discardCharacters(List.of(downwardDiscard, 4));
-        players = players.stream().peek(p -> {
+        this.turn++;
+        this.phase = GamePhaseEnum.SELECTION;
+        this.currentPlayer = getCrownedPlayer();
+        this.killedCharacter = null;
+        this.bewitchedCharacter = null;
+        this.robbedCharacter = null;
+        this.downwardDiscard = r.nextInt(this.characters.size() + 1);
+        this.upwardDiscard = discardCharacters(List.of(this.downwardDiscard, 4));
+        this.players = this.players.stream().peek(p -> {
             p.setCharacter(null);
             p.setRevealed(false);
             p.setBuildLimit(1);
             p.setOrder(orderMap.get(p.getOrder()));
-            if (p.getId().equals(currentPlayer.getId())) {
-                p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(downwardDiscard)));
+            if (p.getId().equals(this.currentPlayer.getId())) {
+                p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(this.downwardDiscard)));
             }
             p.setConditions(p.getConditions().stream()
                 .filter(condition -> condition.getDuration() != ConditionDurationEnum.END_OF_TURN)
@@ -147,32 +148,32 @@ public class GameEntity extends BaseEntity {
 
     // Ends the current player's turn and starts the next one's
     public void nextPlayer() {
-        switch (phase) {
+        switch (this.phase) {
             case SELECTION -> {
-                if (currentPlayer.getOrder() < players.size()) {
-                    currentPlayer = players.get(players.indexOf(currentPlayer) + 1);
+                if (this.currentPlayer.getOrder() < this.players.size()) {
+                    this.currentPlayer = this.players.get(this.players.indexOf(this.currentPlayer) + 1);
                     List<Integer> unavailableCharacters =
-                        players.stream().map(PlayerEntity::getCharacterNumber).filter(Objects::nonNull)
+                        this.players.stream().map(PlayerEntity::getCharacterNumber).filter(Objects::nonNull)
                             .collect(Collectors.toList());
-                    if (currentPlayer.getOrder() != 7) {
-                        unavailableCharacters.add(downwardDiscard);
+                    if (this.currentPlayer.getOrder() != 7) {
+                        unavailableCharacters.add(this.downwardDiscard);
                     }
-                    currentPlayer.setUnavailableCharacters(unavailableCharacters);
+                    this.currentPlayer.setUnavailableCharacters(unavailableCharacters);
                 } else {
                     Integer firstChar =
-                        players.stream().map(PlayerEntity::getCharacterNumber).min(Integer::compareTo).get();
+                        this.players.stream().map(PlayerEntity::getCharacterNumber).min(Integer::compareTo).get();
                     PlayerEntity nextPlayer =
-                        players.stream().filter(p -> p.getCharacterNumber().equals(firstChar)).findFirst()
-                            .orElseThrow(() -> new CorruptedGameException(lobby.getCode()));
+                        this.players.stream().filter(p -> p.getCharacterNumber().equals(firstChar)).findFirst()
+                            .orElseThrow(() -> new CorruptedGameException(this.lobby.getCode()));
                     revealPlayer(nextPlayer);
                 }
             }
             case TURN -> {
                 List<PlayerEntity> playersLeft =
-                    players.stream().filter(player -> player.getCharacterNumber() > currentPlayer.getCharacterNumber())
+                    this.players.stream().filter(player -> player.getCharacterNumber() > this.currentPlayer.getCharacterNumber())
                         .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
                 if (playersLeft.isEmpty()) {
-                    if (Objects.equals(killedCharacter, 4) && getPlayer(4) != null) {
+                    if (Objects.equals(this.killedCharacter, 4) && getPlayer(4) != null) {
                         setCrownedPlayer(getPlayer(4));
                     }
                     newTurn();
@@ -180,21 +181,21 @@ public class GameEntity extends BaseEntity {
                     revealPlayer(playersLeft.get(0));
                 }
             }
-            default -> throw new InvalidPhaseActionException(lobby.getCode());
+            default -> throw new InvalidPhaseActionException(this.lobby.getCode());
         }
     }
 
     // Reveals player's character and starts their turn
     private void revealPlayer(PlayerEntity player) {
-        currentPlayer = player;
-        currentPlayer.setRevealed(true);
+        this.currentPlayer = player;
+        this.currentPlayer.setRevealed(true);
         if (player.hasCondition(ConditionEnum.KILLED)) {
             nextPlayer();
         } else if (player.hasCondition(ConditionEnum.ROBBED)) {
-            getPlayer(2).giveGold(currentPlayer.takeGold(currentPlayer.getGold()));
+            getPlayer(2).giveGold(this.currentPlayer.takeGold(this.currentPlayer.getGold()));
         }
-        phase = GamePhaseEnum.RESOURCE;
-        currentPlayer.getCharacter().getAbilities().forEach(ability -> {
+        this.phase = GamePhaseEnum.RESOURCE;
+        this.currentPlayer.getCharacter().getAbilities().forEach(ability -> {
             if (ability.getType() == ActivationEnum.START_OF_TURN) {
                 ability.useAbility(this, null);
             }
@@ -203,7 +204,7 @@ public class GameEntity extends BaseEntity {
 
     // Discards random characters depending on game size
     private List<Integer> discardCharacters(List<Integer> excludes) {
-        int discardCount = Math.max(6 - players.size(), 0);
+        int discardCount = Math.max(6 - this.players.size(), 0);
         Random r = new Random();
         List<Integer> discardedCharacters = new ArrayList<>();
         while (discardedCharacters.size() < discardCount) {

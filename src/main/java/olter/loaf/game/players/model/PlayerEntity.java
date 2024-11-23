@@ -14,6 +14,7 @@ import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 @Getter
@@ -78,27 +79,27 @@ public class PlayerEntity extends BaseEntity {
     private List<DistrictEntity> drawnCards;
 
     public void giveGold(Integer amount) {
-        gold += amount;
+        this.gold += amount;
     }
 
     public void givePoints(Integer amount) {
-        points += amount;
+        this.points += amount;
     }
 
     public void giveDistrict(DistrictEntity district) {
-        districts.add(district);
-        points += district.getCost();
+        this.districts.add(district);
+        this.points += district.getCost();
     }
 
     public DistrictEntity removeDistrict(int index) {
-        DistrictEntity removed = districts.remove(index);
-        points -= removed.getCost();
+        DistrictEntity removed = this.districts.remove(index);
+        this.points -= removed.getCost();
         return removed;
     }
 
     public void removeDistrict(DistrictEntity district) {
-        points -= district.getCost();
-        districts.remove(district);
+        this.points -= district.getCost();
+        this.districts.remove(district);
     }
 
     public Integer takeGold(Integer gold) {
@@ -111,12 +112,30 @@ public class PlayerEntity extends BaseEntity {
         return taken;
     }
 
+    public void giveCard(DistrictEntity card) {
+        this.hand.add(card);
+    }
+
     public void giveCards(List<DistrictEntity> cards) {
         this.hand.addAll(cards);
     }
 
+    public DistrictEntity takeCard(int index) {
+        return this.hand.remove(index);
+    }
+
+    public DistrictEntity takeCard(DistrictEntity card) {
+        this.hand.remove(card);
+        return card;
+    }
+
+    public DistrictEntity takeRandomCard() {
+        Random r = new Random();
+        return this.hand.remove(r.nextInt(this.hand.size()));
+    }
+
     public CharacterEntity getCharacter() {
-        return game.getCharacters().stream().filter(character -> character.getNumber().equals(this.character))
+        return this.game.getCharacters().stream().filter(character -> character.getNumber().equals(this.character))
             .findFirst().orElse(null);
     }
 

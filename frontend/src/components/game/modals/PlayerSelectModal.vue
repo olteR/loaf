@@ -1,5 +1,8 @@
 <template>
-  <div class="grid gap-8 pt-4 grid-cols-3">
+  <div
+    class="grid gap-8 pt-4"
+    :class="`grid-cols-${Math.min(options.players.length, 3)}`"
+  >
     <div v-for="player in options.players" :key="player.id" class="w-full">
       <GameModalPlayerCard
         :player="player"
@@ -8,7 +11,10 @@
         @click="selectedPlayer = player.id"
       />
     </div>
-    <div class="col-span-3 ml-auto">
+    <div
+      class="ml-auto"
+      :class="`col-span-${Math.min(options.players.length, 3)}`"
+    >
       <Button :disabled="!selectedPlayer" @click="submit"> Kiválasztás </Button>
     </div>
   </div>

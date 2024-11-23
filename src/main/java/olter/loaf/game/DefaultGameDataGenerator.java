@@ -165,7 +165,7 @@ public class DefaultGameDataGenerator {
                 new DistrictEntity(42L, "Szobor", "Szobor", 3, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.STATUE)),
                 new DistrictEntity(43L, "Temető", "Temető", 5, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.NECROPOLIS)),
                 new DistrictEntity(44L, "Térképszoba", "Térképszoba", 5, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.MAP_ROOM)),
-                new DistrictEntity(45L, "Titkos Kripta", "Titkos Kripta", 0, DistrictTypeEnum.UNIQUE, List.of()), // "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha a Titkos kripta a kezedben van.</p>"
+                new DistrictEntity(45L, "Titkos Kripta", "Titkos Kripta", 0, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.SECRET_VAULT)), // "<p>A Titkos kirptát nem lehet építeni. A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha a Titkos kripta a kezedben van.</p>"
                 new DistrictEntity(46L, "Tolvajtanya", "Tolvajtanya", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.THIEVES_DEN)),
                 new DistrictEntity(47L, "Varázstanoda", "Varázstanoda", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.SCHOOL_OF_MAGIC)));
         districtRepository.saveAll(districts);
