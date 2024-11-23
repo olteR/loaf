@@ -29,6 +29,7 @@ public class GameDetailsResponse {
 
     // Player information
     private Integer character;
+    private AbilityEnum usingAbility;
     private List<DistrictResponse> hand;
     private List<DistrictResponse> drawnCards;
     private List<Integer> unavailableCharacters;

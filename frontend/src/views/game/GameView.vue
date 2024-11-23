@@ -1,5 +1,5 @@
 <template>
-  <div v-if="gameStore.getGame">
+  <div v-if="gameStore.getGame.phase">
     <div class="game-area"></div>
     <MemberList
       :game="gameStore.getGame"
@@ -262,10 +262,7 @@ watch(
             discarded: gameStore.getGame.discardedCharacters,
           },
         });
-      } else if (
-        gameStore.getGame.phase === GAME_PHASE.RESOURCE &&
-        onTurn.value
-      ) {
+      } else if (gameStore.getGame.phase === GAME_PHASE.RESOURCE) {
         const isGoldMining = hasCondition(
           gameStore.getCurrentPlayer,
           CONDITIONS.GOLD_MINING
@@ -306,6 +303,32 @@ watch(
   }
 );
 
+watch(
+  () => gameStore.getGame.usingAbility,
+  (newValue) => {
+    if (newValue) {
+      switch (newValue) {
+        case ABILITY.SCHOLAR:
+          modalSettings.value.ability = gameStore.getCharacter.abilities.find(
+            (ability) => ability.enum === ABILITY.SCHOLAR
+          );
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: (target, ability) =>
+              useTargetedAbility({ index: target[0] }, ability),
+            options: {
+              cards: gameStore.getGame.drawnCards,
+              minSelect: 1,
+              maxSelect: 1,
+            },
+          });
+          break;
+      }
+      openNextModal();
+    }
+  }
+);
+
 function openNextModal(target) {
   if (target) {
     targetBuffer.value = { ...target, ...targetBuffer.value };
@@ -319,12 +342,11 @@ function openNextModal(target) {
     modalSettings.value.onSubmit = modal.submit;
     modalSettings.value.options = modal.options;
     if (
-      modalSettings.value.ability.enum === ABILITY.DIPLOMAT &&
+      modalSettings.value.ability?.enum === ABILITY.DIPLOMAT &&
       targetBuffer.value.index != null
     ) {
       modalSettings.value.options.maxCost +=
         gameStore.getCurrentPlayer.districts[targetBuffer.value.index].cost;
-      console.log(modalSettings.value.options);
     }
   } else {
     closeModal();
@@ -517,6 +539,9 @@ async function useAbility(ability) {
                 (player) => player.id !== gameStore.getGame.currentPlayer
               ),
               maxCost: gameStore.getCurrentPlayer.gold,
+              unselectableDistricts: gameStore.getCurrentPlayer.districts.map(
+                (district) => district.id
+              ),
             },
           });
         } else {
@@ -552,6 +577,21 @@ async function useAbility(ability) {
             gold: 4,
             cards: 4,
             cardsToKeep: 4,
+          },
+        });
+        break;
+      case ABILITY_TARGET.SELECTOR:
+        await gameStore.useAbility({
+          ability: ability.enum,
+          code: lobbyCode,
+        });
+        modalChain.value.push({
+          type: GAME_MODAL.CARDS,
+          submit: useTargetedAbility,
+          options: {
+            cards: gameStore.getGame.drawnCards,
+            minSelect: 1,
+            maxSelect: 1,
           },
         });
         break;
@@ -639,6 +679,13 @@ async function useTargetedAbility(target, ability) {
         target: {
           resource: target,
         },
+      });
+      break;
+    case ABILITY_TARGET.SELECTOR:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target,
       });
       break;
     default:

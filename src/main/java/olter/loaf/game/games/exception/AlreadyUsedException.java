@@ -12,6 +12,6 @@ public class AlreadyUsedException extends LoafException {
 
     public AlreadyUsedException(AbilityEnum abilityEnum, Long playerId) {
         super("Ability " + abilityEnum.getValue() + " for player " + playerId, HttpStatus.FORBIDDEN);
-        setUserMessage("Ezt a képességet nem használhatod ilyen módon");
+        setUserMessage("Ezt a képességet már használtad");
     }
 }

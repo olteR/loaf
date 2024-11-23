@@ -342,6 +342,9 @@ public class GameService {
     // Validates if the given ability can be used by the player
     private void validateAbilityUse(GameEntity game, Long userId, AbilityEnum ability) {
         validateGameTurn(game, userId, GamePhaseEnum.TURN);
+        if (game.getCurrentPlayer().getUsedAbilities().contains(ability) && game.getCurrentPlayer().getUsingAbility() != ability) {
+            throw new AlreadyUsedException(ability, userId);
+        }
         switch (ability.getType()) {
             case MANUAL:
                 if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {

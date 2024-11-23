@@ -18,17 +18,17 @@ export const useGameStore = defineStore("game", () => {
     ability: `game/ability`,
   };
 
-  const game = ref();
+  const game = ref({});
 
   const getGame = computed(() => game.value);
   const getCurrentPlayer = computed(
     () =>
-      game.value?.players.find(
+      game.value.players?.find(
         (player) => player.id === game.value.currentPlayer
       ) ?? {}
   );
   const getCharacter = computed(
-    () => game.value?.characters[game.value.character - 1]
+    () => game.value.characters?.[game.value.character - 1]
   );
 
   async function fetchGame(code) {

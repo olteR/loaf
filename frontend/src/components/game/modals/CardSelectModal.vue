@@ -93,30 +93,33 @@ onMounted(() => {
 });
 
 function toggle(index) {
-  if (props.options.cards.length > 2) {
-    if (
-      selectedCount.value < props.options.maxSelect ||
-      toggleValues.value[index]
-    ) {
-      toggleValues.value[index] = !toggleValues.value[index];
-    }
-  } else {
+  if (props.options.maxSelect === 1) {
     if (
       toggleValues.value.every((val) => val === false) ||
       toggleValues.value[index]
     ) {
       toggleValues.value[index] = !toggleValues.value[index];
     } else {
-      toggleValues.value.reverse();
+      toggleValues.value = toggleValues.value.map((_, ind) => ind === index);
+    }
+  } else {
+    if (
+      selectedCount.value < props.options.maxSelect ||
+      toggleValues.value[index]
+    ) {
+      toggleValues.value[index] = !toggleValues.value[index];
     }
   }
 }
 
 function isClickable(index) {
-  if (selectedCount.value < props.options.maxSelect) {
-    return !toggleValues[index];
+  if (
+    props.options.maxSelect === 1 ||
+    selectedCount.value < props.options.maxSelect
+  ) {
+    return true;
   }
-  return toggleValues[index];
+  return toggleValues.value[index];
 }
 
 function select() {

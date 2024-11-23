@@ -88,7 +88,8 @@ function isSelectable(player, district) {
   if (
     (isEightCharacter.value && district.id === 26) ||
     (props.ability.enum === ABILITY.MARSHAL &&
-      props.options.districts.includes(district.id))
+      props.options.districts.includes(district.id)) ||
+    props.options.unselectableDistricts?.includes(district.id)
   ) {
     return false;
   }

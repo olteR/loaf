@@ -5,6 +5,7 @@ import olter.loaf.game.cards.dto.AbilityTargetRequest;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidActivationException;
 import olter.loaf.game.games.exception.InvalidTargetException;
+import olter.loaf.game.games.exception.NotEnoughGoldException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.game.players.model.ConditionEnum;
@@ -152,7 +153,12 @@ public enum AbilityEnum {
     },
     WIZARD("WIZARD", List.of("sheet-plastic", "wand-magic-sparkles"), TargetEnum.PLAYER_AND_DISTRICT_IN_HAND, "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            if (game.getCurrentPlayer().getUsingAbility() == null) {
+                game.getCurrentPlayer().setUsingAbility(WIZARD);
+                game.getCurrentPlayer().setDrawnCards(game.getPlayer(target.getId()).getHand());
+            } else {
+
+            }
         }
     },
     DUPLICATES("DUPLICATES", ActivationEnum.START_OF_TURN, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetsz a városodban, amilyenek már léteznek.</p>") {
@@ -192,7 +198,22 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(0);
         }
     },
-    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), TargetEnum.SWAP_DISTRICT, "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>"),
+    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), TargetEnum.SWAP_DISTRICT, "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity targetPlayer = game.getPlayer(target.getSecondaryId());
+            DistrictEntity districtToGive = game.getCurrentPlayer().removeDistrict(target.getIndex());
+            DistrictEntity districtToTake = targetPlayer.removeDistrict(target.getSecondaryIndex());
+            if (districtToTake.getCost() > districtToGive.getCost()) {
+                Integer amount = districtToTake.getCost() - districtToGive.getCost();
+                if (amount > game.getCurrentPlayer().getGold()) {
+                    throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), districtToTake.getId());
+                }
+                targetPlayer.giveGold(game.getCurrentPlayer().takeGold(amount));
+            }
+            game.getCurrentPlayer().giveDistrict(districtToTake);
+            targetPlayer.giveDistrict(districtToGive);
+        }
+    },
     ARTIST("ARTIST", List.of("city", "paintbrush"), TargetEnum.OWN_BUILT_DISTRICT, "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
     MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), TargetEnum.WARRANTS, ""),
     BLACKMAILER("BLACKMAILER", List.of("user", "mask"), TargetEnum.THREAT_MARKERS, ""),
@@ -209,7 +230,19 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveCondition(ConditionEnum.BLOOMING_TRADE);
         }
     },
-    SCHOLAR("SCHOLAR",List.of("7", "sheet-plastic"), TargetEnum.SELECTOR, "<p>Húzol 7 <i class=\"fa fa-sheet-plastic\"></i>-t és választasz egyet, amit megtarthatsz.</p>"),
+    SCHOLAR("SCHOLAR",List.of("7", "sheet-plastic"), TargetEnum.SELECTOR, "<p>Húzol 7 <i class=\"fa fa-sheet-plastic\"></i>-t és választasz egyet, amit megtarthatsz.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            if (game.getCurrentPlayer().getUsingAbility() == null) {
+                game.getCurrentPlayer().setUsingAbility(SCHOLAR);
+                game.getCurrentPlayer().setDrawnCards(game.drawFromDeck(7));
+            } else {
+                game.getCurrentPlayer().giveCard(game.getCurrentPlayer().getDrawnCards().remove(target.getIndex().intValue()));
+                game.getCurrentPlayer().setUsingAbility(null);
+                game.getDeck().addAll(game.getCurrentPlayer().getDrawnCards());
+                game.getCurrentPlayer().setDrawnCards(new ArrayList<>());
+            }
+        }
+    },
     MARSHAL("MARSHAL", List.of("city", "hand"), TargetEnum.OTHERS_BUILT_DISTRICT, "<p>Elvehetsz egy legfeljebb 3 <i class=\"fa fa-coins\"></i>-ba kerülő <i class=\"fa fa-city\"></i>-et egy másik játékos városából, a tulajdonosnak kifizetve az árát <i class=\"fa fa-coins\"></i>-ban.</p><p>Nem veheted el befejezett város kerületét, sem olyan kerületet amilyen már van a városodban.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
