@@ -12,8 +12,7 @@ public enum ActivationEnum {
     BEFORE_BUILD("BEFORE_BUILD"),
     ON_BUILD("ON_BUILD"),
     AFTER_BUILD("AFTER_BUILD"),
-    END_OF_GAME("END_OF_GAME"),
-    NONE("NONE");
+    END_OF_GAME("END_OF_GAME");
 
     private final String value;
 

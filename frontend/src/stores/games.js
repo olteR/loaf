@@ -1,7 +1,13 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
-import { CONDITIONS, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
+import {
+  ABILITY,
+  CONDITIONS,
+  GAME_PHASE,
+  GAME_UPDATE,
+  RESOURCE,
+} from "@/utils/const";
 import { useStateStore } from "@/stores/state";
 import { hasCondition } from "@/utils/utils";
 
@@ -105,6 +111,19 @@ export const useGameStore = defineStore("game", () => {
             return player;
           });
           game.value.phase = GAME_PHASE.TURN;
+          if (
+            getCharacter.value.abilities.find(
+              (ability) => ability.enum === ABILITY.WITCH
+            )
+          ) {
+            game.value.usingAbility = ABILITY.WITCH;
+          } else if (
+            game.value.bewitchedCharacter === getCurrentPlayer.value.character
+          ) {
+            game.value.currentPlayer = game.value.players.find(
+              (player) => player.character === 1
+            ).id;
+          }
           break;
         }
         case GAME_UPDATE.BUILD: {

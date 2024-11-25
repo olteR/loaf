@@ -44,7 +44,9 @@
       </div>
     </Button>
     <Dialog
-      :closable="!!modalSettings.ability"
+      :closable="
+        !!modalSettings.ability && modalSettings.ability.enum !== ABILITY.WITCH
+      "
       v-model:visible="modalSettings.visible"
       modal
       :header="modalHeader"
@@ -199,7 +201,7 @@ const modalHeader = computed(() => {
 });
 
 const visibleAbilities = computed(() => {
-  const characterAbilities =
+  let characterAbilities =
     gameStore.getCharacter?.abilities
       .filter((ability) => ability.type === ABILITY_TYPE.MANUAL)
       .map((ability) => {
@@ -230,6 +232,24 @@ const visibleAbilities = computed(() => {
       )
       .flat(Infinity)
       .filter((ability) => ability.type === ABILITY_TYPE.BEFORE_BUILD) ?? [];
+  if (
+    gameStore.getCharacter?.abilities.find(
+      (ability) => ability.enum === ABILITY.WITCH
+    ) &&
+    gameStore.getGame.bewitchedCharacter
+  ) {
+    characterAbilities = characterAbilities.concat(
+      gameStore.getGame.characters
+        .find(
+          (character) =>
+            character.number === gameStore.getGame.bewitchedCharacter
+        )
+        .abilities.map((ability) => {
+          ability.sourceName = "Megbabonázás";
+          return ability;
+        })
+    );
+  }
   return characterAbilities.concat(districtAbilities).concat(handAbilities);
 });
 
@@ -255,11 +275,12 @@ watch(
       if (gameStore.getGame.phase === GAME_PHASE.SELECTION) {
         modalChain.value.push({
           type: GAME_MODAL.CHARACTER,
-          submit: selectCharacter,
+          submit: (target) => selectCharacter(target[0]),
           options: {
             characters: gameStore.getGame.characters,
             unavailable: gameStore.getGame.unavailableCharacters,
             discarded: gameStore.getGame.discardedCharacters,
+            selectCount: 1,
           },
         });
       } else if (gameStore.getGame.phase === GAME_PHASE.RESOURCE) {
@@ -323,8 +344,31 @@ watch(
             },
           });
           break;
+        case ABILITY.WITCH:
+          modalSettings.value.ability = gameStore.getCharacter.abilities.find(
+            (ability) => ability.enum === ABILITY.WITCH
+          );
+          modalChain.value.push({
+            header: "Válassz karaktert, akit megbabonázol!",
+            type: GAME_MODAL.CHARACTER,
+            submit: useTargetedAbility,
+            options: {
+              characters: gameStore.getGame.characters,
+              discarded: gameStore.getGame.discardedCharacters,
+              untargetable: gameStore.getGame.characters
+                .filter(
+                  (character) =>
+                    character.number <= gameStore.getCurrentPlayer.character
+                )
+                .map((character) => character.number),
+              selectCount: 1,
+            },
+          });
+          break;
       }
-      openNextModal();
+      if (!modalSettings.value.visible) {
+        openNextModal();
+      }
     }
   }
 );
@@ -347,6 +391,14 @@ function openNextModal(target) {
     ) {
       modalSettings.value.options.maxCost +=
         gameStore.getCurrentPlayer.districts[targetBuffer.value.index].cost;
+    } else if (
+      modalSettings.value.ability?.enum === ABILITY.MAGISTRATE &&
+      targetBuffer.value.indexes != null
+    ) {
+    } else if (
+      modalSettings.value.ability?.enum === ABILITY.BLACKMAILER &&
+      targetBuffer.value.indexes != null
+    ) {
     }
   } else {
     closeModal();
@@ -379,7 +431,7 @@ async function gatherResources(resource) {
       !hasCondition(gameStore.getCurrentPlayer, CONDITIONS.STAR_GUIDANCE)
     ) {
       gameStore.getGame.hand = gameStore.getGame.hand.concat(response.data);
-      closeModal();
+      openNextModal();
     } else {
       modalChain.value.push({
         type: GAME_MODAL.CARDS,
@@ -393,7 +445,7 @@ async function gatherResources(resource) {
       openNextModal();
     }
   } else {
-    closeModal();
+    openNextModal();
   }
 }
 
@@ -431,6 +483,7 @@ async function useAbility(ability) {
                   character.number === gameStore.getGame.bewitchedCharacter
               )
               .map((character) => character.number),
+            selectCount: 1,
           },
         });
         break;
@@ -468,7 +521,7 @@ async function useAbility(ability) {
         });
         break;
       case ABILITY_TARGET.OWN_CARD:
-        if (gameStore.getGame.hand > 0) {
+        if (gameStore.getGame.hand.length > 0) {
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
             submit: useTargetedAbility,
@@ -489,7 +542,7 @@ async function useAbility(ability) {
         }
         break;
       case ABILITY_TARGET.OWN_CARDS:
-        if (gameStore.getGame.hand > 0) {
+        if (gameStore.getGame.hand.length > 0) {
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
             submit: useTargetedAbility,
@@ -595,6 +648,46 @@ async function useAbility(ability) {
           },
         });
         break;
+      case ABILITY_TARGET.WARRANTS:
+        modalChain.value.push({
+          type: GAME_MODAL.CHARACTER,
+          submit: (target) => {
+            console.log(target);
+          },
+          options: {
+            characters: gameStore.getGame.characters,
+            discarded: gameStore.getGame.discardedCharacters,
+            untargetable: gameStore.getGame.characters
+              .filter(
+                (character) =>
+                  character.number <= gameStore.getCurrentPlayer.character
+              )
+              .map((character) => character.number),
+            selectCount: 3,
+          },
+        });
+        break;
+      case ABILITY_TARGET.THREAT_MARKERS:
+        modalChain.value.push({
+          type: GAME_MODAL.CHARACTER,
+          submit: (target) => {
+            console.log(target);
+          },
+          options: {
+            characters: gameStore.getGame.characters,
+            discarded: gameStore.getGame.discardedCharacters,
+            untargetable: gameStore.getGame.characters
+              .filter(
+                (character) =>
+                  character.number <= gameStore.getCurrentPlayer.character ||
+                  character.number === gameStore.getGame.killedCharacter ||
+                  character.number === gameStore.getGame.bewitchedCharacter
+              )
+              .map((character) => character.number),
+            selectCount: 1,
+          },
+        });
+        break;
       default:
         console.log(ability);
     }
@@ -609,7 +702,7 @@ async function useTargetedAbility(target, ability) {
         ability: ability.enum,
         code: lobbyCode,
         target: {
-          index: target,
+          index: target[0],
         },
       });
       break;

@@ -133,17 +133,15 @@ public enum AbilityEnum {
             game.getDeck().add(district);
         }
     },
-    QUEEN("QUEEN", List.of("crown", "coins"), "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>") {
-        public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
-        }
-    },
-    WITCH("WITCH", List.of("user", "wand-sparkles"), ActivationEnum.AFTER_GATHERING, TargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ekkor a köröd felfüggesztésre kerül! Ekkor nem tudsz építkezni, és a <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül, amik nyersanyagokat gyűjtenek.</p><p>Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és azonnal véget kell vetnie a körének. Nem képes <i class=\"fa fa-city\"></i>-t építeni sem, karakterek képességeit használni — még azokat sem, amik <q>plusz</q> nyersanyagokat adnak. A <i class=\"fa fa-city\"></i>-ek közül csak azok hatása érvényesül a megbabonázott karakter esetében, amik nyersanyagokat gyűjtenek.</p><p>Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel: használod a képességeit, beleértve a plusz nyersanyagokat adókat, a passzívakat, és a megkötéseket. A <b>te</b> kezedben lévő <i class=\"fa fa-sheet-plastic\"></i>-okkal játszol, a <b>te</b> kincstartalékodban lévő <i class=\"fa fa-coins\"></i>-al fizetsz, a <b>te</b> városod <i class=\"fa fa-city\"></i>-eiből gyűjtesz nyersanyagokat, a <b>te</b> városodban építesz új kerületeket. Nem tudod használni a megbabonázott játékos bírtokában lévő <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i>-ek hatásait.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
+    QUEEN("QUEEN", List.of("crown", "coins"), "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>"),
+    WITCH("WITCH", List.of("user", "wand-sparkles"), ActivationEnum.AFTER_GATHERING, TargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ezután a köröd felfüggesztésre kerül. Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és a köre azonnal véget ér. Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (target.getIndex() < 2 || target.getIndex() > game.getCharacters().size()) {
                 throw new InvalidTargetException(WITCH,game.getCurrentPlayer().getId());
             }
+            game.getCurrentPlayer().setUsingAbility(null);
             game.setBewitchedCharacter(target.getIndex());
+            game.nextPlayer();
         }
     },
     SPY("SPY", List.of("sheet-plastic", "user-secret"), TargetEnum.PLAYER_AND_DISTRICT_TYPE, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>") {
@@ -215,8 +213,24 @@ public enum AbilityEnum {
         }
     },
     ARTIST("ARTIST", List.of("city", "paintbrush"), TargetEnum.OWN_BUILT_DISTRICT, "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
-    MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), TargetEnum.WARRANTS, ""),
-    BLACKMAILER("BLACKMAILER", List.of("user", "mask"), TargetEnum.THREAT_MARKERS, ""),
+    MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), TargetEnum.WARRANTS, "<p>Kiválasztasz három karaktert és rájuk helyezel parancsokat. Ezután titokban kiválasztod melyik parancs legyen aláírva, csak ez a karakter lehet a célpont.</p><p>Ha a célpont játékos fizet azért, hogy <i class=\"fa fa-city\"></i>-et építsen, a parancsjelző felfedődik és a <i class=\"fa fa-city\"></i>-et ingyen beépíted a városodba.</p><p>A <i class=\"fa fa-city\"></i> nem kerül bele a célpont városába, de beleszámít a játékos építkeési korlátjába. A célpont visszakap minden <i class=\"fa fa-coins\"></i>-at, amit az építésre fordított.</p><p>A parancs felfedése nem lép életbe, ha a célpont olyan <i class=\"fa fa-city\"></i>-et épít amilyen már van a városodban. Ha a célpont több <i class=\"fa fa-city\"></i>-et építhet, a felfedés az első olyan kerületnél aktiválódik, amelyik nincs a városodban.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.setWarrantedCharacters(target.getIndexes());
+            PlayerEntity signedWarrant = game.getPlayer(target.getIndex());
+            if (signedWarrant != null) {
+                signedWarrant.giveCondition(ConditionEnum.WARRANTED);
+            }
+        }
+    },
+    BLACKMAILER("BLACKMAILER", List.of("user", "mask"), TargetEnum.THREAT_MARKERS, "<p>Kiválasztasz két karaktert és rájuk helyezel fenyegetéseket. Ezután titokban kiválasztod melyik fenyegetés legyen valódi, csak ez a karakter lehet a célpont.</p><p>Miután a megfenyegetett játékos nyersanyagokat gyűjtött, lefizethet téged és odaadja az összes <i class=\"fa fa-coins\"></i>-a felét. Ha nem teszi meg, akkor a fenyegetés felfedődik és ha valódi, akkor minden aranyát elveszed.</p><p>Nem fenyegethetsz meg 1-es rangú, megölt vagy megbabonázott karaktert.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.setThreatenedCharacters(target.getIndexes());
+            PlayerEntity realThreat = game.getPlayer(target.getIndex());
+            if (realThreat != null) {
+                realThreat.giveCondition(ConditionEnum.WARRANTED);
+            }
+        }
+    },
     SEER("SEER", List.of("users", "hand-sparkles"), TargetEnum.SHUFFLE, "<p>Véletlenszerűen kapsz egy <i class=\"fa fa-sheet-plastic\"></i>-t minden játékos kezéből. Ezután adnod kell minden játékosnak egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből. Ha egy játékosnak nincs <i class=\"fa fa-sheet-plastic\"></i> a kezében, nem veszel tőle <i class=\"fa fa-sheet-plastic\"></i>-t és nem is adsz neki</p>"),
     BUILD_LIMIT_2("BUILD_LIMIT_2", ActivationEnum.START_OF_TURN, "<p>Ebben a körben az építkezési korlátod 2 <i class=\"fa fa-city\"></i>.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {

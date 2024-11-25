@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
-import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.ActivationEnum;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
-import olter.loaf.game.players.model.ConditionDurationEnum;
+import olter.loaf.game.players.model.DurationEnum;
 import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
@@ -35,8 +34,18 @@ public class GameEntity extends BaseEntity {
     private GamePhaseEnum phase;
 
     @ElementCollection
+    @CollectionTable(name = "game_warranted_characters", joinColumns = @JoinColumn(name = "game_id"))
+    @Column(name = "character_number")
+    private List<Integer> warrantedCharacters;
+
+    @ElementCollection
+    @CollectionTable(name = "game_threatened_characters", joinColumns = @JoinColumn(name = "game_id"))
+    @Column(name = "character_number")
+    private List<Integer> threatenedCharacters;
+
+    @ElementCollection
     @CollectionTable(name = "game_discarded_characters", joinColumns = @JoinColumn(name = "game_id"))
-    @Column(name = "character_id")
+    @Column(name = "character_number")
     private List<Integer> upwardDiscard;
 
     @ElementCollection
@@ -67,8 +76,7 @@ public class GameEntity extends BaseEntity {
     private List<DistrictEntity> deck;
 
     public PlayerEntity getPlayer(Long id) {
-        return this.players.stream().filter(player -> player.getId().equals(id)).findFirst()
-            .orElse(null);
+        return this.players.stream().filter(player -> player.getId().equals(id)).findFirst().orElse(null);
     }
 
     public PlayerEntity getPlayer(Integer character) {
@@ -77,7 +85,8 @@ public class GameEntity extends BaseEntity {
     }
 
     public PlayerEntity getCrownedPlayer() {
-        return this.players.stream().filter(player -> player.hasCondition(ConditionEnum.CROWNED)).findFirst().orElse(null);
+        return this.players.stream().filter(player -> player.hasCondition(ConditionEnum.CROWNED)).findFirst()
+            .orElse(null);
     }
 
     public void setCrownedPlayer(PlayerEntity player) {
@@ -105,8 +114,13 @@ public class GameEntity extends BaseEntity {
         getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.BEWITCHED));
     }
 
+    public PlayerEntity getBewitchedPlayer() {
+        return getPlayerWithCharacter(this.bewitchedCharacter).orElse(null);
+    }
+
     private Optional<PlayerEntity> getPlayerWithCharacter(Integer character) {
-        return this.players.stream().filter(player -> Objects.equals(player.getCharacterNumber(), character)).findFirst();
+        return this.players.stream().filter(player -> Objects.equals(player.getCharacterNumber(), character))
+            .findFirst();
     }
 
     // Removes n cards from the deck and returns them
@@ -140,7 +154,7 @@ public class GameEntity extends BaseEntity {
                 p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(this.downwardDiscard)));
             }
             p.setConditions(p.getConditions().stream()
-                .filter(condition -> condition.getDuration() != ConditionDurationEnum.END_OF_TURN)
+                .filter(condition -> condition.getDuration() != DurationEnum.END_OF_TURN)
                 .collect(Collectors.toList()));
             p.setUsedAbilities(new ArrayList<>());
         }).collect(Collectors.toList());
@@ -169,9 +183,9 @@ public class GameEntity extends BaseEntity {
                 }
             }
             case TURN -> {
-                List<PlayerEntity> playersLeft =
-                    this.players.stream().filter(player -> player.getCharacterNumber() > this.currentPlayer.getCharacterNumber())
-                        .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
+                List<PlayerEntity> playersLeft = this.players.stream()
+                    .filter(player -> player.getCharacterNumber() > this.currentPlayer.getCharacterNumber())
+                    .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
                 if (playersLeft.isEmpty()) {
                     if (Objects.equals(this.killedCharacter, 4) && getPlayer(4) != null) {
                         setCrownedPlayer(getPlayer(4));

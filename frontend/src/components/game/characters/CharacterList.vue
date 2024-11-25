@@ -5,6 +5,8 @@
         <CharacterInfo
           :character="character"
           :status="getStatus(character.number)"
+          :status-by-one="getOneStatus(character.number)"
+          :status-by-two="getTwoStatus(character.number)"
         ></CharacterInfo>
       </div>
     </div>
@@ -20,9 +22,6 @@ const props = defineProps({
 });
 
 function getStatus(number) {
-  if (props.game?.killedCharacter === number) return CHAR_STATUS.KILLED;
-  if (props.game?.bewitchedCharacter === number) return CHAR_STATUS.BEWITCHED;
-  if (props.game?.robbedCharacter === number) return CHAR_STATUS.ROBBED;
   if (number === props.game?.character) return CHAR_STATUS.SELECTED;
   if (props.game?.discardedCharacters?.includes(number))
     return CHAR_STATUS.DISCARDED;
@@ -30,6 +29,19 @@ function getStatus(number) {
     return CHAR_STATUS.UNAVAILABLE;
   if (props.game?.skippedCharacters?.includes(number))
     return CHAR_STATUS.SKIPPED;
+}
+
+function getOneStatus(number) {
+  if (props.game?.killedCharacter === number) return CHAR_STATUS.KILLED;
+  if (props.game?.bewitchedCharacter === number) return CHAR_STATUS.BEWITCHED;
+  if (props.game?.warrantedCharacters.includes(number))
+    return CHAR_STATUS.WARRANTED;
+}
+
+function getTwoStatus(number) {
+  if (props.game?.robbedCharacter === number) return CHAR_STATUS.ROBBED;
+  if (props.game?.threatenedCharacters.includes(number))
+    return CHAR_STATUS.THREATENED;
 }
 </script>
 

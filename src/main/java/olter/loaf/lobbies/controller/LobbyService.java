@@ -226,7 +226,8 @@ public class LobbyService {
 
         GameEntity game = lobby.getGame();
         game.setCharacters(characters);
-        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS, request.getIds());
+        broadcastOnWebsocket(request.getCode(), lobby.getMembers(), LobbyUpdateTypeEnum.CHARACTERS,
+            characters.stream().map(CharacterEntity::getId).toList());
         gameRepository.save(game);
     }
 

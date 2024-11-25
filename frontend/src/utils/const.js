@@ -81,7 +81,7 @@ export const CARD_POS = {
   20: "23%",
   21: "29%",
   22: "18%",
-  23: "30%",
+  23: "36%",
   24: "13%",
   25: "58%",
   26: "24%",
@@ -108,6 +108,8 @@ export const CHAR_STATUS = {
   KILLED: "KILLED",
   ROBBED: "ROBBED",
   BEWITCHED: "BEWITCHED",
+  WARRANTED: "WARRANTED",
+  THREATENED: "THREATENED",
 };
 
 export const GAME_MODAL = {
@@ -158,7 +160,10 @@ export const LOBBY_STATUS = {
 
 export const ABILITY = {
   WARLORD: "WARLORD",
+  WITCH: "WITCH",
   DIPLOMAT: "DIPLOMAT",
+  MAGISTRATE: "MAGISTRATE",
+  BLACKMAILER: "BLACKMAILER",
   SCHOLAR: "SCHOLAR",
   MARSHAL: "MARSHAL",
   KEEP: "KEEP",
@@ -196,6 +201,8 @@ export const ABILITY_TARGET = {
   OWN_CARD: "OWN_CARD",
   OWN_CARDS: "OWN_CARDS",
   SELECTOR: "SELECTOR",
+  WARRANTS: "WARRANTS",
+  THREAT_MARKERS: "THREAT_MARKERS",
 };
 
 export const CONDITIONS = {

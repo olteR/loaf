@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.game.cards.model.ActivationEnum;
-import olter.loaf.game.players.model.ConditionDurationEnum;
+import olter.loaf.game.players.model.DurationEnum;
 
 @Getter
 @Setter
@@ -14,6 +14,6 @@ public class ConditionResponse {
     private String name;
     private String icon;
     private ActivationEnum activation;
-    private ConditionDurationEnum duration;
+    private DurationEnum duration;
     private String description;
 }

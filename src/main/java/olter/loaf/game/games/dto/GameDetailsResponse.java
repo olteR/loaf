@@ -24,6 +24,8 @@ public class GameDetailsResponse {
     private Long bewitchedCharacter;
     private GamePhaseEnum phase;
     private List<Integer> discardedCharacters;
+    private List<Integer> warrantedCharacters;
+    private List<Integer> threatenedCharacters;
     private List<CharacterResponse> characters;
     private List<PublicPlayerResponse> players;
 

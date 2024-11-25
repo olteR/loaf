@@ -146,17 +146,18 @@ public class GameService {
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.RESOURCE);
         logService.logResourceGathering(game, resource);
+        List<DistrictEntity> drawnCards = new ArrayList<>();
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
             Integer amount =
                 game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
             game.getCurrentPlayer().giveGold(amount);
             game.setPhase(GamePhaseEnum.TURN);
-            gameRepository.save(game);
+            handleWitchAbility(game);
             broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
                 new ResourceGatherResponse(resource, amount));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
-            List<DistrictEntity> drawnCards = game.drawFromDeck(RESOURCE_CARDS);
+            drawnCards = game.drawFromDeck(RESOURCE_CARDS);
             if (game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
                 drawnCards.add(game.drawFromDeck(1).get(0));
             }
@@ -168,10 +169,10 @@ public class GameService {
             } else {
                 game.getCurrentPlayer().setDrawnCards(drawnCards);
             }
-            gameRepository.save(game);
-            return drawnCards.stream().map(cardMapper::entityToResponse).toList();
         }
-        return Collections.emptyList();
+
+        gameRepository.save(game);
+        return drawnCards.stream().map(cardMapper::entityToResponse).toList();
     }
 
     public List<DistrictResponse> drawCards(String code, List<Integer> districtIndexes, UserEntity loggedInUser) {
@@ -184,6 +185,8 @@ public class GameService {
         game.getCurrentPlayer().giveCards(drawnCards);
         game.getCurrentPlayer().getDrawnCards().clear();
         game.setPhase(GamePhaseEnum.TURN);
+        handleWitchAbility(game);
+
         gameRepository.save(game);
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
             new ResourceGatherResponse(ResourceTypeEnum.CARDS, drawnCards.size()));
@@ -203,7 +206,7 @@ public class GameService {
         if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE)) {
             player.setBuildLimit(player.getBuildLimit() - 1);
         }
-        if (player.getCharacter().hasAbility(AbilityEnum.ALCHEMIST)) {
+        if (player.hasCondition(ConditionEnum.BLOOMING_TRADE)) {
             player.setAbilityTarget(Long.valueOf(district.getCost()));
         }
         district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
@@ -228,10 +231,13 @@ public class GameService {
         log.info("User {} ending turn in game {}", loggedInUser.getName(), code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
-        if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.ALCHEMIST) &&
+        if (game.getCurrentPlayer().hasCondition(ConditionEnum.BLOOMING_TRADE) &&
             game.getCurrentPlayer().getAbilityTarget() != null) {
             game.getCurrentPlayer().giveGold(game.getCurrentPlayer().getAbilityTarget().intValue());
             game.getCurrentPlayer().setAbilityTarget(null);
+        }
+        if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
+            game.setCurrentPlayer(game.getBewitchedPlayer());
         }
         game.nextPlayer();
         if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
@@ -309,6 +315,18 @@ public class GameService {
             }).map(ConfigEntity::getConfigId).toList());
     }
 
+    private void handleWitchAbility(GameEntity game) {
+        if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
+            game.getCurrentPlayer().setUsingAbility(AbilityEnum.WITCH);
+        }
+        if (game.getCurrentPlayer().hasCondition(ConditionEnum.BEWITCHED)) {
+            game.setCurrentPlayer(game.getPlayer(1));
+            game.getPlayer(game.getBewitchedCharacter()).getCharacter().getAbilities().stream().filter(
+                    ability -> ability.getType() == ActivationEnum.START_OF_TURN && ability != AbilityEnum.TAKE_CROWN)
+                .forEach(ability -> ability.useAbility(game, null));
+        }
+    }
+
     // Validates if the game is in the given phase and the given player is on turn
     private void validateGameTurn(GameEntity game, Long userId, GamePhaseEnum phase) {
         if (!Objects.equals(game.getPhase(), phase)) {
@@ -342,12 +360,21 @@ public class GameService {
     // Validates if the given ability can be used by the player
     private void validateAbilityUse(GameEntity game, Long userId, AbilityEnum ability) {
         validateGameTurn(game, userId, GamePhaseEnum.TURN);
-        if (game.getCurrentPlayer().getUsedAbilities().contains(ability) && game.getCurrentPlayer().getUsingAbility() != ability) {
+        if (game.getCurrentPlayer().getUsedAbilities().contains(ability) &&
+            game.getCurrentPlayer().getUsingAbility() != ability) {
             throw new AlreadyUsedException(ability, userId);
         }
         switch (ability.getType()) {
             case MANUAL:
-                if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {
+            case AFTER_GATHERING:
+                if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
+                    if (game.getBewitchedPlayer() != null &&
+                        !Stream.concat(game.getCurrentPlayer().getCharacter().getAbilities().stream(),
+                                game.getCharacters().get(game.getBewitchedCharacter() - 1).getAbilities().stream()).toList()
+                            .contains(ability)) {
+                        throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                    }
+                } else if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {
                     throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
                 }
                 break;

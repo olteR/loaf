@@ -15,7 +15,32 @@
         'outline-color': primaryColor(character.type),
       }"
     >
-      {{ character.number }}
+      <span style="font-size: 1rem" v-if="statusByOne && statusByTwo">
+        <i
+          class="mr-1"
+          :class="`fa fa-${resolvedOneStatus.icon}`"
+          v-tooltip="resolvedOneStatus.description"
+        ></i>
+        <i
+          :class="`fa fa-${resolvedTwoStatus.icon}`"
+          v-tooltip="resolvedTwoStatus.description"
+        ></i>
+      </span>
+      <i v-else-if="statusByOne">
+        <i
+          :class="`fa fa-${resolvedOneStatus.icon}`"
+          v-tooltip="resolvedOneStatus.description"
+        ></i>
+      </i>
+      <i v-else-if="statusByTwo">
+        <i
+          :class="`fa fa-${resolvedTwoStatus.icon}`"
+          v-tooltip="resolvedTwoStatus.description"
+        ></i>
+      </i>
+      <span v-else>
+        {{ character.number }}
+      </span>
     </div>
     <div
       class="character-status"
@@ -60,6 +85,8 @@ import {
 const props = defineProps({
   character: Object,
   status: String,
+  statusByOne: String,
+  statusByTwo: String,
 });
 
 const imageSource = computed(
@@ -68,24 +95,6 @@ const imageSource = computed(
 );
 
 const resolvedStatus = computed(() => {
-  if (props.status === CHAR_STATUS.KILLED) {
-    return {
-      icon: "skull",
-      description: "Ezt a karaktert az orgyilkos megölte.",
-    };
-  }
-  if (props.status === CHAR_STATUS.BEWITCHED) {
-    return {
-      icon: "wand-sparkles",
-      description: "Ezt a karaktert a boszorkány megbabonázta.",
-    };
-  }
-  if (props.status === CHAR_STATUS.ROBBED) {
-    return {
-      icon: "sack-dollar",
-      description: "Ezt a karaktert a tolvaj kirabolta.",
-    };
-  }
   if (props.status === CHAR_STATUS.SELECTED) {
     return {
       icon: "check",
@@ -106,6 +115,44 @@ const resolvedStatus = computed(() => {
     description:
       "Ez a karakter eldobódott vagy egy másik játékos már választotta.",
   };
+});
+
+const resolvedOneStatus = computed(() => {
+  if (props.statusByOne === CHAR_STATUS.KILLED) {
+    return {
+      icon: "skull",
+      description: "Ezt a karaktert az orgyilkos megölte.",
+    };
+  }
+  if (props.statusByOne === CHAR_STATUS.BEWITCHED) {
+    return {
+      icon: "wand-sparkles",
+      description: "Ezt a karaktert a boszorkány megbabonázta.",
+    };
+  }
+  if (props.statusByOne === CHAR_STATUS.WARRANTED) {
+    return {
+      icon: "scroll",
+      description: "Ennek a karaktert a magisztrátus parancsot adott.",
+    };
+  }
+  return null;
+});
+
+const resolvedTwoStatus = computed(() => {
+  if (props.statusByTwo === CHAR_STATUS.ROBBED) {
+    return {
+      icon: "sack-dollar",
+      description: "Ezt a karaktert a tolvaj kirabolta.",
+    };
+  }
+  if (props.statusByTwo === CHAR_STATUS.THREATENED) {
+    return {
+      icon: "envelope",
+      description: "Ezt a karaktert a zsaroló megfenyegette.",
+    };
+  }
+  return null;
 });
 </script>
 
