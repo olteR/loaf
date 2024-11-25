@@ -15,7 +15,7 @@
       style="height: 4vh; font-size: 2.5vh"
     >
       <Tag
-        class="my-auto"
+        class="my-auto mx-1"
         style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
         v-tooltip:[tooltipPosition]="{
           value: `${player.name} kincstartalékában ${player.gold} arany van`,
@@ -26,7 +26,7 @@
         <i class="fa fa-coins" style="margin-left: 0.2vh"></i>
       </Tag>
       <Tag
-        class="my-auto"
+        class="my-auto mx-1"
         style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
         v-tooltip:[tooltipPosition]="{
           value: `${player.name} kezében ${player.handSize} lap van`,
@@ -37,7 +37,7 @@
         <i class="fa fa-sheet-plastic" style="margin-left: 0.2vh"></i>
       </Tag>
       <Tag
-        class="my-auto"
+        class="my-auto mx-1"
         style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
         v-tooltip:[tooltipPosition]="{
           value: `${player.name} kerületei ${calculatePoints(

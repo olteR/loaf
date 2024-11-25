@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.CardMapper;
 import olter.loaf.game.cards.dto.AbilityRequest;
+import olter.loaf.game.cards.dto.AbilityTargetRequest;
 import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.cards.model.*;
 import olter.loaf.game.config.model.ConfigEntity;
@@ -200,17 +201,27 @@ public class GameService {
         PlayerEntity player = game.getCurrentPlayer();
         DistrictEntity district = player.takeCard(handIndex);
         logService.logDistrictBuilding(game, district.getId());
+        AbilityTargetRequest target = new AbilityTargetRequest();
+        PlayerEntity magistrate = game.getPlayer(1);
 
-        player.giveDistrict(district);
-        player.takeGold(district.getCost());
+        if (player.hasCondition(ConditionEnum.WARRANTED) && !magistrate.getDistricts().contains(district)) {
+            magistrate.giveDistrict(district);
+            target.setId(magistrate.getId());
+            district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
+                .forEach(ability -> ability.useAbility(game, target));
+        } else {
+            player.giveDistrict(district);
+            player.takeGold(district.getCost());
+            target.setId(player.getId());
+            district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
+                .forEach(ability -> ability.useAbility(game, target));
+        }
         if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE)) {
             player.setBuildLimit(player.getBuildLimit() - 1);
         }
         if (player.hasCondition(ConditionEnum.BLOOMING_TRADE)) {
             player.setAbilityTarget(Long.valueOf(district.getCost()));
         }
-        district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
-            .forEach(ability -> ability.useAbility(game, null));
         playerRepository.save(player);
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, playerMapper.entityToPublicResponse(player));
     }

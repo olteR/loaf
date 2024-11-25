@@ -74,6 +74,7 @@ function submit() {
       .filter((val) => val !== null),
     props.ability
   );
+  toggleValues.value = props.options.characters.map(() => false);
 }
 </script>
 

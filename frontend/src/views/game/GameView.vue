@@ -328,26 +328,11 @@ watch(
   () => gameStore.getGame.usingAbility,
   (newValue) => {
     if (newValue) {
+      modalSettings.value.ability = gameStore.getCharacter.abilities.find(
+        (ability) => ability.enum === newValue
+      );
       switch (newValue) {
-        case ABILITY.SCHOLAR:
-          modalSettings.value.ability = gameStore.getCharacter.abilities.find(
-            (ability) => ability.enum === ABILITY.SCHOLAR
-          );
-          modalChain.value.push({
-            type: GAME_MODAL.CARDS,
-            submit: (target, ability) =>
-              useTargetedAbility({ index: target[0] }, ability),
-            options: {
-              cards: gameStore.getGame.drawnCards,
-              minSelect: 1,
-              maxSelect: 1,
-            },
-          });
-          break;
         case ABILITY.WITCH:
-          modalSettings.value.ability = gameStore.getCharacter.abilities.find(
-            (ability) => ability.enum === ABILITY.WITCH
-          );
           modalChain.value.push({
             header: "Válassz karaktert, akit megbabonázol!",
             type: GAME_MODAL.CHARACTER,
@@ -362,6 +347,29 @@ watch(
                 )
                 .map((character) => character.number),
               selectCount: 1,
+            },
+          });
+          break;
+        case ABILITY.WIZARD:
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: (target) => console.log(target),
+            options: {
+              cards: gameStore.getGame.drawnCards,
+              minSelect: 1,
+              maxSelect: 1,
+            },
+          });
+          break;
+        case ABILITY.SCHOLAR:
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: (target, ability) =>
+              useTargetedAbility({ index: target[0] }, ability),
+            options: {
+              cards: gameStore.getGame.drawnCards,
+              minSelect: 1,
+              maxSelect: 1,
             },
           });
           break;
@@ -395,10 +403,20 @@ function openNextModal(target) {
       modalSettings.value.ability?.enum === ABILITY.MAGISTRATE &&
       targetBuffer.value.indexes != null
     ) {
+      modalSettings.value.options.untargetable = gameStore.getGame.characters
+        .filter(
+          (character) => !targetBuffer.value.indexes.includes(character.number)
+        )
+        .map((character) => character.number);
     } else if (
       modalSettings.value.ability?.enum === ABILITY.BLACKMAILER &&
       targetBuffer.value.indexes != null
     ) {
+      modalSettings.value.options.untargetable = gameStore.getGame.characters
+        .filter(
+          (character) => !targetBuffer.value.indexes.includes(character.number)
+        )
+        .map((character) => character.number);
     }
   } else {
     closeModal();
@@ -650,10 +668,9 @@ async function useAbility(ability) {
         break;
       case ABILITY_TARGET.WARRANTS:
         modalChain.value.push({
+          header: "Válaszd ki a karaktereket, amiknek parancsot raksz!",
           type: GAME_MODAL.CHARACTER,
-          submit: (target) => {
-            console.log(target);
-          },
+          submit: (target) => openNextModal({ indexes: target }),
           options: {
             characters: gameStore.getGame.characters,
             discarded: gameStore.getGame.discardedCharacters,
@@ -666,13 +683,22 @@ async function useAbility(ability) {
             selectCount: 3,
           },
         });
+        modalChain.value.push({
+          header: "Válaszd ki kié legyen az aláírt parancs!",
+          type: GAME_MODAL.CHARACTER,
+          submit: useTargetedAbility,
+          options: {
+            characters: gameStore.getGame.characters,
+            discarded: gameStore.getGame.discardedCharacters,
+            selectCount: 1,
+          },
+        });
         break;
       case ABILITY_TARGET.THREAT_MARKERS:
         modalChain.value.push({
+          header: "Válaszd ki a karaktereket, amikre megfenyegetsz raksz!",
           type: GAME_MODAL.CHARACTER,
-          submit: (target) => {
-            console.log(target);
-          },
+          submit: (target) => openNextModal({ indexes: target }),
           options: {
             characters: gameStore.getGame.characters,
             discarded: gameStore.getGame.discardedCharacters,
@@ -684,7 +710,35 @@ async function useAbility(ability) {
                   character.number === gameStore.getGame.bewitchedCharacter
               )
               .map((character) => character.number),
+            selectCount: 2,
+          },
+        });
+        modalChain.value.push({
+          header: "Válaszd ki kié legyen a valódi fenyegetés!",
+          type: GAME_MODAL.CHARACTER,
+          submit: useTargetedAbility,
+          options: {
+            characters: gameStore.getGame.characters,
+            discarded: gameStore.getGame.discardedCharacters,
             selectCount: 1,
+          },
+        });
+        break;
+      case ABILITY_TARGET.PLAYER_AND_CARD_IN_HAND:
+        modalChain.value.push({
+          type: GAME_MODAL.PLAYER,
+          submit: async (target) =>
+            await gameStore.useAbility({
+              ability: ability.enum,
+              code: lobbyCode,
+              target: { id: target },
+            }),
+          options: {
+            players: gameStore.getGame.players.filter(
+              (player) =>
+                player.id !== gameStore.getGame.currentPlayer &&
+                player.handSize > 0
+            ),
           },
         });
         break;
@@ -779,6 +833,26 @@ async function useTargetedAbility(target, ability) {
         ability: ability.enum,
         code: lobbyCode,
         target,
+      });
+      break;
+    case ABILITY_TARGET.WARRANTS:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          index: target[0],
+          ...targetBuffer.value,
+        },
+      });
+      break;
+    case ABILITY_TARGET.THREAT_MARKERS:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          index: target[0],
+          ...targetBuffer.value,
+        },
       });
       break;
     default:

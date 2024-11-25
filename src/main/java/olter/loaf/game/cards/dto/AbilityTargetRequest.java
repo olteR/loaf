@@ -20,4 +20,5 @@ public class AbilityTargetRequest {
     private List<Long> targetIds;
     private ResourceTypeEnum resource;
     private DistrictTypeEnum type;
+    private Boolean choice;
 }
