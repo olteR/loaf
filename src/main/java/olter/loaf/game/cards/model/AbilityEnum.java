@@ -40,7 +40,13 @@ public enum AbilityEnum {
     },
     RELIGIOUS_GOLD_OR_CARDS("RELIGIOUS_GOLD_OR_CARDS", List.of("city", "coins", "sheet-plastic"), TargetEnum.GOLD_OR_CARDS_MULTIPLE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> vagy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            int districtCount = (int) game.getCurrentPlayer().getDistricts().stream()
+                .filter(district -> district.getType() == DistrictTypeEnum.RELIGIOUS).count();
+            if (target.getIndex() + target.getSecondaryIndex() != districtCount) {
+                throw new InvalidTargetException(RELIGIOUS_GOLD_OR_CARDS, game.getCurrentPlayer().getId());
+            }
+            game.getCurrentPlayer().giveGold(target.getIndex());
+            game.getCurrentPlayer().giveCards(game.drawFromDeck(target.getSecondaryIndex()));
         }
     },
     TRADE_GOLD("TRADE_GOLD", List.of("city", "coins"), "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">keresekedelmi</span> <i class=\"fa fa-city\"></i> után.</p>") {

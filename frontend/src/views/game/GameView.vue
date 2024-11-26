@@ -87,6 +87,12 @@
         :district-images="cardStore.getDistrictImages"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
+      <SliderModal
+        v-else-if="modalSettings.type === GAME_MODAL.SLIDER"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+      />
     </Dialog>
   </div>
 </template>
@@ -127,6 +133,7 @@ import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
+import SliderModal from "@/components/game/modals/SliderModal.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -979,6 +986,36 @@ async function useAbility(ability) {
               options: {
                 players: richestPlayers,
               },
+            });
+          }
+        }
+        break;
+      case ABILITY_TARGET.GOLD_OR_CARDS_MULTIPLE:
+        {
+          const resourceCount = gameStore.getCurrentPlayer.districts.filter(
+            (district) => district.type === DISTRICT_TYPE.RELIGIOUS
+          ).length;
+          if (resourceCount > 0) {
+            modalChain.value.push({
+              type: GAME_MODAL.SLIDER,
+              submit: (target) =>
+                useTargetedAbility(
+                  {
+                    index: target.gold,
+                    secondaryIndex: target.cards,
+                  },
+                  ability
+                ),
+              options: {
+                resourceCount,
+              },
+            });
+          } else {
+            toast.add({
+              severity: "error",
+              summary: "Nem használhatod ezt a képességet!",
+              detail: "Nincs vallási kerületed!",
+              life: 3000,
             });
           }
         }
