@@ -1,33 +1,20 @@
 <template>
-  <div class="columns-2 select-none">
-    <div class="w-40">
+  <div class="inline-flex select-none">
+    <div
+      v-for="choice in options.choices"
+      :key="choice.value"
+      class="w-40 mx-1"
+    >
       <Button
         class="w-full h-40 text-8xl"
-        severity="success"
-        @click="submitChoice(true)"
+        :severity="choice.severity"
+        @click="submitChoice(choice.value)"
       >
         <div class="w-full text-center">
           <i
-            :class="`fa fa-${options.yesIcon}`"
+            :class="`fa fa-${choice.icon}`"
             v-tooltip="{
-              value: options.yesTooltip,
-              escape: false,
-            }"
-          ></i>
-        </div>
-      </Button>
-    </div>
-    <div class="w-40">
-      <Button
-        class="w-full h-40 text-8xl"
-        severity="danger"
-        @click="submitChoice(false)"
-      >
-        <div class="w-full text-center">
-          <i
-            :class="`fa fa-${options.noIcon}`"
-            v-tooltip="{
-              value: options.noTooltip,
+              value: choice.tooltip,
               escape: false,
             }"
           ></i>

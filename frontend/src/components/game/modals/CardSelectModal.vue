@@ -24,7 +24,7 @@
         <GameModalDistrictCard
           :district="district"
           :image="districtImages[district.id - 1]"
-          :selected="toggleValues[page * 8 + ind]"
+          :selected="toggleValues[page * 8 + ind] || options.maxSelect === 0"
           :clickable="isClickable(page * 8 + ind)"
           @click="toggle(page * 8 + ind)"
         />
@@ -39,8 +39,9 @@
             selectedCount > options.maxSelect
           "
           @click="select"
-          >Kiválasztás</Button
         >
+          {{ options.maxSelect > 0 ? "Kiválasztás" : "Tovább" }}
+        </Button>
       </div>
     </div>
     <button

@@ -47,15 +47,15 @@
       :closable="
         !!modalSettings.ability &&
         modalSettings.ability.enum !== ABILITY.WITCH &&
-        gameStore.getGame.usingAbility !== ABILITY.WIZARD
+        ![ABILITY.WIZARD, ABILITY.SPY].includes(gameStore.getGame.usingAbility)
       "
       v-model:visible="modalSettings.visible"
       modal
       :header="modalHeader"
       @hide="closeModal"
     >
-      <ResourceSelectModal
-        v-if="modalSettings.type === GAME_MODAL.RESOURCE"
+      <ChoiceSelectModal
+        v-if="modalSettings.type === GAME_MODAL.CHOICE"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
@@ -87,12 +87,6 @@
         :district-images="cardStore.getDistrictImages"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
-      <ChoiceSelectModal
-        v-else-if="modalSettings.type === GAME_MODAL.CHOICE"
-        :options="modalSettings.options"
-        :ability="modalSettings.ability"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
-      />
     </Dialog>
   </div>
 </template>
@@ -100,11 +94,14 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { hasCondition, hasDistrict } from "@/utils/utils";
 import {
   ABILITY,
   ABILITY_TARGET,
   ABILITY_TYPE,
   CONDITIONS,
+  DISTRICT_TYPE,
   DISTRICTS,
   GAME_MODAL,
   GAME_PHASE,
@@ -120,19 +117,16 @@ import { useGameStore } from "@/stores/games";
 
 import ActionButtons from "@/components/game/ActionButtons.vue";
 import CardSelectModal from "@/components/game/modals/CardSelectModal.vue";
+import CharacterList from "@/components/game/characters/CharacterList.vue";
+import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
+import ChoiceSelectModal from "@/components/game/modals/ChoiceSelectModal.vue";
+import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
 import MemberList from "@/components/game/members/MemberList.vue";
 import PlayerHand from "@/components/game/hand/PlayerHand.vue";
-import ResourceSelectModal from "@/components/game/modals/ResourceSelectModal.vue";
+import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
-import CharacterList from "@/components/game/characters/CharacterList.vue";
-import { hasCondition, hasDistrict } from "@/utils/utils";
-import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
-import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
-import { useToast } from "primevue/usetoast";
-import ChoiceSelectModal from "@/components/game/modals/ChoiceSelectModal.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -195,8 +189,6 @@ const modalHeader = computed(() => {
   switch (modalSettings.value.type) {
     case GAME_MODAL.CHARACTER:
       return "Válassz karaktert!";
-    case GAME_MODAL.RESOURCE:
-      return "Válassz nyersanyagot!";
     case GAME_MODAL.CARDS:
       return `Válassz ${
         modalSettings.value.options.maxSelect > 1 ? "kártyákat" : "kártyát"
@@ -294,27 +286,46 @@ watch(
           },
         });
       } else if (gameStore.getGame.phase === GAME_PHASE.RESOURCE) {
-        const hasGoldMine = hasDistrict(
+        const goldAmount = hasDistrict(
           gameStore.getCurrentPlayer,
           DISTRICTS.GOLD_MINE
-        );
-        const hasObservatory = hasDistrict(
+        )
+          ? RESOURCE_GOLD + 1
+          : RESOURCE_GOLD;
+        const cardAmount = hasDistrict(
           gameStore.getCurrentPlayer,
           DISTRICTS.OBSERVATORY
-        );
-        const hasLibrary = hasDistrict(
+        )
+          ? RESOURCE_CARDS + 1
+          : RESOURCE_CARDS;
+        const keepAmount = hasDistrict(
           gameStore.getCurrentPlayer,
           DISTRICTS.LIBRARY
-        );
-        const selectCount = hasLibrary ? 2 : 1;
+        )
+          ? 2
+          : 1;
         if (gameStore.getGame.drawnCards.length === 0) {
           modalChain.value.push({
-            type: GAME_MODAL.RESOURCE,
+            header: "Válassz nyersanyagot!",
+            type: GAME_MODAL.CHOICE,
             submit: gatherResources,
             options: {
-              gold: hasGoldMine ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
-              cards: hasObservatory ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
-              cardsToKeep: selectCount,
+              choices: [
+                {
+                  icon: "coins",
+                  tooltip: `Kapsz ${goldAmount} aranyat`,
+                  value: RESOURCE.GOLD,
+                },
+                {
+                  icon: "sheet-plastic",
+                  tooltip: `Húzol ${cardAmount} lapot${
+                    cardAmount === keepAmount
+                      ? ""
+                      : " és megtartasz " + keepAmount + " darabot"
+                  }`,
+                  value: RESOURCE.CARDS,
+                },
+              ],
             },
           });
         } else {
@@ -323,8 +334,8 @@ watch(
             submit: drawCards,
             options: {
               cards: gameStore.getGame.drawnCards,
-              minSelect: selectCount,
-              maxSelect: selectCount,
+              minSelect: keepAmount,
+              maxSelect: keepAmount,
             },
           });
         }
@@ -360,6 +371,26 @@ watch(
             },
           });
           break;
+        case ABILITY.SPY:
+          modalChain.value.push({
+            header: `${
+              gameStore.getGame.players.find(
+                (player) => player.id === gameStore.getGame.abilityTarget
+              ).name
+            } kezében lévő lapok`,
+            type: GAME_MODAL.CARDS,
+            submit: async () =>
+              gameStore.useAbility({
+                ability: ABILITY.SPY,
+                code: lobbyCode,
+              }),
+            options: {
+              cards: gameStore.getGame.drawnCards,
+              minSelect: 0,
+              maxSelect: 0,
+            },
+          });
+          break;
         case ABILITY.WIZARD:
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
@@ -373,11 +404,21 @@ watch(
                   submit: (t, a) =>
                     useTargetedAbility({ index: target[0], choice: t }, a),
                   options: {
-                    yesIcon: "hammer",
-                    yesTooltip:
-                      "Kifizeted a kerület árát és beépíted a városodba",
-                    noIcon: "hand",
-                    noTooltip: "Kezedbe veszed a lapot",
+                    choices: [
+                      {
+                        icon: "hammer",
+                        tooltip:
+                          "Kifizeted a kerület árát és beépíted a városodba",
+                        severity: "success",
+                        value: true,
+                      },
+                      {
+                        icon: "hand",
+                        tooltip: "Kezedbe veszed a lapot",
+                        severity: "danger",
+                        value: false,
+                      },
+                    ],
                   },
                 });
                 openNextModal({ index: target });
@@ -560,12 +601,21 @@ async function useAbility(ability) {
           },
         });
         modalChain.value.push({
-          type: GAME_MODAL.RESOURCE,
+          type: GAME_MODAL.CHOICE,
           submit: useTargetedAbility,
           options: {
-            gold: 1,
-            cards: 1,
-            cardsToKeep: 1,
+            choices: [
+              {
+                icon: "coins",
+                tooltip: "Elveszel 1 aranyat",
+                value: RESOURCE.GOLD,
+              },
+              {
+                icon: "sheet-plastic",
+                tooltip: "Elveszel 1 lapot",
+                value: RESOURCE.CARDS,
+              },
+            ],
           },
         });
         break;
@@ -673,12 +723,21 @@ async function useAbility(ability) {
         break;
       case ABILITY_TARGET.GOLD_OR_CARDS:
         modalChain.value.push({
-          type: GAME_MODAL.RESOURCE,
+          type: GAME_MODAL.CHOICE,
           submit: useTargetedAbility,
           options: {
-            gold: 4,
-            cards: 4,
-            cardsToKeep: 4,
+            choices: [
+              {
+                icon: "coins",
+                tooltip: "Kapsz 4 aranyat",
+                value: RESOURCE.GOLD,
+              },
+              {
+                icon: "sheet-plastic",
+                tooltip: "Húzol 4 lapot",
+                value: RESOURCE.CARDS,
+              },
+            ],
           },
         });
         break;
@@ -764,6 +823,58 @@ async function useAbility(ability) {
               code: lobbyCode,
               target: { id: target },
             }),
+          options: {
+            players: gameStore.getGame.players.filter(
+              (player) =>
+                player.id !== gameStore.getGame.currentPlayer &&
+                player.handSize > 0
+            ),
+          },
+        });
+        break;
+      case ABILITY_TARGET.DISTRICT_TYPE_AND_PLAYER:
+        modalChain.value.push({
+          header: "Válassz típust!",
+          type: GAME_MODAL.CHOICE,
+          submit: (target) => openNextModal({ type: target }),
+          options: {
+            choices: [
+              {
+                icon: "crown",
+                tooltip: "Nemesi",
+                severity: "warning",
+                value: DISTRICT_TYPE.NOBLE,
+              },
+              {
+                icon: "hands-praying",
+                tooltip: "Vallási",
+                severity: "info",
+                value: DISTRICT_TYPE.RELIGIOUS,
+              },
+              {
+                icon: "coins",
+                tooltip: "Kereskedelmi",
+                severity: "success",
+                value: DISTRICT_TYPE.TRADE,
+              },
+              {
+                icon: "person-military-pointing",
+                tooltip: "Katonai",
+                severity: "danger",
+                value: DISTRICT_TYPE.MILITARY,
+              },
+              {
+                icon: "star",
+                tooltip: "Egyedi",
+                severity: "help",
+                value: DISTRICT_TYPE.UNIQUE,
+              },
+            ],
+          },
+        });
+        modalChain.value.push({
+          type: GAME_MODAL.PLAYER,
+          submit: useTargetedAbility,
           options: {
             players: gameStore.getGame.players.filter(
               (player) =>
@@ -891,6 +1002,16 @@ async function useTargetedAbility(target, ability) {
         ability: ability.enum,
         code: lobbyCode,
         target,
+      });
+      break;
+    case ABILITY_TARGET.DISTRICT_TYPE_AND_PLAYER:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target: {
+          id: target,
+          ...targetBuffer.value,
+        },
       });
       break;
     default:

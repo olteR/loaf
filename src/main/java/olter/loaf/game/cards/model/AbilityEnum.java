@@ -12,7 +12,6 @@ import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -145,9 +144,23 @@ public enum AbilityEnum {
             game.nextPlayer();
         }
     },
-    SPY("SPY", List.of("sheet-plastic", "user-secret"), TargetEnum.PLAYER_AND_DISTRICT_TYPE, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>") {
+    SPY("SPY", List.of("sheet-plastic", "user-secret"), TargetEnum.DISTRICT_TYPE_AND_PLAYER, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            if (game.getCurrentPlayer().getUsingAbility() == null) {
+                PlayerEntity targetPlayer = game.getPlayer(target.getId());
+                int targetAmount =
+                    (int) targetPlayer.getHand().stream().filter(district -> district.getType() == target.getType())
+                        .count();
+                game.getCurrentPlayer().giveGold(targetPlayer.takeGold(targetAmount));
+                game.getCurrentPlayer().giveCards(game.drawFromDeck(targetAmount));
+                game.getCurrentPlayer().setUsingAbility(SPY);
+                game.getCurrentPlayer().setAbilityTarget(target.getId());
+                game.getCurrentPlayer().setDrawnCards(new ArrayList<>(targetPlayer.getHand()));
+            } else {
+                game.getCurrentPlayer().setUsingAbility(null);
+                game.getCurrentPlayer().setAbilityTarget(null);
+                game.getCurrentPlayer().setDrawnCards(new ArrayList<>());
+            }
         }
     },
     WIZARD("WIZARD", List.of("sheet-plastic", "wand-magic-sparkles"), TargetEnum.PLAYER_AND_CARD_IN_HAND, "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>") {
@@ -455,13 +468,11 @@ public enum AbilityEnum {
 
     protected void getTypeGold(GameEntity game, DistrictTypeEnum type) {
         game.getCurrentPlayer().giveGold((int) game.getCurrentPlayer().getDistricts().stream()
-            .filter(district -> district.getType() == type || district.hasAbility(SCHOOL_OF_MAGIC))
-            .count());
+            .filter(district -> district.getType() == type || district.hasAbility(SCHOOL_OF_MAGIC)).count());
     }
 
     protected void getTypeCards(GameEntity game, DistrictTypeEnum type) {
         game.getCurrentPlayer().giveCards(game.drawFromDeck((int) game.getCurrentPlayer().getDistricts().stream()
-            .filter(district -> district.getType() == type || district.hasAbility(SCHOOL_OF_MAGIC))
-            .count()));
+            .filter(district -> district.getType() == type || district.hasAbility(SCHOOL_OF_MAGIC)).count()));
     }
 }
