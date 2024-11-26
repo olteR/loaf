@@ -158,7 +158,7 @@ public enum AbilityEnum {
                 game.getCurrentPlayer().setDrawnCards(new ArrayList<>(game.getPlayer(target.getId()).getHand()));
             } else {
                 DistrictEntity district = game.getCurrentPlayer().getDrawnCards().get(target.getIndex());
-                if (target.getChoice()) {
+                if (Objects.equals(target.getChoice(), true)) {
                     if (game.getCurrentPlayer().getGold() < district.getCost()) {
                         throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), district.getId());
                     }

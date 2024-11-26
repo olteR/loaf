@@ -118,6 +118,7 @@ export const GAME_MODAL = {
   CARDS: "CARDS",
   PLAYER: "PLAYER",
   DISTRICT: "DISTRICT",
+  CHOICE: "CHOICE",
 };
 
 export const DISTRICT_TYPE = {

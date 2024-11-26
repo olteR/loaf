@@ -45,7 +45,9 @@
     </Button>
     <Dialog
       :closable="
-        !!modalSettings.ability && modalSettings.ability.enum !== ABILITY.WITCH
+        !!modalSettings.ability &&
+        modalSettings.ability.enum !== ABILITY.WITCH &&
+        gameStore.getGame.usingAbility !== ABILITY.WIZARD
       "
       v-model:visible="modalSettings.visible"
       modal
@@ -83,6 +85,12 @@
         :options="modalSettings.options"
         :ability="modalSettings.ability"
         :district-images="cardStore.getDistrictImages"
+        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+      />
+      <ChoiceSelectModal
+        v-else-if="modalSettings.type === GAME_MODAL.CHOICE"
+        :options="modalSettings.options"
+        :ability="modalSettings.ability"
         @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
       />
     </Dialog>
@@ -123,6 +131,7 @@ import { hasCondition } from "@/utils/utils";
 import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
 import { useToast } from "primevue/usetoast";
+import ChoiceSelectModal from "@/components/game/modals/ChoiceSelectModal.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -353,7 +362,28 @@ watch(
         case ABILITY.WIZARD:
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
-            submit: (target) => console.log(target),
+            submit: (target, ability) => {
+              if (
+                gameStore.getGame.drawnCards[target].cost <=
+                gameStore.getCurrentPlayer.gold
+              ) {
+                modalChain.value.push({
+                  type: GAME_MODAL.CHOICE,
+                  submit: (t, a) =>
+                    useTargetedAbility({ index: target[0], choice: t }, a),
+                  options: {
+                    yesIcon: "hammer",
+                    yesTooltip:
+                      "Kifizeted a kerület árát és beépíted a városodba",
+                    noIcon: "hand",
+                    noTooltip: "Kezedbe veszed a lapot",
+                  },
+                });
+                openNextModal({ index: target });
+              } else {
+                useTargetedAbility({ index: target[0] }, ability);
+              }
+            },
             options: {
               cards: gameStore.getGame.drawnCards,
               minSelect: 1,
@@ -853,6 +883,13 @@ async function useTargetedAbility(target, ability) {
           index: target[0],
           ...targetBuffer.value,
         },
+      });
+      break;
+    case ABILITY_TARGET.PLAYER_AND_CARD_IN_HAND:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+        target,
       });
       break;
     default:
