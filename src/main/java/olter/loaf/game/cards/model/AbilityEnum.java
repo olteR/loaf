@@ -206,7 +206,26 @@ public enum AbilityEnum {
     },
     ABBOT("ABBOT", List.of("user", "coins"), TargetEnum.RICHEST_PLAYER, "<p>Ha a köröd során bármikor előfordul, hogy nem te vagy a legtöbb <i class=\"fa fa-coins\"></i>-al rendelkező játékos, a leggazdagabb játékos ad neked egyet. Döntetlen esetén te választasz, hogy ki ad <i class=\"fa fa-coins\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            // TODO
+            List<PlayerEntity> richestPlayers = new ArrayList<>();
+            Integer mostGold = -1;
+            for (PlayerEntity player : game.getPlayers()) {
+                if (player.getGold() > mostGold) {
+                    richestPlayers = new ArrayList<>();
+                    richestPlayers.add(player);
+                    mostGold = player.getGold();
+                }
+                else if (player.getGold().equals(mostGold)) {
+                    richestPlayers.add(player);
+                }
+            }
+            if (richestPlayers.contains(game.getCurrentPlayer())) {
+                throw new InvalidActivationException(game.getCurrentPlayer().getId(), ABBOT);
+            }
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            if (!richestPlayers.contains(targetPlayer)) {
+                throw new InvalidTargetException(ABBOT, game.getCurrentPlayer().getId());
+            }
+            game.getCurrentPlayer().giveGold(targetPlayer.takeGold(1));
         }
     },
     ALCHEMIST("ALCHEMIST", ActivationEnum.END_OF_TURN, "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>"),

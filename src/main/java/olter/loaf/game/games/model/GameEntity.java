@@ -143,6 +143,8 @@ public class GameEntity extends BaseEntity {
         this.killedCharacter = null;
         this.bewitchedCharacter = null;
         this.robbedCharacter = null;
+        this.warrantedCharacters = new ArrayList<>();
+        this.threatenedCharacters = new ArrayList<>();
         this.downwardDiscard = r.nextInt(this.characters.size() + 1);
         this.upwardDiscard = discardCharacters(List.of(this.downwardDiscard, 4));
         this.players = this.players.stream().peek(p -> {

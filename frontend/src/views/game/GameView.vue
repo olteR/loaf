@@ -561,7 +561,13 @@ async function useAbility(ability) {
       case ABILITY_TARGET.CHARACTER:
         modalChain.value.push({
           type: GAME_MODAL.CHARACTER,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                index: target[0],
+              },
+              ability
+            ),
           options: {
             characters: gameStore.getGame.characters,
             discarded: gameStore.getGame.discardedCharacters,
@@ -580,7 +586,13 @@ async function useAbility(ability) {
       case ABILITY_TARGET.PLAYER:
         modalChain.value.push({
           type: GAME_MODAL.PLAYER,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                id: target,
+              },
+              ability
+            ),
           options: {
             players: gameStore.getGame.players.filter(
               (player) => player.id !== gameStore.getGame.currentPlayer
@@ -602,7 +614,11 @@ async function useAbility(ability) {
         });
         modalChain.value.push({
           type: GAME_MODAL.CHOICE,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              { resource: target, ...targetBuffer.value },
+              ability
+            ),
           options: {
             choices: [
               {
@@ -623,7 +639,13 @@ async function useAbility(ability) {
         if (gameStore.getGame.hand.length > 0) {
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
-            submit: useTargetedAbility,
+            submit: (target) =>
+              useTargetedAbility(
+                {
+                  index: target[0],
+                },
+                ability
+              ),
             options: {
               cards: gameStore.getGame.hand,
               minSelect: 1,
@@ -644,7 +666,13 @@ async function useAbility(ability) {
         if (gameStore.getGame.hand.length > 0) {
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
-            submit: useTargetedAbility,
+            submit: (target) =>
+              useTargetedAbility(
+                {
+                  indexes: target,
+                },
+                ability
+              ),
             options: {
               cards: gameStore.getGame.hand,
               minSelect: 1,
@@ -685,7 +713,15 @@ async function useAbility(ability) {
           modalChain.value.push({
             header: "Válassz cserélendő kerületet!",
             type: GAME_MODAL.DISTRICT,
-            submit: useTargetedAbility,
+            submit: (target) =>
+              useTargetedAbility(
+                {
+                  secondaryId: target.id,
+                  secondaryIndex: target.index,
+                  ...targetBuffer.value,
+                },
+                ability
+              ),
             options: {
               players: gameStore.getGame.players.filter(
                 (player) => player.id !== gameStore.getGame.currentPlayer
@@ -724,7 +760,13 @@ async function useAbility(ability) {
       case ABILITY_TARGET.GOLD_OR_CARDS:
         modalChain.value.push({
           type: GAME_MODAL.CHOICE,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                resource: target,
+              },
+              ability
+            ),
           options: {
             choices: [
               {
@@ -776,7 +818,14 @@ async function useAbility(ability) {
         modalChain.value.push({
           header: "Válaszd ki kié legyen az aláírt parancs!",
           type: GAME_MODAL.CHARACTER,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                index: target[0],
+                ...targetBuffer.value,
+              },
+              ability
+            ),
           options: {
             characters: gameStore.getGame.characters,
             discarded: gameStore.getGame.discardedCharacters,
@@ -806,7 +855,14 @@ async function useAbility(ability) {
         modalChain.value.push({
           header: "Válaszd ki kié legyen a valódi fenyegetés!",
           type: GAME_MODAL.CHARACTER,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                index: target[0],
+                ...targetBuffer.value,
+              },
+              ability
+            ),
           options: {
             characters: gameStore.getGame.characters,
             discarded: gameStore.getGame.discardedCharacters,
@@ -874,7 +930,14 @@ async function useAbility(ability) {
         });
         modalChain.value.push({
           type: GAME_MODAL.PLAYER,
-          submit: useTargetedAbility,
+          submit: (target) =>
+            useTargetedAbility(
+              {
+                id: target,
+                ...targetBuffer.value,
+              },
+              ability
+            ),
           options: {
             players: gameStore.getGame.players.filter(
               (player) =>
@@ -884,6 +947,42 @@ async function useAbility(ability) {
           },
         });
         break;
+      case ABILITY_TARGET.RICHEST_PLAYER:
+        {
+          let richestPlayers = [];
+          let mostGold = -1;
+          gameStore.getGame.players.forEach((player) => {
+            if (player.gold > mostGold) {
+              mostGold = player.gold;
+              richestPlayers = [player];
+            } else if (player.gold === mostGold) {
+              richestPlayers.push(player);
+            }
+          });
+          if (
+            richestPlayers
+              .map((player) => player.id)
+              .includes(gameStore.getGame.currentPlayer)
+          ) {
+            toast.add({
+              severity: "error",
+              summary: "Nem használhatod ezt a képességet!",
+              detail: "Te vagy a leggazdagabb játékos!",
+              life: 3000,
+            });
+          } else if (richestPlayers.length === 1) {
+            await useTargetedAbility({ id: richestPlayers[0].id }, ability);
+          } else {
+            modalChain.value.push({
+              type: GAME_MODAL.PLAYER,
+              submit: (target) => useTargetedAbility({ id: target }, ability),
+              options: {
+                players: richestPlayers,
+              },
+            });
+          }
+        }
+        break;
       default:
         console.log(ability);
     }
@@ -892,131 +991,11 @@ async function useAbility(ability) {
 }
 
 async function useTargetedAbility(target, ability) {
-  switch (ability.target) {
-    case ABILITY_TARGET.CHARACTER:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          index: target[0],
-        },
-      });
-      break;
-    case ABILITY_TARGET.PLAYER:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          id: target,
-        },
-      });
-      break;
-    case ABILITY_TARGET.PLAYER_AND_RESOURCE:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: { resource: target, ...targetBuffer.value },
-      });
-      break;
-    case ABILITY_TARGET.OWN_CARD:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          index: target[0],
-        },
-      });
-      break;
-    case ABILITY_TARGET.OWN_CARDS:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          indexes: target,
-        },
-      });
-      break;
-    case ABILITY_TARGET.BUILT_DISTRICT:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target,
-      });
-      break;
-    case ABILITY_TARGET.SWAP_DISTRICT:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          secondaryId: target.id,
-          secondaryIndex: target.index,
-          ...targetBuffer.value,
-        },
-      });
-      break;
-    case ABILITY_TARGET.OTHERS_BUILT_DISTRICT:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target,
-      });
-      break;
-    case ABILITY_TARGET.GOLD_OR_CARDS:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          resource: target,
-        },
-      });
-      break;
-    case ABILITY_TARGET.SELECTOR:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target,
-      });
-      break;
-    case ABILITY_TARGET.WARRANTS:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          index: target[0],
-          ...targetBuffer.value,
-        },
-      });
-      break;
-    case ABILITY_TARGET.THREAT_MARKERS:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          index: target[0],
-          ...targetBuffer.value,
-        },
-      });
-      break;
-    case ABILITY_TARGET.PLAYER_AND_CARD_IN_HAND:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target,
-      });
-      break;
-    case ABILITY_TARGET.DISTRICT_TYPE_AND_PLAYER:
-      await gameStore.useAbility({
-        ability: ability.enum,
-        code: lobbyCode,
-        target: {
-          id: target,
-          ...targetBuffer.value,
-        },
-      });
-      break;
-    default:
-      console.log(target, ability);
-  }
+  await gameStore.useAbility({
+    ability: ability.enum,
+    code: lobbyCode,
+    target,
+  });
   closeModal();
 }
 </script>
