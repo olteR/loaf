@@ -89,6 +89,9 @@ public class PlayerEntity extends BaseEntity {
     public void giveDistrict(DistrictEntity district) {
         this.districts.add(district);
         this.points += district.getCost();
+        if (this.districts.size() > 6) {
+            game.setIsFinalTurn(true);
+        }
     }
 
     public DistrictEntity removeDistrict(int index) {
@@ -124,9 +127,8 @@ public class PlayerEntity extends BaseEntity {
         return this.hand.remove(index);
     }
 
-    public DistrictEntity takeCard(DistrictEntity card) {
+    public void takeCard(DistrictEntity card) {
         this.hand.remove(card);
-        return card;
     }
 
     public DistrictEntity takeRandomCard() {

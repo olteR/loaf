@@ -5,13 +5,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
+import olter.loaf.game.cards.dto.AbilityTargetRequest;
+import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.cards.model.ActivationEnum;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
-import olter.loaf.game.players.model.DurationEnum;
 import olter.loaf.game.players.model.ConditionEnum;
+import olter.loaf.game.players.model.DurationEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
 
@@ -29,6 +31,7 @@ public class GameEntity extends BaseEntity {
     private Integer killedCharacter;
     private Integer robbedCharacter;
     private Integer bewitchedCharacter;
+    private Boolean isFinalTurn;
 
     @Enumerated(EnumType.STRING)
     private GamePhaseEnum phase;
@@ -101,21 +104,21 @@ public class GameEntity extends BaseEntity {
 
     public void setKilledCharacter(Integer character) {
         this.killedCharacter = character;
-        getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.KILLED));
+        this.getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.KILLED));
     }
 
     public void setRobbedCharacter(Integer character) {
         this.robbedCharacter = character;
-        getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.ROBBED));
+        this.getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.ROBBED));
     }
 
     public void setBewitchedCharacter(Integer character) {
         this.bewitchedCharacter = character;
-        getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.BEWITCHED));
+        this.getPlayerWithCharacter(character).ifPresent(player -> player.giveCondition(ConditionEnum.BEWITCHED));
     }
 
     public PlayerEntity getBewitchedPlayer() {
-        return getPlayerWithCharacter(this.bewitchedCharacter).orElse(null);
+        return this.getPlayerWithCharacter(this.bewitchedCharacter).orElse(null);
     }
 
     private Optional<PlayerEntity> getPlayerWithCharacter(Integer character) {
@@ -155,9 +158,9 @@ public class GameEntity extends BaseEntity {
             if (p.getId().equals(this.currentPlayer.getId())) {
                 p.setUnavailableCharacters(new ArrayList<>(Collections.singletonList(this.downwardDiscard)));
             }
-            p.setConditions(p.getConditions().stream()
-                .filter(condition -> condition.getDuration() != DurationEnum.END_OF_TURN)
-                .collect(Collectors.toList()));
+            p.setConditions(
+                p.getConditions().stream().filter(condition -> condition.getDuration() != DurationEnum.END_OF_TURN)
+                    .collect(Collectors.toList()));
             p.setUsedAbilities(new ArrayList<>());
         }).collect(Collectors.toList());
     }
@@ -181,10 +184,16 @@ public class GameEntity extends BaseEntity {
                     PlayerEntity nextPlayer =
                         this.players.stream().filter(p -> p.getCharacterNumber().equals(firstChar)).findFirst()
                             .orElseThrow(() -> new CorruptedGameException(this.lobby.getCode()));
-                    revealPlayer(nextPlayer);
+                    this.revealPlayer(nextPlayer);
                 }
             }
             case TURN -> {
+                if (currentPlayer.hasDistrictAbility(AbilityEnum.PARK) && currentPlayer.getHand().isEmpty()) {
+                    currentPlayer.giveCards(this.drawFromDeck(2));
+                }
+                if (currentPlayer.hasDistrictAbility(AbilityEnum.POOR_HOUSE) && currentPlayer.getGold() == 0) {
+                    currentPlayer.giveGold(1);
+                }
                 List<PlayerEntity> playersLeft = this.players.stream()
                     .filter(player -> player.getCharacterNumber() > this.currentPlayer.getCharacterNumber())
                     .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
@@ -192,9 +201,13 @@ public class GameEntity extends BaseEntity {
                     if (Objects.equals(this.killedCharacter, 4) && getPlayer(4) != null) {
                         setCrownedPlayer(getPlayer(4));
                     }
-                    newTurn();
+                    if (this.isFinalTurn) {
+                        this.endGame();
+                    } else {
+                        this.newTurn();
+                    }
                 } else {
-                    revealPlayer(playersLeft.get(0));
+                    this.revealPlayer(playersLeft.get(0));
                 }
             }
             default -> throw new InvalidPhaseActionException(this.lobby.getCode());
@@ -245,5 +258,21 @@ public class GameEntity extends BaseEntity {
             }
         }
         return orderMap;
+    }
+
+    private void endGame() {
+        phase = GamePhaseEnum.ENDED;
+        players.forEach(player -> {
+            player.getDistricts().forEach(district -> district.getAbilities().forEach(ability -> {
+                if (ability.getType() == ActivationEnum.END_OF_GAME) {
+                    AbilityTargetRequest target = new AbilityTargetRequest();
+                    target.setId(player.getId());
+                    ability.useAbility(this, target);
+                }
+            }));
+            if (player.hasDistrictAbility(AbilityEnum.SECRET_VAULT)) {
+                player.givePoints(3);
+            }
+        });
     }
 }

@@ -1020,6 +1020,79 @@ async function useAbility(ability) {
           }
         }
         break;
+      case ABILITY_TARGET.DISTRICT_AND_PLAYER_HELP:
+        {
+          const currentPlayer = gameStore.getCurrentPlayer;
+          const otherPlayers = gameStore.getGame.players.filter(
+            (player) => player.id !== currentPlayer.id
+          );
+          const mostGold = Math.min(
+            Math.max(...otherPlayers.map((player) => player.gold)),
+            gameStore.getGame.hand.length
+          );
+          const filteredDistricts = gameStore.getGame.hand
+            .map((district, i) => {
+              district.originalIndex = i;
+              return district;
+            })
+            .filter(
+              (district) =>
+                district.cost <= currentPlayer.gold + mostGold &&
+                district.cost > currentPlayer.gold
+            );
+          if (filteredDistricts.length > 0) {
+            modalChain.value.push({
+              header: "Válassz kerületet, amit megépítenél!",
+              type: GAME_MODAL.CARDS,
+              submit: (target) => {
+                const goldNeeded =
+                  filteredDistricts[target[0]].cost - currentPlayer.gold;
+                modalChain.value.push({
+                  type: GAME_MODAL.PLAYER,
+                  submit: (t) => openNextModal({ id: t }),
+                  options: {
+                    players: otherPlayers.filter(
+                      (player) => player.gold >= goldNeeded
+                    ),
+                  },
+                });
+                modalChain.value.push({
+                  header: `Válassz ${goldNeeded} kártyát, amit odaadsz!`,
+                  type: GAME_MODAL.CARDS,
+                  submit: (t) =>
+                    useTargetedAbility(
+                      { indexes: t, ...targetBuffer.value },
+                      ability
+                    ),
+                  options: {
+                    cards: gameStore.getGame.hand.filter(
+                      (_, i) => i !== filteredDistricts[target[0]].originalIndex
+                    ),
+                    minSelect: goldNeeded,
+                    maxSelect: goldNeeded,
+                  },
+                });
+                openNextModal({
+                  index: filteredDistricts[target[0]].originalIndex,
+                });
+              },
+              options: {
+                cards: filteredDistricts,
+                minSelect: 1,
+                maxSelect: 1,
+              },
+            });
+          } else {
+            toast.add({
+              severity: "error",
+              summary: "Nem használhatod ezt a képességet!",
+              detail:
+                "Nincs ilyen kerület a kezedben vagy a többi játékosnak nincs elég aranya!",
+              life: 3000,
+            });
+          }
+        }
+        break;
       default:
         console.log(ability);
     }

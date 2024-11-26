@@ -65,6 +65,7 @@ public class GameService {
         log.info("Creating game for lobby {}", lobby.getCode());
         GameEntity game = new GameEntity();
         game.setPhase(GamePhaseEnum.NOT_STARTED);
+        game.setIsFinalTurn(false);
         game.setUniqueDistricts(getDefaultUniqueDistricts());
         game.setCharacters(getDefaultCharacters(lobby.getMaxMembers().equals(8)));
         game.setTurn(0);

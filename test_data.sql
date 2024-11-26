@@ -11,9 +11,9 @@ VALUES (1, 'alfonz31@email.com', 'alfonz31', '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQ
        (10, 'jakab68@email.com', 'jakab68', '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS'),
        (11, 'olter@email.com', 'olter', '$2a$10$yrIBgrnKfTloOEJx.VG22eghjdQJxmU/1jkosrWZZ1vswCwd/OurS');
 
-INSERT INTO games (id, turn, downward_discard, killed_character, robbed_character, bewitched_character, phase, current_player)
-VALUES (1, 0,null, null, null, null, 'NOT_STARTED', null),
-       (2, 0, null, null, null, null, 'NOT_STARTED', null);
+INSERT INTO games (id, turn, downward_discard, killed_character, robbed_character, bewitched_character, is_final_turn, phase, current_player)
+VALUES (1, 0,null, null, null, null, false, 'NOT_STARTED', null),
+       (2, 0, null, null, null, null, false, 'NOT_STARTED', null);
 
 INSERT INTO lobbies (id, code, max_members, name, owner, password, secured, status, game_id)
 VALUES (1, 'N0X5T4R7', 7, 'alfonz31 lobbija', 1, null, false, 'CREATED', 1),

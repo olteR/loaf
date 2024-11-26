@@ -304,7 +304,30 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(2);
         }
     },
-    CARDINAL("CARDINAL", List.of("hammer", "hand-holding-dollar"), TargetEnum.DISTRICT_AND_PLAYER_HELP, "<p>Megépíthetsz egy <i class=\"fa fa-city\"></i>-et, amire nincs elég <i class=\"fa fa-coins\"></i>-ad. Ehhez ki kell választanod egy másik játékost és elvenni tőle a megépítéshez szükséges <i class=\"fa fa-coins\"></i>-at, cserébe pedig adnod kell ugyannyi <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből."),
+    CARDINAL("CARDINAL", List.of("hammer", "hand-holding-dollar"), TargetEnum.DISTRICT_AND_PLAYER_HELP, "<p>Megépíthetsz egy <i class=\"fa fa-city\"></i>-et, amire nincs elég <i class=\"fa fa-coins\"></i>-ad. Ehhez ki kell választanod egy másik játékost és elvenni tőle a megépítéshez szükséges <i class=\"fa fa-coins\"></i>-at, cserébe pedig adnod kell ugyannyi <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből.") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            DistrictEntity targetDistrict = game.getCurrentPlayer().takeCard(target.getIndex());
+            List<DistrictEntity> targetDistricts = new ArrayList<>();
+            List<DistrictEntity> newHand = new ArrayList<>();
+            for (int i = 0; i < game.getCurrentPlayer().getHand().size(); i++) {
+                if (target.getIndexes().contains(i)) {
+                    targetDistricts.add(game.getCurrentPlayer().getHand().get(i));
+                } else {
+                    newHand.add(game.getCurrentPlayer().getHand().get(i));
+                }
+            }
+            if (targetPlayer.getGold() + game.getCurrentPlayer().getGold() < targetDistrict.getCost() ||
+                game.getCurrentPlayer().getGold() >= targetDistrict.getCost()) {
+                throw new InvalidTargetException(CARDINAL, game.getCurrentPlayer().getId());
+            }
+            targetPlayer.takeGold(targetDistrict.getCost() - game.getCurrentPlayer().getGold());
+            targetPlayer.getHand().addAll(targetDistricts);
+            game.getCurrentPlayer().setGold(0);
+            game.getCurrentPlayer().giveDistrict(targetDistrict);
+            game.getCurrentPlayer().setHand(newHand);
+        }
+    },
     TRADER("TRADER", ActivationEnum.START_OF_TURN, "<p>Bármennyi <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületet építhetsz.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.BLOOMING_TRADE);
