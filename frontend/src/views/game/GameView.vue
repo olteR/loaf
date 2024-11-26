@@ -105,6 +105,7 @@ import {
   ABILITY_TARGET,
   ABILITY_TYPE,
   CONDITIONS,
+  DISTRICTS,
   GAME_MODAL,
   GAME_PHASE,
   RESOURCE,
@@ -127,7 +128,7 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import CharacterSelectModal from "@/components/game/modals/CharacterSelectModal.vue";
 import CharacterList from "@/components/game/characters/CharacterList.vue";
-import { hasCondition } from "@/utils/utils";
+import { hasCondition, hasDistrict } from "@/utils/utils";
 import PlayerSelectModal from "@/components/game/modals/PlayerSelectModal.vue";
 import DistrictSelectModal from "@/components/game/modals/DistrictSelectModal.vue";
 import { useToast } from "primevue/usetoast";
@@ -293,26 +294,26 @@ watch(
           },
         });
       } else if (gameStore.getGame.phase === GAME_PHASE.RESOURCE) {
-        const isGoldMining = hasCondition(
+        const hasGoldMine = hasDistrict(
           gameStore.getCurrentPlayer,
-          CONDITIONS.GOLD_MINING
+          DISTRICTS.GOLD_MINE
         );
-        const hasStarGuidance = hasCondition(
+        const hasObservatory = hasDistrict(
           gameStore.getCurrentPlayer,
-          CONDITIONS.STAR_GUIDANCE
+          DISTRICTS.OBSERVATORY
         );
-        const hasKnowledge = hasCondition(
+        const hasLibrary = hasDistrict(
           gameStore.getCurrentPlayer,
-          CONDITIONS.KNOWLEDGE
+          DISTRICTS.LIBRARY
         );
-        const selectCount = hasKnowledge ? 2 : 1;
+        const selectCount = hasLibrary ? 2 : 1;
         if (gameStore.getGame.drawnCards.length === 0) {
           modalChain.value.push({
             type: GAME_MODAL.RESOURCE,
             submit: gatherResources,
             options: {
-              gold: isGoldMining ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
-              cards: hasStarGuidance ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
+              gold: hasGoldMine ? RESOURCE_GOLD + 1 : RESOURCE_GOLD,
+              cards: hasObservatory ? RESOURCE_CARDS + 1 : RESOURCE_CARDS,
               cardsToKeep: selectCount,
             },
           });
@@ -470,13 +471,13 @@ async function selectCharacter(number) {
 async function gatherResources(resource) {
   const response = await gameStore.gatherResources(lobbyCode, resource);
   if (resource === RESOURCE.CARDS) {
-    const hasKnowledge = hasCondition(
+    const hasLibrary = hasDistrict(
       gameStore.getCurrentPlayer,
-      CONDITIONS.KNOWLEDGE
+      DISTRICTS.LIBRARY
     );
     if (
-      hasKnowledge &&
-      !hasCondition(gameStore.getCurrentPlayer, CONDITIONS.STAR_GUIDANCE)
+      hasLibrary &&
+      !hasDistrict(gameStore.getCurrentPlayer, DISTRICTS.OBSERVATORY)
     ) {
       gameStore.getGame.hand = gameStore.getGame.hand.concat(response.data);
       openNextModal();
@@ -486,8 +487,8 @@ async function gatherResources(resource) {
         submit: drawCards,
         options: {
           cards: response.data,
-          minSelect: hasKnowledge ? 2 : 1,
-          maxSelect: hasKnowledge ? 2 : 1,
+          minSelect: hasLibrary ? 2 : 1,
+          maxSelect: hasLibrary ? 2 : 1,
         },
       });
       openNextModal();

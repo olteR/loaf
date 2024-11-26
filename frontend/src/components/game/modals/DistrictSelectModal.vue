@@ -46,7 +46,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { ABILITY, CONDITIONS } from "@/utils/const";
+import { ABILITY, CONDITIONS, DISTRICTS } from "@/utils/const";
 import Button from "primevue/button";
 import GameModalBuiltDistrict from "@/components/game/modals/GameModalBuiltDistrict.vue";
 import { hasCondition } from "@/utils/utils";
@@ -79,7 +79,7 @@ const visiblePlayers = computed(() => {
 
 function isProtected(player, district) {
   return (
-    district.abilities.includes(ABILITY.KEEP) ||
+    district.abilities.includes(DISTRICTS.KEEP) ||
     (isEightCharacter.value && hasCondition(player, CONDITIONS.PROTECTED))
   );
 }

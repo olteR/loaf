@@ -154,4 +154,8 @@ public class PlayerEntity extends BaseEntity {
     public Boolean hasCondition(ConditionEnum condition) {
         return this.conditions.contains(condition);
     }
+
+    public Boolean hasDistrictAbility(AbilityEnum ability) {
+        return this.districts.stream().flatMap(district -> district.getAbilities().stream()).toList().contains(ability);
+    }
 }

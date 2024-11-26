@@ -1,4 +1,4 @@
-import { COLORS, CONDITIONS } from "@/utils/const";
+import { COLORS } from "@/utils/const";
 
 export function composeCharacterDescription(character) {
   return character.abilities
@@ -33,4 +33,11 @@ export function hasCondition(player, condition) {
   return player.conditions
     .map((condition) => condition.value)
     .includes(condition);
+}
+
+export function hasDistrict(player, district) {
+  return player.districts
+    .map((district) => district.abilities)
+    .flat(Infinity)
+    .includes(district);
 }

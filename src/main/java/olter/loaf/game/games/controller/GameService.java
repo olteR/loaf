@@ -151,7 +151,7 @@ public class GameService {
 
         if (resource.equals(ResourceTypeEnum.GOLD)) {
             Integer amount =
-                game.getCurrentPlayer().hasCondition(ConditionEnum.GOLD_MINING) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
+                game.getCurrentPlayer().hasDistrictAbility(AbilityEnum.GOLD_MINE) ? RESOURCE_GOLD + 1 : RESOURCE_GOLD;
             game.getCurrentPlayer().giveGold(amount);
             game.setPhase(GamePhaseEnum.TURN);
             handleWitchAbility(game);
@@ -159,10 +159,11 @@ public class GameService {
                 new ResourceGatherResponse(resource, amount));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
             drawnCards = game.drawFromDeck(RESOURCE_CARDS);
-            if (game.getCurrentPlayer().hasCondition(ConditionEnum.STAR_GUIDANCE)) {
+            if (game.getCurrentPlayer().hasDistrictAbility(AbilityEnum.OBSERVATORY)) {
                 drawnCards.add(game.drawFromDeck(1).get(0));
             }
-            if (game.getCurrentPlayer().hasCondition(ConditionEnum.KNOWLEDGE) && drawnCards.size() == RESOURCE_CARDS) {
+            if (game.getCurrentPlayer().hasDistrictAbility(AbilityEnum.LIBRARY) &&
+                drawnCards.size() == RESOURCE_CARDS) {
                 game.getCurrentPlayer().giveCards(drawnCards);
                 game.setPhase(GamePhaseEnum.TURN);
                 broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
@@ -207,16 +208,13 @@ public class GameService {
         if (player.hasCondition(ConditionEnum.WARRANTED) && !magistrate.getDistricts().contains(district)) {
             magistrate.giveDistrict(district);
             target.setId(magistrate.getId());
-            district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
-                .forEach(ability -> ability.useAbility(game, target));
         } else {
             player.giveDistrict(district);
             player.takeGold(district.getCost());
             target.setId(player.getId());
-            district.getAbilities().stream().filter(ability -> ability.getType() == ActivationEnum.ON_BUILD)
-                .forEach(ability -> ability.useAbility(game, target));
         }
-        if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE)) {
+        if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE) &&
+            !district.hasAbility(AbilityEnum.STABLES)) {
             player.setBuildLimit(player.getBuildLimit() - 1);
         }
         if (player.hasCondition(ConditionEnum.BLOOMING_TRADE)) {
@@ -363,7 +361,7 @@ public class GameService {
             throw new NotEnoughGoldException(player.getId(), district.getId());
         }
         if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId()) &&
-            !player.hasCondition(ConditionEnum.DUPLICATES) && !player.hasCondition(ConditionEnum.STONE_MINING)) {
+            !player.hasCondition(ConditionEnum.DUPLICATES) && !player.hasDistrictAbility(AbilityEnum.QUARRY)) {
             throw new AlreadyBuiltException(player.getId(), district.getId());
         }
     }

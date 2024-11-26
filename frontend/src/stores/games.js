@@ -1,15 +1,8 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
-import {
-  ABILITY,
-  CONDITIONS,
-  GAME_PHASE,
-  GAME_UPDATE,
-  RESOURCE,
-} from "@/utils/const";
+import { ABILITY, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import { useStateStore } from "@/stores/state";
-import { hasCondition } from "@/utils/utils";
 
 export const useGameStore = defineStore("game", () => {
   const requestStore = useRequestStore();
