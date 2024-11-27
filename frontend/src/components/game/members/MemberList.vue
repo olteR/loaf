@@ -2,7 +2,7 @@
   <div class="members">
     <Card
       v-for="(player, i) in game.players"
-      :key="player.order"
+      :key="player.id"
       style="width: 12vw; outline: solid medium; border-radius: 4px"
       :class="{
         'on-turn': player.id === game.currentPlayer,

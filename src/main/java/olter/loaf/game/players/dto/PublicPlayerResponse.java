@@ -18,6 +18,7 @@ public class PublicPlayerResponse {
     private Integer points;
     private Integer handSize;
     private Integer character;
+    private Integer order;
     private List<ConditionResponse> conditions;
     private List<DistrictResponse> districts;
 }

@@ -115,8 +115,10 @@ function handleDragEnd() {
     200
   );
   resetPos.onfinish = () => {
-    districtCard.value.style.top = 0;
-    districtCard.value.style.left = props.order * 4 + "vw";
+    if (districtCard.value) {
+      districtCard.value.style.top = 0;
+      districtCard.value.style.left = props.order * 4 + "vw";
+    }
   };
 }
 </script>

@@ -54,13 +54,11 @@
         class="my-auto"
         style="width: 2.5vw; height: 4vh; font-size: 1.5vh"
         v-tooltip:[tooltipPosition]="{
-          value: `${player.name} kerületei ${calculatePoints(
-            player
-          )} pontot érnek`,
+          value: `${player.name} ${player.points} pontot szerzett`,
           escape: false,
         }"
       >
-        {{ calculatePoints(player) }}
+        {{ player.points }}
         <i class="fa fa-star" style="margin-left: 0.2vh"></i>
       </Tag>
     </div>
@@ -119,13 +117,6 @@ const props = defineProps({
   tooltipPosition: Object,
   districtImages: Array,
 });
-
-function calculatePoints() {
-  return props.player.districts.reduce(
-    (partialSum, district) => partialSum + district.cost,
-    0
-  );
-}
 </script>
 
 <style scoped>

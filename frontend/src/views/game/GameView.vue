@@ -268,9 +268,9 @@ onMounted(async () => {
   await cardStore.fetchCards();
   await gameStore.fetchGame(lobbyCode);
   if (gameStore.getGame.phase === GAME_PHASE.NOT_STARTED) {
-    router.push(`/lobby/${lobbyCode}`);
+    await router.push(`/lobby/${lobbyCode}`);
   } else if (gameStore.getGame.phase === GAME_PHASE.ENDED) {
-    router.push(`/game-results/${lobbyCode}`);
+    await router.push(`/game-results/${lobbyCode}`);
   }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
@@ -288,70 +288,23 @@ watch(
   (newValue) => {
     if (newValue.userId === stateStore.getUser.id) {
       if (gameStore.getGame.phase === GAME_PHASE.SELECTION) {
-        modalChain.value.push({
-          type: GAME_MODAL.CHARACTER,
-          submit: (target) => selectCharacter(target[0]),
-          options: {
-            characters: gameStore.getGame.characters,
-            unavailable: gameStore.getGame.unavailableCharacters,
-            discarded: gameStore.getGame.discardedCharacters,
-            selectCount: 1,
-          },
-        });
+        addCharacterSelectModal();
       } else if (gameStore.getGame.phase === GAME_PHASE.RESOURCE) {
-        const goldAmount = hasDistrict(
-          gameStore.getCurrentPlayer,
-          DISTRICTS.GOLD_MINE
-        )
-          ? RESOURCE_GOLD + 1
-          : RESOURCE_GOLD;
-        const cardAmount = hasDistrict(
-          gameStore.getCurrentPlayer,
-          DISTRICTS.OBSERVATORY
-        )
-          ? RESOURCE_CARDS + 1
-          : RESOURCE_CARDS;
-        const keepAmount = hasDistrict(
-          gameStore.getCurrentPlayer,
-          DISTRICTS.LIBRARY
-        )
-          ? 2
-          : 1;
-        if (gameStore.getGame.drawnCards.length === 0) {
-          modalChain.value.push({
-            header: "Válassz nyersanyagot!",
-            type: GAME_MODAL.CHOICE,
-            submit: gatherResources,
-            options: {
-              choices: [
-                {
-                  icon: "coins",
-                  tooltip: `Kapsz ${goldAmount} aranyat`,
-                  value: RESOURCE.GOLD,
-                },
-                {
-                  icon: "sheet-plastic",
-                  tooltip: `Húzol ${cardAmount} lapot${
-                    cardAmount === keepAmount
-                      ? ""
-                      : " és megtartasz " + keepAmount + " darabot"
-                  }`,
-                  value: RESOURCE.CARDS,
-                },
-              ],
-            },
-          });
-        } else {
-          modalChain.value.push({
-            type: GAME_MODAL.CARDS,
-            submit: drawCards,
-            options: {
-              cards: gameStore.getGame.drawnCards,
-              minSelect: keepAmount,
-              maxSelect: keepAmount,
-            },
-          });
-        }
+        addResourceSelectModal();
+      }
+      openNextModal();
+    }
+  }
+);
+
+watch(
+  () => gameStore.getGame.phase,
+  (newValue) => {
+    if (gameStore.getCurrentPlayer.userId === stateStore.getUser.id) {
+      if (newValue === GAME_PHASE.SELECTION) {
+        addCharacterSelectModal();
+      } else if (newValue === GAME_PHASE.RESOURCE) {
+        addResourceSelectModal();
       }
       openNextModal();
     }
@@ -562,6 +515,72 @@ function closeModal() {
   modalChain.value = [];
 }
 
+function addCharacterSelectModal() {
+  modalChain.value.push({
+    type: GAME_MODAL.CHARACTER,
+    submit: (target) => selectCharacter(target[0]),
+    options: {
+      characters: gameStore.getGame.characters,
+      unavailable: gameStore.getGame.unavailableCharacters,
+      discarded: gameStore.getGame.discardedCharacters,
+      selectCount: 1,
+    },
+  });
+}
+
+function addResourceSelectModal() {
+  const goldAmount = hasDistrict(
+    gameStore.getCurrentPlayer,
+    DISTRICTS.GOLD_MINE
+  )
+    ? RESOURCE_GOLD + 1
+    : RESOURCE_GOLD;
+  const cardAmount = hasDistrict(
+    gameStore.getCurrentPlayer,
+    DISTRICTS.OBSERVATORY
+  )
+    ? RESOURCE_CARDS + 1
+    : RESOURCE_CARDS;
+  const keepAmount = hasDistrict(gameStore.getCurrentPlayer, DISTRICTS.LIBRARY)
+    ? 2
+    : 1;
+  if (gameStore.getGame.drawnCards.length === 0) {
+    modalChain.value.push({
+      header: "Válassz nyersanyagot!",
+      type: GAME_MODAL.CHOICE,
+      submit: gatherResources,
+      options: {
+        choices: [
+          {
+            icon: "coins",
+            tooltip: `Kapsz ${goldAmount} aranyat`,
+            value: RESOURCE.GOLD,
+          },
+          {
+            icon: "sheet-plastic",
+            tooltip: `Húzol ${cardAmount} lapot${
+              cardAmount === keepAmount
+                ? ""
+                : " és megtartasz " + keepAmount + " darabot"
+            }`,
+            value: RESOURCE.CARDS,
+          },
+        ],
+      },
+    });
+  } else {
+    modalChain.value.push({
+      type: GAME_MODAL.CARDS,
+      submit: drawCards,
+      options: {
+        cards: gameStore.getGame.drawnCards,
+        minSelect: keepAmount,
+        maxSelect: keepAmount,
+      },
+    });
+  }
+}
+
 async function selectCharacter(number) {
   await gameStore.selectCharacter(lobbyCode, number);
   closeModal();
@@ -601,7 +620,6 @@ async function drawCards(cards) {
 
 async function buildDistrict(index) {
   await gameStore.buildDistrict(lobbyCode, index);
-  gameStore.getGame.hand.splice(index, 1);
 }
 
 async function useAbility(ability) {
@@ -839,7 +857,11 @@ async function useAbility(ability) {
     case ABILITY.RELIGIOUS_GOLD_OR_CARDS:
       {
         const resourceCount = gameStore.getCurrentPlayer.districts.filter(
-          (district) => district.type === DISTRICT_TYPE.RELIGIOUS
+          (district) =>
+            district.type === DISTRICT_TYPE.RELIGIOUS ||
+            district.abilities
+              .map((ability) => ability.enum)
+              .includes(DISTRICTS.SCHOOL_OF_MAGIC)
         ).length;
         if (resourceCount > 0) {
           modalChain.value.push({
@@ -1164,7 +1186,10 @@ async function useAbility(ability) {
       break;
     case DISTRICTS.THIEVES_DEN:
       {
-        if (gameStore.getGame.hand.length > 1) {
+        if (
+          gameStore.getGame.hand.length + gameStore.getCurrentPlayer.gold >
+          6
+        ) {
           const filteredDistricts = gameStore.getGame.hand
             .map((district, i) => {
               district.originalIndex = i;
@@ -1196,9 +1221,8 @@ async function useAbility(ability) {
         } else {
           toast.add({
             severity: "error",
-            summary: "Nincs lapod!",
-            detail:
-              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+            summary: "Nincs elég nyersanyagod!",
+            detail: "Nincs elég aranyad és lapod a Tolvajtanya megépítéséhez!",
             life: 3000,
           });
         }

@@ -146,7 +146,7 @@ public class GameEntity extends BaseEntity {
         this.robbedCharacter = null;
         this.warrantedCharacters = new ArrayList<>();
         this.threatenedCharacters = new ArrayList<>();
-        this.downwardDiscard = r.nextInt(this.characters.size() + 1);
+        this.downwardDiscard = r.nextInt(this.characters.size() - 1) + 1;
         this.upwardDiscard = discardCharacters(List.of(this.downwardDiscard, 4));
         this.players = this.players.stream().peek(p -> {
             p.setCharacter(null);
@@ -192,6 +192,11 @@ public class GameEntity extends BaseEntity {
                 if (currentPlayer.hasDistrictAbility(AbilityEnum.POOR_HOUSE) && currentPlayer.getGold() == 0) {
                     currentPlayer.giveGold(1);
                 }
+                if (currentPlayer.hasCondition(ConditionEnum.BLOOMING_TRADE) &&
+                    currentPlayer.getAbilityTarget() != null) {
+                    currentPlayer.giveGold(currentPlayer.getAbilityTarget().intValue());
+                    currentPlayer.setAbilityTarget(null);
+                }
                 List<PlayerEntity> playersLeft = this.players.stream()
                     .filter(player -> player.getCharacterNumber() > this.currentPlayer.getCharacterNumber())
                     .sorted(Comparator.comparingInt(PlayerEntity::getCharacterNumber)).toList();
@@ -214,6 +219,7 @@ public class GameEntity extends BaseEntity {
 
     // Reveals player's character and starts their turn
     private void revealPlayer(PlayerEntity player) {
+        Integer currentTurn = this.turn;
         this.currentPlayer = player;
         this.currentPlayer.setRevealed(true);
         if (player.hasCondition(ConditionEnum.KILLED)) {
@@ -221,26 +227,28 @@ public class GameEntity extends BaseEntity {
         } else if (player.hasCondition(ConditionEnum.ROBBED)) {
             getPlayer(2).giveGold(this.currentPlayer.takeGold(this.currentPlayer.getGold()));
         }
-        this.phase = GamePhaseEnum.RESOURCE;
-        this.currentPlayer.getCharacter().getAbilities().forEach(ability -> {
-            if (ability.getType() == ActivationEnum.START_OF_TURN) {
-                ability.useAbility(this, null);
-            }
-        });
+        if (currentTurn.equals(this.turn)) {
+            this.phase = GamePhaseEnum.RESOURCE;
+            this.currentPlayer.getCharacter().getAbilities().forEach(ability -> {
+                if (ability.getType() == ActivationEnum.START_OF_TURN) {
+                    ability.useAbility(this, null);
+                }
+            });
+        }
     }
 
     // Discards random characters depending on game size
     private List<Integer> discardCharacters(List<Integer> excludes) {
         int discardCount = Math.max(6 - this.players.size(), 0);
         Random r = new Random();
-        List<Integer> discardedCharacters = new ArrayList<>();
+        Set<Integer> discardedCharacters = new HashSet<>();
         while (discardedCharacters.size() < discardCount) {
-            Integer chosenCharacter = r.nextInt(8) + 1;
+            Integer chosenCharacter = r.nextInt(characters.size() - 1) + 1;
             if (!excludes.contains(chosenCharacter)) {
                 discardedCharacters.add(chosenCharacter);
             }
         }
-        return discardedCharacters;
+        return discardedCharacters.stream().toList();
     }
 
     // Returns a map that help reorder the players in case the crowned player changes
@@ -262,11 +270,12 @@ public class GameEntity extends BaseEntity {
         phase = GamePhaseEnum.ENDED;
         lobby.setStatus(LobbyStatusEnum.ENDED);
         players.forEach(player -> {
-            List<DistrictTypeEnum> missingTypes =
-                List.of(DistrictTypeEnum.NOBLE, DistrictTypeEnum.RELIGIOUS, DistrictTypeEnum.TRADE,
-                    DistrictTypeEnum.MILITARY, DistrictTypeEnum.UNIQUE);
+            Map<DistrictTypeEnum, Integer> districtCountMap = new HashMap<>();
+            List<DistrictTypeEnum> districtTypes = new ArrayList<>(EnumSet.allOf(DistrictTypeEnum.class));
+            districtTypes.forEach(type -> districtCountMap.put(type, 0));
+
             for (DistrictEntity district : player.getDistricts()) {
-                missingTypes = missingTypes.stream().filter(type -> !(type == district.getType())).toList();
+                districtCountMap.put(district.getType(), districtCountMap.get(district.getType()) + 1);
                 district.getAbilities().forEach(ability -> {
                     if (ability.getType() == ActivationEnum.END_OF_GAME) {
                         AbilityTargetRequest target = new AbilityTargetRequest();
@@ -274,11 +283,44 @@ public class GameEntity extends BaseEntity {
                         ability.useAbility(this, target);
                     }
                 });
-                if (missingTypes.isEmpty()) {
-                    player.givePoints(3);
+            }
+
+            DistrictTypeEnum capitolType = null;
+            Boolean hasCapitol = player.hasDistrictAbility(AbilityEnum.CAPITOL);
+            if (hasCapitol) {
+                capitolType =
+                    districtTypes.stream().filter(type -> districtCountMap.get(type) > 2).findFirst().orElse(null);
+                player.givePoints(3);
+            }
+
+            if (player.hasDistrictAbility(AbilityEnum.HAUNTED_QUARTER)) {
+                // Fill missing type for bonus if there is another unique district
+                List<DistrictTypeEnum> missingTypes =
+                    districtTypes.stream().filter(type -> districtCountMap.get(type) == 0).toList();
+                List<DistrictTypeEnum> capitolTypes = districtTypes.stream()
+                    .filter(type -> type != DistrictTypeEnum.UNIQUE && districtCountMap.get(type) == 2).toList();
+                if (missingTypes.size() == 1 && districtCountMap.get(DistrictTypeEnum.UNIQUE) > 1) {
+                    districtCountMap.put(DistrictTypeEnum.UNIQUE, districtCountMap.get(DistrictTypeEnum.UNIQUE) - 1);
+                    districtCountMap.put(missingTypes.get(0), 1);
+                    if (player.hasDistrictAbility(AbilityEnum.WISHING_WELL)) {
+                        player.setPoints(player.getPoints() - 1);
+                    }
+                }
+                // Fill third type if player has unused Capitol
+                else if (player.hasDistrictAbility(AbilityEnum.CAPITOL) && capitolType == null &&
+                    !capitolTypes.isEmpty()) {
+                    districtCountMap.put(DistrictTypeEnum.UNIQUE, districtCountMap.get(DistrictTypeEnum.UNIQUE) - 1);
+                    districtCountMap.put(capitolTypes.get(0), 3);
+                    player.givePoints(player.hasDistrictAbility(AbilityEnum.WISHING_WELL) ? 2 : 3);
                 }
             }
-            if (player.hasDistrictAbility(AbilityEnum.SECRET_VAULT)) {
+
+            if (districtTypes.stream().noneMatch(type -> districtCountMap.get(type) == 0)) {
+                player.givePoints(3);
+            }
+
+            if (player.getHand().stream().flatMap(district -> district.getAbilities().stream()).toList()
+                .contains(AbilityEnum.SECRET_VAULT)) {
                 player.givePoints(3);
             }
         });

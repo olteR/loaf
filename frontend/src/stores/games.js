@@ -125,6 +125,7 @@ export const useGameStore = defineStore("game", () => {
           break;
         default: {
           game.value = update.change;
+          game.value.players.sort((a, b) => a.order - b.order);
           break;
         }
       }

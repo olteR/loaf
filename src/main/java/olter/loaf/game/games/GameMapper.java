@@ -8,9 +8,10 @@ import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.PlayerMapper;
 import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
+
+import java.util.Collections;
+import java.util.Comparator;
 
 @Mapper(componentModel = "spring", uses = {PlayerMapper.class, CardMapper.class})
 public interface GameMapper {

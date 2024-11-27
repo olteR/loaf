@@ -135,11 +135,12 @@ public class GameService {
                         new GameUpdateDto(code, GameUpdateTypeEnum.NEXT_PLAYER, game.getCurrentPlayer().getId()));
                 }
             });
+            gameRepository.save(game);
         } else {
+            gameRepository.save(game);
             broadcastOnWebsocket(code, game, GameUpdateTypeEnum.CHARACTER_REVEAL);
         }
 
-        gameRepository.save(game);
         return skippedCharacters;
     }
 
@@ -243,21 +244,16 @@ public class GameService {
         log.info("User {} ending turn in game {}", loggedInUser.getName(), code);
         GameEntity game = findGame(code);
         validateGameTurn(game, loggedInUser.getId(), GamePhaseEnum.TURN);
-        if (game.getCurrentPlayer().hasCondition(ConditionEnum.BLOOMING_TRADE) &&
-            game.getCurrentPlayer().getAbilityTarget() != null) {
-            game.getCurrentPlayer().giveGold(game.getCurrentPlayer().getAbilityTarget().intValue());
-            game.getCurrentPlayer().setAbilityTarget(null);
-        }
         if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
             game.setCurrentPlayer(game.getBewitchedPlayer());
         }
         game.nextPlayer();
+        gameRepository.save(game);
         switch (game.getPhase()) {
             case SELECTION -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.NEW_TURN);
             case ENDED -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.END_GAME);
             default -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.CHARACTER_REVEAL);
         }
-        gameRepository.save(game);
     }
 
     // Broadcasts the game details to all the players of the game
@@ -379,6 +375,9 @@ public class GameService {
         if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId()) &&
             !player.hasCondition(ConditionEnum.DUPLICATES) && !player.hasDistrictAbility(AbilityEnum.QUARRY)) {
             throw new AlreadyBuiltException(player.getId(), district.getId());
+        }
+        if (district.hasAbility(AbilityEnum.SECRET_VAULT)) {
+            throw new CannotBuildException(player.getId(), district.getId());
         }
     }
 
