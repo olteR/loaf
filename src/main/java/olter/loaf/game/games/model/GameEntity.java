@@ -13,6 +13,7 @@ import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.DurationEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.lobbies.model.LobbyEntity;
+import olter.loaf.lobbies.model.LobbyStatusEnum;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -259,12 +260,13 @@ public class GameEntity extends BaseEntity {
 
     private void endGame() {
         phase = GamePhaseEnum.ENDED;
+        lobby.setStatus(LobbyStatusEnum.ENDED);
         players.forEach(player -> {
             List<DistrictTypeEnum> missingTypes =
-                Arrays.asList(DistrictTypeEnum.NOBLE, DistrictTypeEnum.RELIGIOUS, DistrictTypeEnum.TRADE,
+                List.of(DistrictTypeEnum.NOBLE, DistrictTypeEnum.RELIGIOUS, DistrictTypeEnum.TRADE,
                     DistrictTypeEnum.MILITARY, DistrictTypeEnum.UNIQUE);
-            player.getDistricts().forEach(district -> {
-                missingTypes.remove(district.getType());
+            for (DistrictEntity district : player.getDistricts()) {
+                missingTypes = missingTypes.stream().filter(type -> !(type == district.getType())).toList();
                 district.getAbilities().forEach(ability -> {
                     if (ability.getType() == ActivationEnum.END_OF_GAME) {
                         AbilityTargetRequest target = new AbilityTargetRequest();
@@ -275,7 +277,7 @@ public class GameEntity extends BaseEntity {
                 if (missingTypes.isEmpty()) {
                     player.givePoints(3);
                 }
-            });
+            }
             if (player.hasDistrictAbility(AbilityEnum.SECRET_VAULT)) {
                 player.givePoints(3);
             }

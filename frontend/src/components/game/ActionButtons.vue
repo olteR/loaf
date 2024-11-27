@@ -74,7 +74,7 @@ function canUseAbility(ability) {
 
 function useAbility(ability) {
   if (canUseAbility(ability)) {
-    emit("use-ability", ability);
+    emit("use-ability", ability.enum);
   }
 }
 </script>

@@ -64,7 +64,7 @@ const selectedDistrict = ref();
 
 const isEightCharacter = computed(() => {
   return [ABILITY.WARLORD, ABILITY.DIPLOMAT, ABILITY.MARSHAL].includes(
-    props.ability.enum
+    props.ability
   );
 });
 
@@ -87,7 +87,7 @@ function isProtected(player, district) {
 function isSelectable(player, district) {
   if (
     (isEightCharacter.value && district.id === 26) ||
-    (props.ability.enum === ABILITY.MARSHAL &&
+    (props.ability === ABILITY.MARSHAL &&
       props.options.districts.includes(district.id)) ||
     props.options.unselectableDistricts?.includes(district.id)
   ) {

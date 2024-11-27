@@ -190,6 +190,7 @@ public class GameService {
         game.getCurrentPlayer().getDrawnCards().clear();
         game.setPhase(GamePhaseEnum.TURN);
         handleWitchAbility(game);
+        handleBlackmailerAbility(game);
 
         gameRepository.save(game);
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
@@ -342,7 +343,12 @@ public class GameService {
     // Handles abilities related to Witch
     private void handleBlackmailerAbility(GameEntity game) {
         if (game.getThreatenedCharacters().contains(game.getCurrentPlayer().getCharacterNumber())) {
-            game.getCurrentPlayer().setUsingAbility(AbilityEnum.PAY_OFF);
+            if (game.getCurrentPlayer().getGold() > 1) {
+                game.getCurrentPlayer().setUsingAbility(AbilityEnum.PAY_OFF);
+            }
+            else {
+                game.getCurrentPlayer().removeCondition(ConditionEnum.THREATENED);
+            }
         }
     }
 

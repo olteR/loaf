@@ -46,7 +46,7 @@
     <Dialog
       :closable="
         !!modalSettings.ability &&
-        modalSettings.ability.enum !== ABILITY.WITCH &&
+        modalSettings.ability !== ABILITY.WITCH &&
         ![ABILITY.WIZARD, ABILITY.SPY, ABILITY.SEER, ABILITY.PAY_OFF].includes(
           gameStore.getGame.usingAbility
         )
@@ -106,7 +106,6 @@ import { useToast } from "primevue/usetoast";
 import { hasCondition, hasDistrict } from "@/utils/utils";
 import {
   ABILITY,
-  ABILITY_TARGET,
   ABILITY_TYPE,
   CONDITIONS,
   DISTRICT_TYPE,
@@ -363,9 +362,7 @@ watch(
   () => gameStore.getGame.usingAbility,
   (newValue) => {
     if (newValue && newValue !== ABILITY.SEER) {
-      modalSettings.value.ability = gameStore.getCharacter.abilities.find(
-        (ability) => ability.enum === newValue
-      );
+      modalSettings.value.ability = newValue;
       switch (newValue) {
         case ABILITY.WITCH:
           modalChain.value.push({
@@ -447,6 +444,32 @@ watch(
             },
           });
           break;
+        case ABILITY.PAY_OFF:
+          modalChain.value.push({
+            type: GAME_MODAL.CHOICE,
+            submit: (target, ability) =>
+              useTargetedAbility({ choice: target }, ability),
+            options: {
+              choices: [
+                {
+                  icon: "coins",
+                  tooltip: `Lefizeted a Zsarolót ${Math.floor(
+                    gameStore.getCurrentPlayer.gold / 2
+                  )} aranyért`,
+                  severity: "success",
+                  value: true,
+                },
+                {
+                  icon: "x",
+                  tooltip:
+                    "Nem fizeted le a zsarolót és odaadod neki az összes aranyad, ha valóban téged fenyegetett",
+                  severity: "danger",
+                  value: false,
+                },
+              ],
+            },
+          });
+          break;
         case ABILITY.SCHOLAR:
           modalChain.value.push({
             type: GAME_MODAL.CARDS,
@@ -468,9 +491,7 @@ watch(
   () => gameStore.getGame.abilityTarget,
   (newValue) => {
     if (gameStore.getGame.usingAbility === ABILITY.SEER) {
-      modalSettings.value.ability = gameStore.getCharacter.abilities.find(
-        (ability) => ability.enum === ABILITY.SEER
-      );
+      modalSettings.value.ability = ABILITY.SEER;
       modalChain.value.push({
         header: `Válaszd ki, hogy ${
           gameStore.getGame.players.find((player) => player.id === newValue)
@@ -503,13 +524,13 @@ function openNextModal(target) {
     modalSettings.value.onSubmit = modal.submit;
     modalSettings.value.options = modal.options;
     if (
-      modalSettings.value.ability?.enum === ABILITY.DIPLOMAT &&
+      modalSettings.value.ability === ABILITY.DIPLOMAT &&
       targetBuffer.value.index != null
     ) {
       modalSettings.value.options.maxCost +=
         gameStore.getCurrentPlayer.districts[targetBuffer.value.index].cost;
     } else if (
-      modalSettings.value.ability?.enum === ABILITY.MAGISTRATE &&
+      modalSettings.value.ability === ABILITY.MAGISTRATE &&
       targetBuffer.value.indexes != null
     ) {
       modalSettings.value.options.untargetable = gameStore.getGame.characters
@@ -518,7 +539,7 @@ function openNextModal(target) {
         )
         .map((character) => character.number);
     } else if (
-      modalSettings.value.ability?.enum === ABILITY.BLACKMAILER &&
+      modalSettings.value.ability === ABILITY.BLACKMAILER &&
       targetBuffer.value.indexes != null
     ) {
       modalSettings.value.options.untargetable = gameStore.getGame.characters
@@ -585,7 +606,7 @@ async function buildDistrict(index) {
 
 async function useAbility(ability) {
   modalSettings.value.ability = ability;
-  switch (ability.enum) {
+  switch (ability) {
     case ABILITY.ASSASSIN:
     case ABILITY.THIEF:
     case ABILITY.WITCH:
@@ -731,7 +752,7 @@ async function useAbility(ability) {
         type: GAME_MODAL.PLAYER,
         submit: async (target) =>
           await gameStore.useAbility({
-            ability: ability.enum,
+            ability: ability,
             code: lobbyCode,
             target: { id: target },
           }),
@@ -1063,7 +1084,7 @@ async function useAbility(ability) {
       break;
     case ABILITY.SCHOLAR:
       await gameStore.useAbility({
-        ability: ability.enum,
+        ability: ability,
         code: lobbyCode,
       });
       modalChain.value.push({
@@ -1186,7 +1207,7 @@ async function useAbility(ability) {
       break;
     default:
       await gameStore.useAbility({
-        ability: ability.enum,
+        ability: ability,
         code: lobbyCode,
       });
       modalSettings.value.ability = null;
@@ -1196,7 +1217,7 @@ async function useAbility(ability) {
 
 async function useTargetedAbility(target, ability) {
   await gameStore.useAbility({
-    ability: ability.enum,
+    ability: ability,
     code: lobbyCode,
     target,
   });

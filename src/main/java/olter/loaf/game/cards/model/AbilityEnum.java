@@ -290,10 +290,12 @@ public enum AbilityEnum {
     },
     PAY_OFF("PAY_OFF", ActivationEnum.AFTER_GATHERING, "<p>Lefizetheted a zsarolót az összes <i class=\"fa fa-coins\"></i>-ad feléért. Ha nem fizeted le és téged zsarolt, akkor elveszi minden <i class=\"fa fa-coins\"></i>-ad.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            game.setThreatenedCharacters(target.getIndexes());
-            PlayerEntity realThreat = game.getPlayer(target.getIndex());
-            if (realThreat != null) {
-                realThreat.giveCondition(ConditionEnum.THREATENED);
+            PlayerEntity blackmailer = game.getPlayer(2);
+            if (target.getChoice()) {
+                blackmailer.giveGold(
+                    game.getCurrentPlayer().takeGold((int) Math.floor(game.getCurrentPlayer().getGold() / 2.0)));
+            } else if (game.getCurrentPlayer().hasCondition(ConditionEnum.THREATENED)) {
+                blackmailer.giveGold(game.getCurrentPlayer().takeGold(game.getCurrentPlayer().getGold()));
             }
         }
     },
