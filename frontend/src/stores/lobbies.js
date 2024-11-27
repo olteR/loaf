@@ -226,7 +226,7 @@ export const useLobbyStore = defineStore("lobby", () => {
               "A lobbitulajdonos elindította a játékot, ami rögtön kezdetét veszi!",
             life: 3000,
           });
-          router.push("/game/" + lobby.value.code);
+          router.push(`/game/${lobby.value.code}`);
           break;
         }
         case LOBBY_UPDATE.DELETE: {

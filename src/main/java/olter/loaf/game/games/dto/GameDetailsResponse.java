@@ -19,9 +19,11 @@ public class GameDetailsResponse {
     private String code;
     private Integer turn;
     private Long currentPlayer;
-    private Long killedCharacter;
-    private Long robbedCharacter;
-    private Long bewitchedCharacter;
+    private Integer killedCharacter;
+    private Integer robbedCharacter;
+    private Integer bewitchedCharacter;
+    private Integer warrantedCharacter;
+    private Integer threatenedCharacter;
     private GamePhaseEnum phase;
     private List<Integer> discardedCharacters;
     private List<Integer> warrantedCharacters;

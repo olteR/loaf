@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { REQ_TYPE, useRequestStore } from "@/stores/request";
 import { ABILITY, GAME_PHASE, GAME_UPDATE, RESOURCE } from "@/utils/const";
 import { useStateStore } from "@/stores/state";
+import router from "@/router";
 
 export const useGameStore = defineStore("game", () => {
   const requestStore = useRequestStore();
@@ -119,23 +120,12 @@ export const useGameStore = defineStore("game", () => {
           }
           break;
         }
-        case GAME_UPDATE.BUILD: {
-          game.value.players = game.value.players.map((player) => {
-            if (player.id === game.value.currentPlayer) {
-              return update.change;
-            }
-            return player;
-          });
+        case GAME_UPDATE.END_GAME:
+          router.push(`/game-results/${game.value.code}`);
           break;
-        }
-        case GAME_UPDATE.NEW_TURN:
-        case GAME_UPDATE.CHARACTER_REVEAL:
-        case GAME_UPDATE.USE_ABILITY: {
+        default: {
           game.value = update.change;
           break;
-        }
-        default: {
-          console.log(`UNKNOWN GAME UPDATE: ${update.type}`);
         }
       }
     }

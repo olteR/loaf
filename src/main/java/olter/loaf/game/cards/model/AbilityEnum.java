@@ -38,7 +38,7 @@ public enum AbilityEnum {
             getTypeCards(game, DistrictTypeEnum.RELIGIOUS);
         }
     },
-    RELIGIOUS_GOLD_OR_CARDS("RELIGIOUS_GOLD_OR_CARDS", List.of("city", "coins", "sheet-plastic"), TargetEnum.GOLD_OR_CARDS_MULTIPLE, "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> vagy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>") {
+    RELIGIOUS_GOLD_OR_CARDS("RELIGIOUS_GOLD_OR_CARDS", List.of("city", "coins", "sheet-plastic"), "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i>-t</b> vagy <b><i class=\"fa fa-sheet-plastic\"></i>-t</b> a városodban lévő minden <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             int districtCount = (int) game.getCurrentPlayer().getDistricts().stream()
                 .filter(district -> district.getType() == DistrictTypeEnum.RELIGIOUS).count();
@@ -64,7 +64,7 @@ public enum AbilityEnum {
             game.setCrownedPlayer(game.getCurrentPlayer());
         }
     },
-    ASSASSIN("ASSASSIN", List.of("user", "skull"), TargetEnum.CHARACTER, "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt karakter kihagyja az egész körét.</p>") {
+    ASSASSIN("ASSASSIN", List.of("user", "skull"), "<p>Válassz egy másik karaktert, akit meg szeretnél gyilkolni! A meggyilkolt karakter kihagyja az egész körét.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (target.getIndex() < 2 || target.getIndex() > game.getCharacters().size()) {
                 throw new InvalidTargetException(ASSASSIN, game.getCurrentPlayer().getId());
@@ -72,7 +72,7 @@ public enum AbilityEnum {
             game.setKilledCharacter(target.getIndex());
         }
     },
-    THIEF("THIEF", List.of("user", "sack-dollar"), TargetEnum.CHARACTER, "<p>Válaszd ki, hogy melyik karaktertől szeretnél lopni! Amikor az a karakter következik, elveszed a kincstartalékában lévő összes <i class=\"fa fa-coins\"></i>-t.</p><p>Nem rabolhatsz ki 1-es rangú karkatert, megölt vagy megbabonázott karaktert.</p>") {
+    THIEF("THIEF", List.of("user", "sack-dollar"), "<p>Válaszd ki, hogy melyik karaktertől szeretnél lopni! Amikor az a karakter következik, elveszed a kincstartalékában lévő összes <i class=\"fa fa-coins\"></i>-t.</p><p>Nem rabolhatsz ki 1-es rangú karkatert, megölt vagy megbabonázott karaktert.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (target.getIndex() < 3 || target.getIndex() > game.getCharacters().size() &&
                 Objects.equals(game.getKilledCharacter(), target.getIndex()) ||
@@ -82,7 +82,7 @@ public enum AbilityEnum {
             game.setRobbedCharacter(target.getIndex());
         }
     },
-    MAGICIAN_PLAYER("MAGICIAN_PLAYER", List.of("user", "sheet-plastic"), TargetEnum.PLAYER, "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>") {
+    MAGICIAN_PLAYER("MAGICIAN_PLAYER", List.of("user", "sheet-plastic"), "<p>Kicserélheted a kezedben lévő összes <i class=\"fa fa-sheet-plastic\"></i>-t egy másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okra.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
             List<DistrictEntity> tempHand = player.getHand();
@@ -91,7 +91,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().getUsedAbilities().add(MAGICIAN_DECK);
         }
     },
-    MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), TargetEnum.OWN_CARDS, "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
+    MAGICIAN_DECK("MAGICIAN_DECK", List.of("sheet-plastic", "rotate"), "<p>Tetszőleges számú <i class=\"fa fa-sheet-plastic\"></i>-t eldobhatsz a kezedből és húzol helyettük ugyanannyit.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             List<DistrictEntity> newHand = new ArrayList<>();
             List<DistrictEntity> discardedCards = new ArrayList<>();
@@ -129,7 +129,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(3);
         }
     },
-    WARLORD("WARLORD", List.of("city", "x"), TargetEnum.BUILT_DISTRICT, "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>") {
+    WARLORD("WARLORD", List.of("city", "x"), "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
             if (district.getCost() - 1 > game.getCurrentPlayer().getGold() || district.hasAbility(KEEP)) {
@@ -140,7 +140,7 @@ public enum AbilityEnum {
         }
     },
     QUEEN("QUEEN", List.of("crown", "coins"), "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>"),
-    WITCH("WITCH", List.of("user", "wand-sparkles"), ActivationEnum.AFTER_GATHERING, TargetEnum.CHARACTER, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ezután a köröd felfüggesztésre kerül. Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és a köre azonnal véget ér. Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
+    WITCH("WITCH", List.of("user", "wand-sparkles"), ActivationEnum.AFTER_GATHERING, "<p>Nyersanyag gyűjtés után ki kell választanod melyik karaktert szeretnéd megbabonázni, ezután a köröd felfüggesztésre kerül. Amikor a megbabonázott karakter kerül sorra, a játékos nyersanyagokat gyűjt, és a köre azonnal véget ér. Ezután úgy folytatod a körödet, mintha te játszanál a megbabonázott karakterrel.</p><p>Ha a Királyt vagy a Patríciust babonázzák meg, varázslattól függetlenül megkapja a <i class=\"fa fa-crown\"></i>-t. Ha a Császárt babonázzák meg, te döntöd el, ki kapja a <i class=\"fa fa-crown\"></i>-t, és attól a játékostól veszed el a nyersanyagot.</p><p>Ha a megbabonázott karakter nincs játékban ebben a körben, a köröd nem folytatódik.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (target.getIndex() < 2 || target.getIndex() > game.getCharacters().size()) {
                 throw new InvalidTargetException(WITCH,game.getCurrentPlayer().getId());
@@ -150,7 +150,7 @@ public enum AbilityEnum {
             game.nextPlayer();
         }
     },
-    SPY("SPY", List.of("sheet-plastic", "user-secret"), TargetEnum.DISTRICT_TYPE_AND_PLAYER, "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>") {
+    SPY("SPY", List.of("sheet-plastic", "user-secret"), "<p>Válassz ki egy másik játékost és egy kerülettípust! Ezután megnézheted a másik játékos kezében lévő <i class=\"fa fa-sheet-plastic\"></i>-okat. Minden olyan <i class=\"fa fa-sheet-plastic\"></i>-ért, ami a kezében van, és egyezik a megnevezett kerülettípussal elveszel tőle egy <i class=\"fa fa-coins\"></i>-t és húzol egy <i class=\"fa fa-sheet-plastic\"></i>-t a pakliból.</p><p>Ha több egyező <i class=\"fa fa-sheet-plastic\"></i> van, mint amennyi <i class=\"fa fa-coins\"></i>-a, akkor elveszed minden <i class=\"fa fa-coins\"></i>-át, de ettől még ugyanúgy megkapod a <i class=\"fa fa-sheet-plastic\"></i>-okat.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (game.getCurrentPlayer().getUsingAbility() == null) {
                 PlayerEntity targetPlayer = game.getPlayer(target.getId());
@@ -169,7 +169,7 @@ public enum AbilityEnum {
             }
         }
     },
-    WIZARD("WIZARD", List.of("sheet-plastic", "wand-magic-sparkles"), TargetEnum.PLAYER_AND_CARD_IN_HAND, "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>") {
+    WIZARD("WIZARD", List.of("sheet-plastic", "wand-magic-sparkles"), "<p>Megnézheted egy másik játékos kézben tartott <i class=\"fa fa-sheet-plastic\"></i>-jait, majd elvehetsz tőle egyet. A <i class=\"fa fa-sheet-plastic\"></i>-t azonnal beépítheted a városodba, és ez nem számít bele az építkezési korlátba.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (game.getCurrentPlayer().getUsingAbility() == null) {
                 game.getCurrentPlayer().setUsingAbility(WIZARD);
@@ -199,7 +199,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveCondition(ConditionEnum.DUPLICATES);
         }
     },
-    EMPEROR("EMPEROR", List.of("crown", "user"), TargetEnum.PLAYER_AND_RESOURCE, "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz érte nyersanyagot.</p>") {
+    EMPEROR("EMPEROR", List.of("crown", "user"), "<p>Valamikor a köröd során el kell venned a <i class=\"fa fa-crown\"></i>-t attól a játékostól akinél van és át kell adnod egy másik játékosnak (magadnak nem adhatod). Az a játékos, aki megkapta a <i class=\"fa fa-crown\"></i>-t, ad neked egy <i class=\"fa fa-coins\"></i>-t vagy véletlenszerűen egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezéből. Ha nincs sem <i class=\"fa fa-coins\"></i>-a, sem <i class=\"fa fa-sheet-plastic\"></i>-ja, akkor nem kell adnia semmit.</p><p>Ha meggyilkolnak, a köröd végén teszed át a koronát és nem kapsz érte nyersanyagot.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity targetPlayer = game.getPlayer(target.getId());
             game.setCrownedPlayer(targetPlayer);
@@ -210,7 +210,7 @@ public enum AbilityEnum {
             }
         }
     },
-    ABBOT("ABBOT", List.of("user", "coins"), TargetEnum.RICHEST_PLAYER, "<p>Ha a köröd során bármikor előfordul, hogy nem te vagy a legtöbb <i class=\"fa fa-coins\"></i>-al rendelkező játékos, a leggazdagabb játékos ad neked egyet. Döntetlen esetén te választasz, hogy ki ad <i class=\"fa fa-coins\"></i>-t.</p>") {
+    ABBOT("ABBOT", List.of("user", "coins"), "<p>Ha a köröd során bármikor előfordul, hogy nem te vagy a legtöbb <i class=\"fa fa-coins\"></i>-al rendelkező játékos, a leggazdagabb játékos ad neked egyet. Döntetlen esetén te választasz, hogy ki ad <i class=\"fa fa-coins\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             List<PlayerEntity> richestPlayers = new ArrayList<>();
             Integer mostGold = -1;
@@ -235,7 +235,7 @@ public enum AbilityEnum {
         }
     },
     ALCHEMIST("ALCHEMIST", ActivationEnum.END_OF_TURN, "<p>A köröd végén minden építésre költött <i class=\"fa fa-coins\"></i>-t visszakapsz.</p>"),
-    NAVIGATOR("NAVIGATOR", List.of("4", "coins", "sheet-plastic"), TargetEnum.GOLD_OR_CARDS, "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t.</p>") {
+    NAVIGATOR("NAVIGATOR", List.of("4", "coins", "sheet-plastic"), "<p>Kapsz 4 <i class=\"fa fa-coins\"></i>-t, vagy 4 <i class=\"fa fa-sheet-plastic\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (target.getResource() == ResourceTypeEnum.GOLD) {
                 game.getCurrentPlayer().giveGold(4);
@@ -250,7 +250,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(0);
         }
     },
-    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), TargetEnum.SWAP_DISTRICT, "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>") {
+    DIPLOMAT("DIPLOMAT", List.of("city", "hand"), "<p>Kicserélheted az egyik <i class=\"fa fa-city\"></i>-edet egy másik játékos <i class=\"fa fa-city\"></i>-ére. Ha az elvett <i class=\"fa fa-city\"></i> értéke nagyobb, a különbözet árát ki kell fizetned neki!</p><p>Nem cserélheted ki befejezett város <i class=\"fa fa-city\"></i>-ét, kivéve ha a sajátod. Nem adhatsz olyan <i class=\"fa fa-city\"></i>-et, ami már van a másik játékos városában és nem vehetsz el olyat, amilyen már van a tiedben.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity targetPlayer = game.getPlayer(target.getSecondaryId());
             DistrictEntity districtToGive = game.getCurrentPlayer().removeDistrict(target.getIndex());
@@ -269,8 +269,8 @@ public enum AbilityEnum {
             targetPlayer.giveDistrict(districtToGive);
         }
     },
-    ARTIST("ARTIST", List.of("city", "paintbrush"), TargetEnum.OWN_BUILT_DISTRICT, "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
-    MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), TargetEnum.WARRANTS, "<p>Kiválasztasz három karaktert és rájuk helyezel parancsokat. Ezután titokban kiválasztod melyik parancs legyen aláírva, csak ez a karakter lehet a célpont.</p><p>Ha a célpont játékos fizet azért, hogy <i class=\"fa fa-city\"></i>-et építsen, a parancsjelző felfedődik és a <i class=\"fa fa-city\"></i>-et ingyen beépíted a városodba.</p><p>A <i class=\"fa fa-city\"></i> nem kerül bele a célpont városába, de beleszámít a játékos építkeési korlátjába. A célpont visszakap minden <i class=\"fa fa-coins\"></i>-at, amit az építésre fordított.</p><p>A parancs felfedése nem lép életbe, ha a célpont olyan <i class=\"fa fa-city\"></i>-et épít amilyen már van a városodban. Ha a célpont több <i class=\"fa fa-city\"></i>-et építhet, a felfedés az első olyan kerületnél aktiválódik, amelyik nincs a városodban.</p>") {
+    ARTIST("ARTIST", List.of("city", "paintbrush"), "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
+    MAGISTRATE("MAGISTRATE", List.of("user", "file-signature"), "<p>Kiválasztasz három karaktert és rájuk helyezel parancsokat. Ezután titokban kiválasztod melyik parancs legyen aláírva, csak ez a karakter lehet a célpont.</p><p>Ha a célpont játékos fizet azért, hogy <i class=\"fa fa-city\"></i>-et építsen, a parancsjelző felfedődik és a <i class=\"fa fa-city\"></i>-et ingyen beépíted a városodba.</p><p>A <i class=\"fa fa-city\"></i> nem kerül bele a célpont városába, de beleszámít a játékos építkeési korlátjába. A célpont visszakap minden <i class=\"fa fa-coins\"></i>-at, amit az építésre fordított.</p><p>A parancs felfedése nem lép életbe, ha a célpont olyan <i class=\"fa fa-city\"></i>-et épít amilyen már van a városodban. Ha a célpont több <i class=\"fa fa-city\"></i>-et építhet, a felfedés az első olyan kerületnél aktiválódik, amelyik nincs a városodban.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.setWarrantedCharacters(target.getIndexes());
             PlayerEntity signedWarrant = game.getPlayer(target.getIndex());
@@ -279,7 +279,7 @@ public enum AbilityEnum {
             }
         }
     },
-    BLACKMAILER("BLACKMAILER", List.of("user", "mask"), TargetEnum.THREAT_MARKERS, "<p>Kiválasztasz két karaktert és rájuk helyezel fenyegetéseket. Ezután titokban kiválasztod melyik fenyegetés legyen valódi, csak ez a karakter lehet a célpont.</p><p>Miután a megfenyegetett játékos nyersanyagokat gyűjtött, lefizethet téged és odaadja az összes <i class=\"fa fa-coins\"></i>-a felét. Ha nem teszi meg, akkor a fenyegetés felfedődik és ha valódi, akkor minden aranyát elveszed.</p><p>Nem fenyegethetsz meg 1-es rangú, megölt vagy megbabonázott karaktert.</p>") {
+    BLACKMAILER("BLACKMAILER", List.of("user", "mask"), "<p>Kiválasztasz két karaktert és rájuk helyezel fenyegetéseket. Ezután titokban kiválasztod melyik fenyegetés legyen valódi, csak ez a karakter lehet a célpont.</p><p>Miután a megfenyegetett játékos nyersanyagokat gyűjtött, lefizethet téged és odaadja az összes <i class=\"fa fa-coins\"></i>-a felét. Ha nem teszi meg, akkor a fenyegetés felfedődik és ha valódi, akkor minden aranyát elveszed.</p><p>Nem fenyegethetsz meg 1-es rangú, megölt vagy megbabonázott karaktert.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.setThreatenedCharacters(target.getIndexes());
             PlayerEntity realThreat = game.getPlayer(target.getIndex());
@@ -328,7 +328,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setBuildLimit(2);
         }
     },
-    CARDINAL("CARDINAL", List.of("hammer", "hand-holding-dollar"), TargetEnum.DISTRICT_AND_PLAYER_HELP, "<p>Megépíthetsz egy <i class=\"fa fa-city\"></i>-et, amire nincs elég <i class=\"fa fa-coins\"></i>-ad. Ehhez ki kell választanod egy másik játékost és elvenni tőle a megépítéshez szükséges <i class=\"fa fa-coins\"></i>-at, cserébe pedig adnod kell ugyannyi <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből.") {
+    CARDINAL("CARDINAL", List.of("hammer", "hand-holding-dollar"), "<p>Megépíthetsz egy <i class=\"fa fa-city\"></i>-et, amire nincs elég <i class=\"fa fa-coins\"></i>-ad. Ehhez ki kell választanod egy másik játékost és elvenni tőle a megépítéshez szükséges <i class=\"fa fa-coins\"></i>-at, cserébe pedig adnod kell ugyannyi <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből.") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity targetPlayer = game.getPlayer(target.getId());
             DistrictEntity targetDistrict = game.getCurrentPlayer().takeCard(target.getIndex());
@@ -357,7 +357,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveCondition(ConditionEnum.BLOOMING_TRADE);
         }
     },
-    SCHOLAR("SCHOLAR",List.of("7", "sheet-plastic"), TargetEnum.SELECTOR, "<p>Húzol 7 <i class=\"fa fa-sheet-plastic\"></i>-t és választasz egyet, amit megtarthatsz.</p>") {
+    SCHOLAR("SCHOLAR",List.of("7", "sheet-plastic"), "<p>Húzol 7 <i class=\"fa fa-sheet-plastic\"></i>-t és választasz egyet, amit megtarthatsz.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (game.getCurrentPlayer().getUsingAbility() == null) {
                 game.getCurrentPlayer().setUsingAbility(SCHOLAR);
@@ -370,7 +370,7 @@ public enum AbilityEnum {
             }
         }
     },
-    MARSHAL("MARSHAL", List.of("city", "hand"), TargetEnum.OTHERS_BUILT_DISTRICT, "<p>Elvehetsz egy legfeljebb 3 <i class=\"fa fa-coins\"></i>-ba kerülő <i class=\"fa fa-city\"></i>-et egy másik játékos városából, a tulajdonosnak kifizetve az árát <i class=\"fa fa-coins\"></i>-ban.</p><p>Nem veheted el befejezett város kerületét, sem olyan kerületet amilyen már van a városodban.</p>") {
+    MARSHAL("MARSHAL", List.of("city", "hand"), "<p>Elvehetsz egy legfeljebb 3 <i class=\"fa fa-coins\"></i>-ba kerülő <i class=\"fa fa-city\"></i>-et egy másik játékos városából, a tulajdonosnak kifizetve az árát <i class=\"fa fa-coins\"></i>-ban.</p><p>Nem veheted el befejezett város kerületét, sem olyan kerületet amilyen már van a városodban.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
             if (district.getCost() > 3 || game.getCurrentPlayer().getDistricts().contains(district) || district.hasAbility(KEEP)) {
@@ -382,7 +382,7 @@ public enum AbilityEnum {
     },
     TAX_COLLECTOR("TAX_COLLECTOR",List.of("users", "coins"), ""),
     GOLD_MINE("GOLD_MINE", "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p>"),
-    FRAMEWORK("FRAMEWORK", List.of("city", "hammer"), ActivationEnum.AFTER_BUILD, TargetEnum.OWN_CARD, "<p>Megépítesz egy kerületet úgy, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a <i class=\"fa fa-city\"></i> árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített <i class=\"fa fa-city\"></i>-t.</p>"),
+    FRAMEWORK("FRAMEWORK", List.of("city", "hammer"), ActivationEnum.AFTER_BUILD, "<p>Megépítesz egy kerületet úgy, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a <i class=\"fa fa-city\"></i> árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített <i class=\"fa fa-city\"></i>-t.</p>"),
     BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
@@ -407,7 +407,7 @@ public enum AbilityEnum {
         }
     },
     KEEP("KEEP", "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
-    ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, TargetEnum.OTHERS_BUILT_DISTRICT, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
+    ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getPlayer(target.getId()).removeDistrict(target.getIndex());
             game.getCurrentPlayer().removeDistrict(game.getCurrentPlayer().getDistricts().stream()
@@ -437,7 +437,7 @@ public enum AbilityEnum {
     },
     LIBRARY("LIBRARY", "<p>Ha <i class=\"fa fa-sheet-plastic\"></i>-t húzol nyersanyag gyűjtéskor, eggyel több <i class=\"fa fa-sheet-plastic\"></i>-t tarts meg.</p>"),
     QUARRY("QUARRY", "<p>Bármennyi egyforma <i class=\"fa fa-city\"></i>-t építhetsz a városodban.</p><p>8-as rangú karakter nem használhatja a képességét egyforma <i class=\"fa fa-city\"></i> megszerzésére.</p>"),
-    LABORATORY("LABORATORY", List.of("sheet-plastic", "left-right", "coins"), ActivationEnum.AFTER_BUILD, TargetEnum.OWN_CARD, "<p>A köröd folyamán egyszer eldobhatsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből és kapsz 2 <i class=\"fa fa-coins\"></i>-t.</p>") {
+    LABORATORY("LABORATORY", List.of("sheet-plastic", "left-right", "coins"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán egyszer eldobhatsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből és kapsz 2 <i class=\"fa fa-coins\"></i>-t.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getDeck().add(game.getCurrentPlayer().takeCard(target.getIndex()));
             game.getCurrentPlayer().giveGold(2);
@@ -459,7 +459,7 @@ public enum AbilityEnum {
             }
         }
     },
-    NECROPOLIS("NECROPOLIS", List.of("city", "x", "hammer"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_BUILT_DISTRICT, "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy <i class=\"fa fa-city\"></i>-t a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>") {
+    NECROPOLIS("NECROPOLIS", List.of("city", "x", "hammer"), ActivationEnum.BEFORE_BUILD, "<p>Megépítheted úgy a Temetőt, hogy elpusztítasz egy <i class=\"fa fa-city\"></i>-t a városodban, ahelyett, hogy kifizetnéd a Temető árát.</p><p>Magisztrátus nem kobozhat el Temetőt ami a képessége által lett építve.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             DistrictEntity necropolis = game.getCurrentPlayer().getHand().stream()
                 .filter(district -> district.hasAbility(NECROPOLIS)).findFirst()
@@ -476,21 +476,43 @@ public enum AbilityEnum {
         }
     },
     SECRET_VAULT("SECRET_VAULT", ActivationEnum.END_OF_GAME, "<p>A titkos kriptát nem lehet építeni. Ha a játék végén a kezedben van, kapsz 3 <i class=\"fa fa-star\"></i>-t."),
-    THIEVES_DEN("THIEVES_DEN", List.of("hammer", "sheet-plastic"), ActivationEnum.BEFORE_BUILD, TargetEnum.OWN_CARDS, "<p>Építéskor a Tolvajtanya árát fizetheted részben <i class=\"fa fa-sheet-plastic\"></i>-okból (1 <i class=\"fa fa-sheet-plastic\"></i> = 1 <i class=\"fa fa-coins\"></i>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát csak az <i class=\"fa fa-coins\"></i>-t kapja vissza a tulajdonos.</p>"),
+    THIEVES_DEN("THIEVES_DEN", List.of("hammer", "sheet-plastic"), ActivationEnum.BEFORE_BUILD, "<p>Építéskor a Tolvajtanya árát fizetheted részben <i class=\"fa fa-sheet-plastic\"></i>-okból (1 <i class=\"fa fa-sheet-plastic\"></i> = 1 <i class=\"fa fa-coins\"></i>).</p><p>Ha a magisztrátus elkobozza a Tolvajtanyát csak az <i class=\"fa fa-coins\"></i>-t kapja vissza a tulajdonos.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            DistrictEntity thievesDen = new DistrictEntity();
+            List<DistrictEntity> targetDistricts = new ArrayList<>();
+            List<DistrictEntity> newHand = new ArrayList<>();
+            for (int i = 0; i < game.getCurrentPlayer().getHand().size(); i++) {
+                DistrictEntity district = game.getCurrentPlayer().getHand().get(i);
+                if (district.hasAbility(THIEVES_DEN)) {
+                    thievesDen = district;
+                }
+                else if (target.getIndexes().contains(i)) {
+                    targetDistricts.add(district);
+                } else {
+                    newHand.add(district);
+                }
+            }
+            if (targetDistricts.size() + game.getCurrentPlayer().getGold() < 6) {
+                throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), thievesDen.getId());
+            }
+            game.getDeck().addAll(targetDistricts);
+            game.getCurrentPlayer().setHand(newHand);
+            game.getCurrentPlayer().takeGold(6 - targetDistricts.size());
+            game.getCurrentPlayer().giveDistrict(thievesDen);
+        }
+    },
     SCHOOL_OF_MAGIC("SCHOOL_OF_MAGIC", "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karaktered típusának számít.</p>");
 
     // @formatter:on
     private final String value;
     private final List<String> icons;
     private final ActivationEnum type;
-    private final TargetEnum target;
     private final String description;
 
     AbilityEnum(String value, String description) {
         this.value = value;
         this.icons = new ArrayList<>();
         this.type = ActivationEnum.MANUAL;
-        this.target = TargetEnum.NONE;
         this.description = description;
     }
 
@@ -498,7 +520,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = icons;
         this.type = ActivationEnum.MANUAL;
-        this.target = TargetEnum.NONE;
         this.description = description;
     }
 
@@ -506,23 +527,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = icons;
         this.type = type;
-        this.target = TargetEnum.NONE;
-        this.description = description;
-    }
-
-    AbilityEnum(String value, List<String> icons, TargetEnum target, String description) {
-        this.value = value;
-        this.icons = icons;
-        this.type = ActivationEnum.MANUAL;
-        this.target = target;
-        this.description = description;
-    }
-
-    AbilityEnum(String value, List<String> icons, ActivationEnum activation, TargetEnum target, String description) {
-        this.value = value;
-        this.icons = icons;
-        this.type = activation;
-        this.target = target;
         this.description = description;
     }
 
@@ -530,7 +534,6 @@ public enum AbilityEnum {
         this.value = value;
         this.icons = new ArrayList<>();
         this.type = activation;
-        this.target = TargetEnum.NONE;
         this.description = description;
     }
 

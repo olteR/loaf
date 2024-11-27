@@ -22,7 +22,7 @@ const props = defineProps({
 });
 
 function getStatus(number) {
-  if (number === props.game?.character) return CHAR_STATUS.SELECTED;
+  if (props.game?.character === number) return CHAR_STATUS.SELECTED;
   if (props.game?.discardedCharacters?.includes(number))
     return CHAR_STATUS.DISCARDED;
   if (props.game?.unavailableCharacters?.includes(number))
@@ -34,12 +34,16 @@ function getStatus(number) {
 function getOneStatus(number) {
   if (props.game?.killedCharacter === number) return CHAR_STATUS.KILLED;
   if (props.game?.bewitchedCharacter === number) return CHAR_STATUS.BEWITCHED;
+  if (props.game?.warrantedCharacter === number)
+    return CHAR_STATUS.WARRANTED_SIGNED;
   if (props.game?.warrantedCharacters.includes(number))
     return CHAR_STATUS.WARRANTED;
 }
 
 function getTwoStatus(number) {
   if (props.game?.robbedCharacter === number) return CHAR_STATUS.ROBBED;
+  if (props.game?.threatenedCharacter === number)
+    return CHAR_STATUS.THREATENED_REAL;
   if (props.game?.threatenedCharacters.includes(number))
     return CHAR_STATUS.THREATENED;
 }

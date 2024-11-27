@@ -6,6 +6,7 @@ import olter.loaf.game.games.dto.GameDetailsResponse;
 import olter.loaf.game.games.dto.GameSettingsResponse;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.PlayerMapper;
+import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,6 +16,8 @@ import org.mapstruct.Named;
 public interface GameMapper {
 
     @Mapping(target = "currentPlayer", qualifiedByName = "playerToId")
+    @Mapping(target = "warrantedCharacter", source = "game", qualifiedByName = "fillWarrantedCharacter")
+    @Mapping(target = "threatenedCharacter", source = "game", qualifiedByName = "fillThreatenedCharacter")
     @Mapping(target = "character", source = "player.characterNumber")
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
     GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, String code);
@@ -39,5 +42,17 @@ public interface GameMapper {
     default Long characterToId(CharacterEntity character) {
         if (character == null) return null;
         return character.getId();
+    }
+
+    @Named("fillWarrantedCharacter")
+    default Integer fillWarrantedCharacter(GameEntity game) {
+        return game.getPlayers().stream().filter(player -> player.hasCondition(ConditionEnum.WARRANTED_SIGNED))
+            .map(PlayerEntity::getCharacterNumber).findFirst().orElse(null);
+    }
+
+    @Named("fillThreatenedCharacter")
+    default Integer fillThreatenedCharacter(GameEntity game) {
+        return game.getPlayers().stream().filter(player -> player.hasCondition(ConditionEnum.THREATENED_REAL))
+            .map(PlayerEntity::getCharacterNumber).findFirst().orElse(null);
     }
 }

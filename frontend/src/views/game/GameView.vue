@@ -47,7 +47,7 @@
       :closable="
         !!modalSettings.ability &&
         modalSettings.ability.enum !== ABILITY.WITCH &&
-        ![ABILITY.WIZARD, ABILITY.SPY, ABILITY.SEER].includes(
+        ![ABILITY.WIZARD, ABILITY.SPY, ABILITY.SEER, ABILITY.PAY_OFF].includes(
           gameStore.getGame.usingAbility
         )
       "
@@ -275,6 +275,9 @@ onMounted(async () => {
   }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
+  if (!modalSettings.value.visible && modalChain.value.length > 0) {
+    openNextModal();
+  }
 });
 
 onBeforeRouteLeave(() => {
@@ -351,9 +354,7 @@ watch(
           });
         }
       }
-      if (!modalSettings.value.visible) {
-        openNextModal();
-      }
+      openNextModal();
     }
   }
 );
@@ -370,7 +371,7 @@ watch(
           modalChain.value.push({
             header: "Válassz karaktert, akit megbabonázol!",
             type: GAME_MODAL.CHARACTER,
-            submit: useTargetedAbility,
+            submit: (target) => useTargetedAbility({ index: target }),
             options: {
               characters: gameStore.getGame.characters,
               discarded: gameStore.getGame.discardedCharacters,
@@ -459,9 +460,6 @@ watch(
           });
           break;
       }
-      if (!modalSettings.value.visible) {
-        openNextModal();
-      }
     }
   }
 );
@@ -473,7 +471,6 @@ watch(
       modalSettings.value.ability = gameStore.getCharacter.abilities.find(
         (ability) => ability.enum === ABILITY.SEER
       );
-      console.log(modalChain.value);
       modalChain.value.push({
         header: `Válaszd ki, hogy ${
           gameStore.getGame.players.find((player) => player.id === newValue)
@@ -489,10 +486,6 @@ watch(
           maxSelect: 1,
         },
       });
-      if (!modalSettings.value.visible) {
-        console.log("bemegy");
-        openNextModal();
-      }
     }
   }
 );
@@ -502,8 +495,6 @@ function openNextModal(target) {
     targetBuffer.value = { ...target, ...targetBuffer.value };
     console.log(targetBuffer.value);
   }
-  console.log("openNextModal");
-  console.log(modalChain.value);
   if (modalChain.value.length > 0) {
     const modal = modalChain.value.shift();
     modalSettings.value.visible = true;
@@ -567,7 +558,6 @@ async function gatherResources(resource) {
       !hasDistrict(gameStore.getCurrentPlayer, DISTRICTS.OBSERVATORY)
     ) {
       gameStore.getGame.hand = gameStore.getGame.hand.concat(response.data);
-      openNextModal();
     } else {
       modalChain.value.push({
         type: GAME_MODAL.CARDS,
@@ -578,11 +568,9 @@ async function gatherResources(resource) {
           maxSelect: hasLibrary ? 2 : 1,
         },
       });
-      openNextModal();
     }
-  } else {
-    openNextModal();
   }
+  openNextModal();
 }
 
 async function drawCards(cards) {
@@ -596,46 +584,313 @@ async function buildDistrict(index) {
 }
 
 async function useAbility(ability) {
-  if (ability.target === ABILITY_TARGET.NONE) {
-    await gameStore.useAbility({
-      ability: ability.enum,
-      code: lobbyCode,
-    });
-  } else {
-    modalSettings.value.ability = ability;
-    switch (ability.target) {
-      case ABILITY_TARGET.CHARACTER:
+  modalSettings.value.ability = ability;
+  switch (ability.enum) {
+    case ABILITY.ASSASSIN:
+    case ABILITY.THIEF:
+    case ABILITY.WITCH:
+      modalChain.value.push({
+        type: GAME_MODAL.CHARACTER,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              index: target[0],
+            },
+            ability
+          ),
+        options: {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          untargetable: gameStore.getGame.characters
+            .filter(
+              (character) =>
+                character.number <= gameStore.getCurrentPlayer.character ||
+                character.number === gameStore.getGame.killedCharacter ||
+                character.number === gameStore.getGame.bewitchedCharacter
+            )
+            .map((character) => character.number),
+          selectCount: 1,
+        },
+      });
+      break;
+    case ABILITY.MAGICIAN_PLAYER:
+      modalChain.value.push({
+        type: GAME_MODAL.PLAYER,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              id: target,
+            },
+            ability
+          ),
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) => player.id !== gameStore.getGame.currentPlayer
+          ),
+        },
+      });
+      break;
+    case ABILITY.MAGICIAN_DECK:
+      if (gameStore.getGame.hand.length > 0) {
         modalChain.value.push({
-          type: GAME_MODAL.CHARACTER,
+          type: GAME_MODAL.CARDS,
           submit: (target) =>
             useTargetedAbility(
               {
-                index: target[0],
+                indexes: target,
               },
               ability
             ),
           options: {
-            characters: gameStore.getGame.characters,
-            discarded: gameStore.getGame.discardedCharacters,
-            untargetable: gameStore.getGame.characters
-              .filter(
-                (character) =>
-                  character.number <= gameStore.getCurrentPlayer.character ||
-                  character.number === gameStore.getGame.killedCharacter ||
-                  character.number === gameStore.getGame.bewitchedCharacter
-              )
-              .map((character) => character.number),
-            selectCount: 1,
+            cards: gameStore.getGame.hand,
+            minSelect: 1,
+            maxSelect: gameStore.getGame.hand.length,
           },
         });
-        break;
-      case ABILITY_TARGET.PLAYER:
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Nincs lapod!",
+          detail:
+            "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+          life: 3000,
+        });
+      }
+      break;
+    case ABILITY.WARLORD:
+      modalChain.value.push({
+        type: GAME_MODAL.DISTRICT,
+        submit: useTargetedAbility,
+        options: {
+          players: gameStore.getGame.players,
+          maxCost: gameStore.getCurrentPlayer.gold + 1,
+        },
+      });
+      break;
+    case ABILITY.SPY:
+      modalChain.value.push({
+        header: "Válassz típust!",
+        type: GAME_MODAL.CHOICE,
+        submit: (target) => openNextModal({ type: target }),
+        options: {
+          choices: [
+            {
+              icon: "crown",
+              tooltip: "Nemesi",
+              severity: "warning",
+              value: DISTRICT_TYPE.NOBLE,
+            },
+            {
+              icon: "hands-praying",
+              tooltip: "Vallási",
+              severity: "info",
+              value: DISTRICT_TYPE.RELIGIOUS,
+            },
+            {
+              icon: "coins",
+              tooltip: "Kereskedelmi",
+              severity: "success",
+              value: DISTRICT_TYPE.TRADE,
+            },
+            {
+              icon: "person-military-pointing",
+              tooltip: "Katonai",
+              severity: "danger",
+              value: DISTRICT_TYPE.MILITARY,
+            },
+            {
+              icon: "star",
+              tooltip: "Egyedi",
+              severity: "help",
+              value: DISTRICT_TYPE.UNIQUE,
+            },
+          ],
+        },
+      });
+      modalChain.value.push({
+        type: GAME_MODAL.PLAYER,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              id: target,
+              ...targetBuffer.value,
+            },
+            ability
+          ),
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) =>
+              player.id !== gameStore.getGame.currentPlayer &&
+              player.handSize > 0
+          ),
+        },
+      });
+      break;
+    case ABILITY.WIZARD:
+      modalChain.value.push({
+        type: GAME_MODAL.PLAYER,
+        submit: async (target) =>
+          await gameStore.useAbility({
+            ability: ability.enum,
+            code: lobbyCode,
+            target: { id: target },
+          }),
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) =>
+              player.id !== gameStore.getGame.currentPlayer &&
+              player.handSize > 0
+          ),
+        },
+      });
+      break;
+    case ABILITY.EMPEROR:
+      modalChain.value.push({
+        type: GAME_MODAL.PLAYER,
+        submit: (target) => openNextModal({ id: target }),
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) =>
+              player.id !== gameStore.getGame.currentPlayer &&
+              !hasCondition(player, CONDITIONS.CROWNED)
+          ),
+        },
+      });
+      modalChain.value.push({
+        type: GAME_MODAL.CHOICE,
+        submit: (target) =>
+          useTargetedAbility(
+            { resource: target, ...targetBuffer.value },
+            ability
+          ),
+        options: {
+          choices: [
+            {
+              icon: "coins",
+              tooltip: "Elveszel 1 aranyat",
+              value: RESOURCE.GOLD,
+            },
+            {
+              icon: "sheet-plastic",
+              tooltip: "Elveszel 1 lapot",
+              value: RESOURCE.CARDS,
+            },
+          ],
+        },
+      });
+      break;
+    case ABILITY.ABBOT:
+      {
+        let richestPlayers = [];
+        let mostGold = -1;
+        gameStore.getGame.players.forEach((player) => {
+          if (player.gold > mostGold) {
+            mostGold = player.gold;
+            richestPlayers = [player];
+          } else if (player.gold === mostGold) {
+            richestPlayers.push(player);
+          }
+        });
+        if (
+          richestPlayers
+            .map((player) => player.id)
+            .includes(gameStore.getGame.currentPlayer)
+        ) {
+          toast.add({
+            severity: "error",
+            summary: "Nem használhatod ezt a képességet!",
+            detail: "Te vagy a leggazdagabb játékos!",
+            life: 3000,
+          });
+        } else if (richestPlayers.length === 1) {
+          await useTargetedAbility({ id: richestPlayers[0].id }, ability);
+        } else {
+          modalChain.value.push({
+            type: GAME_MODAL.PLAYER,
+            submit: (target) => useTargetedAbility({ id: target }, ability),
+            options: {
+              players: richestPlayers,
+            },
+          });
+        }
+      }
+      break;
+    case ABILITY.RELIGIOUS_GOLD_OR_CARDS:
+      {
+        const resourceCount = gameStore.getCurrentPlayer.districts.filter(
+          (district) => district.type === DISTRICT_TYPE.RELIGIOUS
+        ).length;
+        if (resourceCount > 0) {
+          modalChain.value.push({
+            type: GAME_MODAL.SLIDER,
+            submit: (target) =>
+              useTargetedAbility(
+                {
+                  index: target.gold,
+                  secondaryIndex: target.cards,
+                },
+                ability
+              ),
+            options: {
+              resourceCount,
+            },
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Nem használhatod ezt a képességet!",
+            detail: "Nincs vallási kerületed!",
+            life: 3000,
+          });
+        }
+      }
+      break;
+    case ABILITY.NAVIGATOR:
+      modalChain.value.push({
+        type: GAME_MODAL.CHOICE,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              resource: target,
+            },
+            ability
+          ),
+        options: {
+          choices: [
+            {
+              icon: "coins",
+              tooltip: "Kapsz 4 aranyat",
+              value: RESOURCE.GOLD,
+            },
+            {
+              icon: "sheet-plastic",
+              tooltip: "Húzol 4 lapot",
+              value: RESOURCE.CARDS,
+            },
+          ],
+        },
+      });
+      break;
+    case ABILITY.DIPLOMAT:
+      if (gameStore.getCurrentPlayer.districts.length > 0) {
         modalChain.value.push({
-          type: GAME_MODAL.PLAYER,
+          header: "Válassz saját kerületet!",
+          type: GAME_MODAL.DISTRICT,
+          submit: openNextModal,
+          options: {
+            players: [gameStore.getCurrentPlayer],
+            isOwn: true,
+          },
+        });
+        modalChain.value.push({
+          header: "Válassz cserélendő kerületet!",
+          type: GAME_MODAL.DISTRICT,
           submit: (target) =>
             useTargetedAbility(
               {
-                id: target,
+                secondaryId: target.id,
+                secondaryIndex: target.index,
+                ...targetBuffer.value,
               },
               ability
             ),
@@ -643,57 +898,154 @@ async function useAbility(ability) {
             players: gameStore.getGame.players.filter(
               (player) => player.id !== gameStore.getGame.currentPlayer
             ),
-          },
-        });
-        break;
-      case ABILITY_TARGET.PLAYER_AND_RESOURCE:
-        modalChain.value.push({
-          type: GAME_MODAL.PLAYER,
-          submit: (target) => openNextModal({ id: target }),
-          options: {
-            players: gameStore.getGame.players.filter(
-              (player) =>
-                player.id !== gameStore.getGame.currentPlayer &&
-                !hasCondition(player, CONDITIONS.CROWNED)
+            maxCost: gameStore.getCurrentPlayer.gold,
+            unselectableDistricts: gameStore.getCurrentPlayer.districts.map(
+              (district) => district.id
             ),
           },
         });
-        modalChain.value.push({
-          type: GAME_MODAL.CHOICE,
-          submit: (target) =>
-            useTargetedAbility(
-              { resource: target, ...targetBuffer.value },
-              ability
-            ),
-          options: {
-            choices: [
-              {
-                icon: "coins",
-                tooltip: "Elveszel 1 aranyat",
-                value: RESOURCE.GOLD,
-              },
-              {
-                icon: "sheet-plastic",
-                tooltip: "Elveszel 1 lapot",
-                value: RESOURCE.CARDS,
-              },
-            ],
-          },
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Nincs kerületed!",
+          detail:
+            "Ezt a képességet nem használhatod úgy, hogy nincs kerületed építve!",
+          life: 3000,
         });
-        break;
-      case ABILITY_TARGET.OWN_CARD:
-        if (gameStore.getGame.hand.length > 0) {
+      }
+      break;
+    case ABILITY.MAGISTRATE:
+      modalChain.value.push({
+        header: "Válaszd ki a karaktereket, amiknek parancsot raksz!",
+        type: GAME_MODAL.CHARACTER,
+        submit: (target) => openNextModal({ indexes: target }),
+        options: {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          untargetable: gameStore.getGame.characters
+            .filter(
+              (character) =>
+                character.number <= gameStore.getCurrentPlayer.character
+            )
+            .map((character) => character.number),
+          selectCount: 3,
+        },
+      });
+      modalChain.value.push({
+        header: "Válaszd ki melyik karakteré legyen az aláírt parancs!",
+        type: GAME_MODAL.CHARACTER,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              index: target[0],
+              ...targetBuffer.value,
+            },
+            ability
+          ),
+        options: {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          selectCount: 1,
+        },
+      });
+      break;
+    case ABILITY.BLACKMAILER:
+      modalChain.value.push({
+        header: "Válaszd ki a karaktereket, amikre megfenyegetést raksz!",
+        type: GAME_MODAL.CHARACTER,
+        submit: (target) => openNextModal({ indexes: target }),
+        options: {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          untargetable: gameStore.getGame.characters
+            .filter(
+              (character) =>
+                character.number <= gameStore.getCurrentPlayer.character ||
+                character.number === gameStore.getGame.killedCharacter ||
+                character.number === gameStore.getGame.bewitchedCharacter
+            )
+            .map((character) => character.number),
+          selectCount: 2,
+        },
+      });
+      modalChain.value.push({
+        header: "Válaszd ki melyik karakteré legyen a valódi fenyegetés!",
+        type: GAME_MODAL.CHARACTER,
+        submit: (target) =>
+          useTargetedAbility(
+            {
+              index: target[0],
+              ...targetBuffer.value,
+            },
+            ability
+          ),
+        options: {
+          characters: gameStore.getGame.characters,
+          discarded: gameStore.getGame.discardedCharacters,
+          selectCount: 1,
+        },
+      });
+      break;
+    case ABILITY.PAY_OFF:
+      break;
+    case ABILITY.CARDINAL:
+      {
+        const currentPlayer = gameStore.getCurrentPlayer;
+        const otherPlayers = gameStore.getGame.players.filter(
+          (player) => player.id !== currentPlayer.id
+        );
+        const mostGold = Math.min(
+          Math.max(...otherPlayers.map((player) => player.gold)),
+          gameStore.getGame.hand.length - 1
+        );
+        const filteredDistricts = gameStore.getGame.hand
+          .map((district, i) => {
+            district.originalIndex = i;
+            return district;
+          })
+          .filter(
+            (district) =>
+              district.cost <= currentPlayer.gold + mostGold &&
+              district.cost > currentPlayer.gold
+          );
+        if (filteredDistricts.length > 0) {
           modalChain.value.push({
+            header: "Válassz kerületet, amit megépítenél!",
             type: GAME_MODAL.CARDS,
-            submit: (target) =>
-              useTargetedAbility(
-                {
-                  index: target[0],
+            submit: (target) => {
+              const goldNeeded =
+                filteredDistricts[target[0]].cost - currentPlayer.gold;
+              modalChain.value.push({
+                type: GAME_MODAL.PLAYER,
+                submit: (t) => openNextModal({ id: t }),
+                options: {
+                  players: otherPlayers.filter(
+                    (player) => player.gold >= goldNeeded
+                  ),
                 },
-                ability
-              ),
+              });
+              modalChain.value.push({
+                header: `Válassz ${goldNeeded} kártyát, amit odaadsz!`,
+                type: GAME_MODAL.CARDS,
+                submit: (t) =>
+                  useTargetedAbility(
+                    { indexes: t, ...targetBuffer.value },
+                    ability
+                  ),
+                options: {
+                  cards: gameStore.getGame.hand.filter(
+                    (_, i) => i !== filteredDistricts[target[0]].originalIndex
+                  ),
+                  minSelect: goldNeeded,
+                  maxSelect: goldNeeded,
+                },
+              });
+              openNextModal({
+                index: filteredDistricts[target[0]].originalIndex,
+              });
+            },
             options: {
-              cards: gameStore.getGame.hand,
+              cards: filteredDistricts,
               minSelect: 1,
               maxSelect: 1,
             },
@@ -701,374 +1053,97 @@ async function useAbility(ability) {
         } else {
           toast.add({
             severity: "error",
-            summary: "Nincs lapod!",
+            summary: "Nem használhatod ezt a képességet!",
             detail:
-              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+              "Nincs ilyen kerület a kezedben vagy a többi játékosnak nincs elég aranya!",
             life: 3000,
           });
         }
-        break;
-      case ABILITY_TARGET.OWN_CARDS:
-        if (gameStore.getGame.hand.length > 0) {
-          modalChain.value.push({
-            type: GAME_MODAL.CARDS,
-            submit: (target) =>
-              useTargetedAbility(
-                {
-                  indexes: target,
-                },
-                ability
-              ),
-            options: {
-              cards: gameStore.getGame.hand,
-              minSelect: 1,
-              maxSelect: gameStore.getGame.hand.length,
-            },
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Nincs lapod!",
-            detail:
-              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
-            life: 3000,
-          });
-        }
-        break;
-      case ABILITY_TARGET.BUILT_DISTRICT:
+      }
+      break;
+    case ABILITY.SCHOLAR:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+      });
+      modalChain.value.push({
+        type: GAME_MODAL.CARDS,
+        submit: (target) => useTargetedAbility({ index: target }),
+        options: {
+          cards: gameStore.getGame.drawnCards,
+          minSelect: 1,
+          maxSelect: 1,
+        },
+      });
+      break;
+    case ABILITY.MARSHAL:
+      modalChain.value.push({
+        type: GAME_MODAL.DISTRICT,
+        submit: useTargetedAbility,
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) => player.id !== gameStore.getGame.currentPlayer
+          ),
+          maxCost: Math.min(gameStore.getCurrentPlayer.gold, 3),
+          districts: gameStore.getCurrentPlayer.districts.map(
+            (district) => district.id
+          ),
+        },
+      });
+      break;
+    case DISTRICTS.FRAMEWORK:
+    case DISTRICTS.LABORATORY:
+      if (gameStore.getGame.hand.length > 0) {
         modalChain.value.push({
-          type: GAME_MODAL.DISTRICT,
-          submit: useTargetedAbility,
-          options: {
-            players: gameStore.getGame.players,
-            maxCost: gameStore.getCurrentPlayer.gold + 1,
-          },
-        });
-        break;
-      case ABILITY_TARGET.SWAP_DISTRICT:
-        if (gameStore.getCurrentPlayer.districts.length > 0) {
-          modalChain.value.push({
-            header: "Válassz saját kerületet!",
-            type: GAME_MODAL.DISTRICT,
-            submit: openNextModal,
-            options: {
-              players: [gameStore.getCurrentPlayer],
-              isOwn: true,
-            },
-          });
-          modalChain.value.push({
-            header: "Válassz cserélendő kerületet!",
-            type: GAME_MODAL.DISTRICT,
-            submit: (target) =>
-              useTargetedAbility(
-                {
-                  secondaryId: target.id,
-                  secondaryIndex: target.index,
-                  ...targetBuffer.value,
-                },
-                ability
-              ),
-            options: {
-              players: gameStore.getGame.players.filter(
-                (player) => player.id !== gameStore.getGame.currentPlayer
-              ),
-              maxCost: gameStore.getCurrentPlayer.gold,
-              unselectableDistricts: gameStore.getCurrentPlayer.districts.map(
-                (district) => district.id
-              ),
-            },
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Nincs kerületed!",
-            detail:
-              "Ezt a képességet nem használhatod úgy, hogy nincs kerületed építve!",
-            life: 3000,
-          });
-        }
-        break;
-      case ABILITY_TARGET.OTHERS_BUILT_DISTRICT:
-        modalChain.value.push({
-          type: GAME_MODAL.DISTRICT,
-          submit: useTargetedAbility,
-          options: {
-            players: gameStore.getGame.players.filter(
-              (player) => player.id !== gameStore.getGame.currentPlayer
-            ),
-            maxCost: Math.min(gameStore.getCurrentPlayer.gold, 3),
-            districts: gameStore.getCurrentPlayer.districts.map(
-              (district) => district.id
-            ),
-          },
-        });
-        break;
-      case ABILITY_TARGET.GOLD_OR_CARDS:
-        modalChain.value.push({
-          type: GAME_MODAL.CHOICE,
+          type: GAME_MODAL.CARDS,
           submit: (target) =>
             useTargetedAbility(
               {
-                resource: target,
+                index: target[0],
               },
               ability
             ),
           options: {
-            choices: [
-              {
-                icon: "coins",
-                tooltip: "Kapsz 4 aranyat",
-                value: RESOURCE.GOLD,
-              },
-              {
-                icon: "sheet-plastic",
-                tooltip: "Húzol 4 lapot",
-                value: RESOURCE.CARDS,
-              },
-            ],
-          },
-        });
-        break;
-      case ABILITY_TARGET.SELECTOR:
-        await gameStore.useAbility({
-          ability: ability.enum,
-          code: lobbyCode,
-        });
-        modalChain.value.push({
-          type: GAME_MODAL.CARDS,
-          submit: useTargetedAbility,
-          options: {
-            cards: gameStore.getGame.drawnCards,
+            cards: gameStore.getGame.hand,
             minSelect: 1,
             maxSelect: 1,
           },
         });
-        break;
-      case ABILITY_TARGET.WARRANTS:
-        modalChain.value.push({
-          header: "Válaszd ki a karaktereket, amiknek parancsot raksz!",
-          type: GAME_MODAL.CHARACTER,
-          submit: (target) => openNextModal({ indexes: target }),
-          options: {
-            characters: gameStore.getGame.characters,
-            discarded: gameStore.getGame.discardedCharacters,
-            untargetable: gameStore.getGame.characters
-              .filter(
-                (character) =>
-                  character.number <= gameStore.getCurrentPlayer.character
-              )
-              .map((character) => character.number),
-            selectCount: 3,
-          },
+      } else {
+        toast.add({
+          severity: "error",
+          summary: "Nincs lapod!",
+          detail:
+            "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+          life: 3000,
         });
-        modalChain.value.push({
-          header: "Válaszd ki kié legyen az aláírt parancs!",
-          type: GAME_MODAL.CHARACTER,
-          submit: (target) =>
-            useTargetedAbility(
-              {
-                index: target[0],
-                ...targetBuffer.value,
-              },
-              ability
-            ),
-          options: {
-            characters: gameStore.getGame.characters,
-            discarded: gameStore.getGame.discardedCharacters,
-            selectCount: 1,
-          },
-        });
-        break;
-      case ABILITY_TARGET.THREAT_MARKERS:
-        modalChain.value.push({
-          header: "Válaszd ki a karaktereket, amikre megfenyegetsz raksz!",
-          type: GAME_MODAL.CHARACTER,
-          submit: (target) => openNextModal({ indexes: target }),
-          options: {
-            characters: gameStore.getGame.characters,
-            discarded: gameStore.getGame.discardedCharacters,
-            untargetable: gameStore.getGame.characters
-              .filter(
-                (character) =>
-                  character.number <= gameStore.getCurrentPlayer.character ||
-                  character.number === gameStore.getGame.killedCharacter ||
-                  character.number === gameStore.getGame.bewitchedCharacter
-              )
-              .map((character) => character.number),
-            selectCount: 2,
-          },
-        });
-        modalChain.value.push({
-          header: "Válaszd ki kié legyen a valódi fenyegetés!",
-          type: GAME_MODAL.CHARACTER,
-          submit: (target) =>
-            useTargetedAbility(
-              {
-                index: target[0],
-                ...targetBuffer.value,
-              },
-              ability
-            ),
-          options: {
-            characters: gameStore.getGame.characters,
-            discarded: gameStore.getGame.discardedCharacters,
-            selectCount: 1,
-          },
-        });
-        break;
-      case ABILITY_TARGET.PLAYER_AND_CARD_IN_HAND:
-        modalChain.value.push({
-          type: GAME_MODAL.PLAYER,
-          submit: async (target) =>
-            await gameStore.useAbility({
-              ability: ability.enum,
-              code: lobbyCode,
-              target: { id: target },
-            }),
-          options: {
-            players: gameStore.getGame.players.filter(
-              (player) =>
-                player.id !== gameStore.getGame.currentPlayer &&
-                player.handSize > 0
-            ),
-          },
-        });
-        break;
-      case ABILITY_TARGET.DISTRICT_TYPE_AND_PLAYER:
-        modalChain.value.push({
-          header: "Válassz típust!",
-          type: GAME_MODAL.CHOICE,
-          submit: (target) => openNextModal({ type: target }),
-          options: {
-            choices: [
-              {
-                icon: "crown",
-                tooltip: "Nemesi",
-                severity: "warning",
-                value: DISTRICT_TYPE.NOBLE,
-              },
-              {
-                icon: "hands-praying",
-                tooltip: "Vallási",
-                severity: "info",
-                value: DISTRICT_TYPE.RELIGIOUS,
-              },
-              {
-                icon: "coins",
-                tooltip: "Kereskedelmi",
-                severity: "success",
-                value: DISTRICT_TYPE.TRADE,
-              },
-              {
-                icon: "person-military-pointing",
-                tooltip: "Katonai",
-                severity: "danger",
-                value: DISTRICT_TYPE.MILITARY,
-              },
-              {
-                icon: "star",
-                tooltip: "Egyedi",
-                severity: "help",
-                value: DISTRICT_TYPE.UNIQUE,
-              },
-            ],
-          },
-        });
-        modalChain.value.push({
-          type: GAME_MODAL.PLAYER,
-          submit: (target) =>
-            useTargetedAbility(
-              {
-                id: target,
-                ...targetBuffer.value,
-              },
-              ability
-            ),
-          options: {
-            players: gameStore.getGame.players.filter(
-              (player) =>
-                player.id !== gameStore.getGame.currentPlayer &&
-                player.handSize > 0
-            ),
-          },
-        });
-        break;
-      case ABILITY_TARGET.RICHEST_PLAYER:
-        {
-          let richestPlayers = [];
-          let mostGold = -1;
-          gameStore.getGame.players.forEach((player) => {
-            if (player.gold > mostGold) {
-              mostGold = player.gold;
-              richestPlayers = [player];
-            } else if (player.gold === mostGold) {
-              richestPlayers.push(player);
-            }
-          });
-          if (
-            richestPlayers
-              .map((player) => player.id)
-              .includes(gameStore.getGame.currentPlayer)
-          ) {
-            toast.add({
-              severity: "error",
-              summary: "Nem használhatod ezt a képességet!",
-              detail: "Te vagy a leggazdagabb játékos!",
-              life: 3000,
-            });
-          } else if (richestPlayers.length === 1) {
-            await useTargetedAbility({ id: richestPlayers[0].id }, ability);
-          } else {
-            modalChain.value.push({
-              type: GAME_MODAL.PLAYER,
-              submit: (target) => useTargetedAbility({ id: target }, ability),
-              options: {
-                players: richestPlayers,
-              },
-            });
-          }
-        }
-        break;
-      case ABILITY_TARGET.GOLD_OR_CARDS_MULTIPLE:
-        {
-          const resourceCount = gameStore.getCurrentPlayer.districts.filter(
-            (district) => district.type === DISTRICT_TYPE.RELIGIOUS
-          ).length;
-          if (resourceCount > 0) {
-            modalChain.value.push({
-              type: GAME_MODAL.SLIDER,
-              submit: (target) =>
-                useTargetedAbility(
-                  {
-                    index: target.gold,
-                    secondaryIndex: target.cards,
-                  },
-                  ability
-                ),
-              options: {
-                resourceCount,
-              },
-            });
-          } else {
-            toast.add({
-              severity: "error",
-              summary: "Nem használhatod ezt a képességet!",
-              detail: "Nincs vallási kerületed!",
-              life: 3000,
-            });
-          }
-        }
-        break;
-      case ABILITY_TARGET.DISTRICT_AND_PLAYER_HELP:
-        {
-          const currentPlayer = gameStore.getCurrentPlayer;
-          const otherPlayers = gameStore.getGame.players.filter(
-            (player) => player.id !== currentPlayer.id
-          );
-          const mostGold = Math.min(
-            Math.max(...otherPlayers.map((player) => player.gold)),
-            gameStore.getGame.hand.length - 1
-          );
+      }
+      break;
+    case DISTRICTS.ARMORY:
+      modalChain.value.push({
+        type: GAME_MODAL.DISTRICT,
+        submit: useTargetedAbility,
+        options: {
+          players: gameStore.getGame.players.filter(
+            (player) => player.id !== gameStore.getGame.currentPlayer
+          ),
+        },
+      });
+      break;
+    case DISTRICTS.NECROPOLIS:
+      modalChain.value.push({
+        type: GAME_MODAL.CARDS,
+        submit: (target) => useTargetedAbility({ index: target }),
+        options: {
+          cards: gameStore.getGame.districts,
+          minSelect: 1,
+          maxSelect: 1,
+        },
+      });
+      break;
+    case DISTRICTS.THIEVES_DEN:
+      {
+        if (gameStore.getGame.hand.length > 1) {
           const filteredDistricts = gameStore.getGame.hand
             .map((district, i) => {
               district.originalIndex = i;
@@ -1076,67 +1151,47 @@ async function useAbility(ability) {
             })
             .filter(
               (district) =>
-                district.cost <= currentPlayer.gold + mostGold &&
-                district.cost > currentPlayer.gold
+                !district.abilities
+                  .map((ability) => ability.enum)
+                  .includes(DISTRICTS.THIEVES_DEN)
             );
-          if (filteredDistricts.length > 0) {
-            modalChain.value.push({
-              header: "Válassz kerületet, amit megépítenél!",
-              type: GAME_MODAL.CARDS,
-              submit: (target) => {
-                const goldNeeded =
-                  filteredDistricts[target[0]].cost - currentPlayer.gold;
-                modalChain.value.push({
-                  type: GAME_MODAL.PLAYER,
-                  submit: (t) => openNextModal({ id: t }),
-                  options: {
-                    players: otherPlayers.filter(
-                      (player) => player.gold >= goldNeeded
-                    ),
-                  },
-                });
-                modalChain.value.push({
-                  header: `Válassz ${goldNeeded} kártyát, amit odaadsz!`,
-                  type: GAME_MODAL.CARDS,
-                  submit: (t) =>
-                    useTargetedAbility(
-                      { indexes: t, ...targetBuffer.value },
-                      ability
-                    ),
-                  options: {
-                    cards: gameStore.getGame.hand.filter(
-                      (_, i) => i !== filteredDistricts[target[0]].originalIndex
-                    ),
-                    minSelect: goldNeeded,
-                    maxSelect: goldNeeded,
-                  },
-                });
-                openNextModal({
-                  index: filteredDistricts[target[0]].originalIndex,
-                });
-              },
-              options: {
-                cards: filteredDistricts,
-                minSelect: 1,
-                maxSelect: 1,
-              },
-            });
-          } else {
-            toast.add({
-              severity: "error",
-              summary: "Nem használhatod ezt a képességet!",
-              detail:
-                "Nincs ilyen kerület a kezedben vagy a többi játékosnak nincs elég aranya!",
-              life: 3000,
-            });
-          }
+          modalChain.value.push({
+            type: GAME_MODAL.CARDS,
+            submit: (target) =>
+              useTargetedAbility(
+                {
+                  indexes: target.map(
+                    (index) => filteredDistricts[index].originalIndex
+                  ),
+                },
+                ability
+              ),
+            options: {
+              cards: filteredDistricts,
+              minSelect: Math.max(6 - gameStore.getGame.gold, 1),
+              maxSelect: 6,
+            },
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Nincs lapod!",
+            detail:
+              "Ezt a képességet nem használhatod úgy, hogy nincs lap a kezedben!",
+            life: 3000,
+          });
         }
-        break;
-      default:
-        console.log(ability);
-    }
-    openNextModal();
+      }
+
+      break;
+    default:
+      await gameStore.useAbility({
+        ability: ability.enum,
+        code: lobbyCode,
+      });
+      modalSettings.value.ability = null;
   }
+  openNextModal();
 }
 
 async function useTargetedAbility(target, ability) {

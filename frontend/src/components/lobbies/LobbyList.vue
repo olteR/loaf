@@ -45,14 +45,14 @@
             label="Lobbi megnyitása"
             icon="pi pi-play"
             class="mr-2"
-            @click="router.push('lobby/'.concat(lobby.code))"
+            @click="router.push(`lobby/${lobby.code}`)"
           ></Button>
           <Button
             v-else
             label="Játék megnyitása"
             icon="fa fa-gamepad"
             class="mr-2"
-            @click="router.push('game/'.concat(lobby.code))"
+            @click="router.push(`game/${lobby.code}`)"
           ></Button>
           <Button
             v-if="props.type === 'mine' && lobby.status === 'CREATED'"

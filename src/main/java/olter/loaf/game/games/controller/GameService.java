@@ -156,6 +156,7 @@ public class GameService {
             game.getCurrentPlayer().giveGold(amount);
             game.setPhase(GamePhaseEnum.TURN);
             handleWitchAbility(game);
+            handleBlackmailerAbility(game);
             broadcastOnWebsocket(code, game, GameUpdateTypeEnum.RESOURCE_COLLECTION,
                 new ResourceGatherResponse(resource, amount));
         } else if (resource.equals(ResourceTypeEnum.CARDS)) {
@@ -203,16 +204,15 @@ public class GameService {
         PlayerEntity player = game.getCurrentPlayer();
         DistrictEntity district = player.takeCard(handIndex);
         logService.logDistrictBuilding(game, district.getId());
-        AbilityTargetRequest target = new AbilityTargetRequest();
         PlayerEntity magistrate = game.getPlayer(1);
 
         if (player.hasCondition(ConditionEnum.WARRANTED) && !magistrate.getDistricts().contains(district)) {
             magistrate.giveDistrict(district);
-            target.setId(magistrate.getId());
+            player.removeCondition(ConditionEnum.WARRANTED);
+            player.giveCondition(ConditionEnum.WARRANTED_SIGNED);
         } else {
             player.giveDistrict(district);
             player.takeGold(district.getCost());
-            target.setId(player.getId());
         }
         if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE) &&
             !district.hasAbility(AbilityEnum.STABLES)) {
@@ -222,7 +222,7 @@ public class GameService {
             player.setAbilityTarget(Long.valueOf(district.getCost()));
         }
         playerRepository.save(player);
-        broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, playerMapper.entityToPublicResponse(player));
+        broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD);
     }
 
     public void useAbility(AbilityRequest request, UserEntity user) throws IllegalAccessException {
@@ -251,10 +251,10 @@ public class GameService {
             game.setCurrentPlayer(game.getBewitchedPlayer());
         }
         game.nextPlayer();
-        if (game.getPhase().equals(GamePhaseEnum.SELECTION)) {
-            broadcastOnWebsocket(code, game, GameUpdateTypeEnum.NEW_TURN);
-        } else {
-            broadcastOnWebsocket(code, game, GameUpdateTypeEnum.CHARACTER_REVEAL);
+        switch (game.getPhase()) {
+            case SELECTION -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.NEW_TURN);
+            case ENDED -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.END_GAME);
+            default -> broadcastOnWebsocket(code, game, GameUpdateTypeEnum.CHARACTER_REVEAL);
         }
         gameRepository.save(game);
     }
@@ -326,6 +326,7 @@ public class GameService {
             }).map(ConfigEntity::getConfigId).toList());
     }
 
+    // Handles abilities related to Witch
     private void handleWitchAbility(GameEntity game) {
         if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
             game.getCurrentPlayer().setUsingAbility(AbilityEnum.WITCH);
@@ -335,6 +336,13 @@ public class GameService {
             game.getPlayer(game.getBewitchedCharacter()).getCharacter().getAbilities().stream().filter(
                     ability -> ability.getType() == ActivationEnum.START_OF_TURN && ability != AbilityEnum.TAKE_CROWN)
                 .forEach(ability -> ability.useAbility(game, null));
+        }
+    }
+
+    // Handles abilities related to Witch
+    private void handleBlackmailerAbility(GameEntity game) {
+        if (game.getThreatenedCharacters().contains(game.getCurrentPlayer().getCharacterNumber())) {
+            game.getCurrentPlayer().setUsingAbility(AbilityEnum.PAY_OFF);
         }
     }
 

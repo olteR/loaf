@@ -130,6 +130,12 @@ const resolvedOneStatus = computed(() => {
       description: "Ezt a karaktert a boszorkány megbabonázta.",
     };
   }
+  if (props.statusByOne === CHAR_STATUS.WARRANTED_SIGNED) {
+    return {
+      icon: "file-signature",
+      description: "Ennek a karaktert a magisztrátus aláírt parancsot adott.",
+    };
+  }
   if (props.statusByOne === CHAR_STATUS.WARRANTED) {
     return {
       icon: "scroll",
@@ -144,6 +150,12 @@ const resolvedTwoStatus = computed(() => {
     return {
       icon: "sack-dollar",
       description: "Ezt a karaktert a tolvaj kirabolta.",
+    };
+  }
+  if (props.statusByTwo === CHAR_STATUS.THREATENED_REAL) {
+    return {
+      icon: "envelope-open-text",
+      description: "Ezt a karaktert a zsaroló megzsarolta.",
     };
   }
   if (props.statusByTwo === CHAR_STATUS.THREATENED) {

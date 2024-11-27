@@ -11,7 +11,8 @@ public enum GameUpdateTypeEnum {
     RESOURCE_COLLECTION("RESOURCE_COLLECTION"),
     BUILD("BUILD"),
     USE_ABILITY("USE_ABILITY"),
-    NEW_TURN("NEW_TURN");
+    NEW_TURN("NEW_TURN"),
+    END_GAME("END_GAME");
 
     private final String value;
 

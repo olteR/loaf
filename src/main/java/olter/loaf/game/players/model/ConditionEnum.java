@@ -14,7 +14,9 @@ public enum ConditionEnum {
     DUPLICATES("DUPLICATES", "Duplikátumok", "clone", DurationEnum.END_OF_TURN, "<p>Ebben a körben olyan <i class=\"fa fa-city\"></i>-eket is építhetőek a városban, amilyenek már léteznek.</p>"),
     AT_SEA("AT_SEA", "Tengeren", "person-walking-luggage", DurationEnum.END_OF_TURN, "<p>Nem építhet semmilyen kerületet ebben a körben.</p>"),
     WARRANTED("WARRANTED", "Parancsot kapott", "scroll", DurationEnum.END_OF_TURN, false),
+    WARRANTED_SIGNED("WARRANTED_SIGNED", "Aláírt parancsot kapott", "file-signature", DurationEnum.END_OF_TURN, "<p>Ez a játékos aláírt parancsot kapott. A kerületét elkobozta a Magisztrátus.</p>"),
     THREATENED("THREATENED", "Megfenyegetve", "envelope", DurationEnum.END_OF_TURN, false),
+    THREATENED_REAL("THREATENED_REAL", "Valódi fenyegetést kapott", "envelope-open-text", DurationEnum.END_OF_TURN, "<p>Ez a játékos valódi fenyegetést kapott. Az aranyát elvette a Zsaroló.</p>"),
     GREAT_BUILDER("GREAT_BUILDER", "Fejlett építő", "hammer", DurationEnum.END_OF_TURN, "<p>Ebben a körben az építkezési korlátod 2 <i class=\"fa fa-city\"></i>.</p>"),
     BLOOMING_TRADE("BLOOMING_TRADE", "Fejlődő kereskedelem", "piggy-bank", DurationEnum.END_OF_TURN, "<p>Bármennyi <span style=\"font-variant: small-caps\">kereskedelmi</span> kerületet építhet.</p>");
     // @formatter:on
