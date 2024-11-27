@@ -47,7 +47,9 @@
       :closable="
         !!modalSettings.ability &&
         modalSettings.ability.enum !== ABILITY.WITCH &&
-        ![ABILITY.WIZARD, ABILITY.SPY].includes(gameStore.getGame.usingAbility)
+        ![ABILITY.WIZARD, ABILITY.SPY, ABILITY.SEER].includes(
+          gameStore.getGame.usingAbility
+        )
       "
       v-model:visible="modalSettings.visible"
       modal
@@ -268,6 +270,8 @@ onMounted(async () => {
   await gameStore.fetchGame(lobbyCode);
   if (gameStore.getGame.phase === GAME_PHASE.NOT_STARTED) {
     router.push(`/lobby/${lobbyCode}`);
+  } else if (gameStore.getGame.phase === GAME_PHASE.ENDED) {
+    router.push(`/game-results/${lobbyCode}`);
   }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
@@ -347,7 +351,9 @@ watch(
           });
         }
       }
-      openNextModal();
+      if (!modalSettings.value.visible) {
+        openNextModal();
+      }
     }
   }
 );
@@ -355,7 +361,7 @@ watch(
 watch(
   () => gameStore.getGame.usingAbility,
   (newValue) => {
-    if (newValue) {
+    if (newValue && newValue !== ABILITY.SEER) {
       modalSettings.value.ability = gameStore.getCharacter.abilities.find(
         (ability) => ability.enum === newValue
       );
@@ -460,11 +466,44 @@ watch(
   }
 );
 
+watch(
+  () => gameStore.getGame.abilityTarget,
+  (newValue) => {
+    if (gameStore.getGame.usingAbility === ABILITY.SEER) {
+      modalSettings.value.ability = gameStore.getCharacter.abilities.find(
+        (ability) => ability.enum === ABILITY.SEER
+      );
+      console.log(modalChain.value);
+      modalChain.value.push({
+        header: `Válaszd ki, hogy ${
+          gameStore.getGame.players.find((player) => player.id === newValue)
+            .name
+        } melyik lapot kapja!`,
+        type: GAME_MODAL.CARDS,
+        submit: (target, ability) => {
+          useTargetedAbility({ id: newValue, index: target[0] }, ability);
+        },
+        options: {
+          cards: gameStore.getGame.hand,
+          minSelect: 1,
+          maxSelect: 1,
+        },
+      });
+      if (!modalSettings.value.visible) {
+        console.log("bemegy");
+        openNextModal();
+      }
+    }
+  }
+);
+
 function openNextModal(target) {
   if (target) {
     targetBuffer.value = { ...target, ...targetBuffer.value };
     console.log(targetBuffer.value);
   }
+  console.log("openNextModal");
+  console.log(modalChain.value);
   if (modalChain.value.length > 0) {
     const modal = modalChain.value.shift();
     modalSettings.value.visible = true;
@@ -1028,7 +1067,7 @@ async function useAbility(ability) {
           );
           const mostGold = Math.min(
             Math.max(...otherPlayers.map((player) => player.gold)),
-            gameStore.getGame.hand.length
+            gameStore.getGame.hand.length - 1
           );
           const filteredDistricts = gameStore.getGame.hand
             .map((district, i) => {
@@ -1106,7 +1145,7 @@ async function useTargetedAbility(target, ability) {
     code: lobbyCode,
     target,
   });
-  closeModal();
+  openNextModal();
 }
 </script>
 

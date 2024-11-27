@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import olter.loaf.common.BaseEntity;
 import olter.loaf.game.cards.dto.AbilityTargetRequest;
-import olter.loaf.game.cards.model.AbilityEnum;
-import olter.loaf.game.cards.model.ActivationEnum;
-import olter.loaf.game.cards.model.CharacterEntity;
-import olter.loaf.game.cards.model.DistrictEntity;
+import olter.loaf.game.cards.model.*;
 import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.InvalidPhaseActionException;
 import olter.loaf.game.players.model.ConditionEnum;
@@ -160,8 +157,8 @@ public class GameEntity extends BaseEntity {
             }
             p.setConditions(
                 p.getConditions().stream().filter(condition -> condition.getDuration() != DurationEnum.END_OF_TURN)
-                    .collect(Collectors.toList()));
-            p.setUsedAbilities(new ArrayList<>());
+                    .collect(Collectors.toSet()));
+            p.setUsedAbilities(new HashSet<>());
         }).collect(Collectors.toList());
     }
 
@@ -263,13 +260,22 @@ public class GameEntity extends BaseEntity {
     private void endGame() {
         phase = GamePhaseEnum.ENDED;
         players.forEach(player -> {
-            player.getDistricts().forEach(district -> district.getAbilities().forEach(ability -> {
-                if (ability.getType() == ActivationEnum.END_OF_GAME) {
-                    AbilityTargetRequest target = new AbilityTargetRequest();
-                    target.setId(player.getId());
-                    ability.useAbility(this, target);
+            List<DistrictTypeEnum> missingTypes =
+                Arrays.asList(DistrictTypeEnum.NOBLE, DistrictTypeEnum.RELIGIOUS, DistrictTypeEnum.TRADE,
+                    DistrictTypeEnum.MILITARY, DistrictTypeEnum.UNIQUE);
+            player.getDistricts().forEach(district -> {
+                missingTypes.remove(district.getType());
+                district.getAbilities().forEach(ability -> {
+                    if (ability.getType() == ActivationEnum.END_OF_GAME) {
+                        AbilityTargetRequest target = new AbilityTargetRequest();
+                        target.setId(player.getId());
+                        ability.useAbility(this, target);
+                    }
+                });
+                if (missingTypes.isEmpty()) {
+                    player.givePoints(3);
                 }
-            }));
+            });
             if (player.hasDistrictAbility(AbilityEnum.SECRET_VAULT)) {
                 player.givePoints(3);
             }

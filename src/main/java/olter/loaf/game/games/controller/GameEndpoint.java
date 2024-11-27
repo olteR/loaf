@@ -57,7 +57,7 @@ public class GameEndpoint {
     @PostMapping("game/ability")
     public ResponseEntity<Void> useAbility(@RequestBody AbilityRequest request,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
-    ) {
+    ) throws IllegalAccessException {
         gameService.useAbility(request, user);
         return ResponseEntity.ok().build();
     }

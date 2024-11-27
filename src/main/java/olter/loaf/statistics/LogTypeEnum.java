@@ -4,10 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum LogTypeEnum {
-    SELECT_CHARACTER("SELECT_CHARACTER"), // targetId
-    GATHER_RESOURCE("GATHER_RESOURCE"), BUILD("BUILD"), // targetId
-    CHARACTER_ABILITY("CHARACTER_ABILITY"), // targetId, sourceId
-    CHARACTER_INCOME("CHARACTER_INCOME"), DISTRICT_ABILITY("DISTRICT_ABILITY"); // targetId, sourceId
+    // @formatter:off
+    SELECT_CHARACTER("SELECT_CHARACTER"),
+    GATHER_RESOURCE("GATHER_RESOURCE"),
+    BUILD("BUILD"),
+    ABILITY_USE("ABILITY_USE");
+    // @formatter:on
 
     private final String value;
 

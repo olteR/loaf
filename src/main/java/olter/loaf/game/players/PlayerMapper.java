@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -26,7 +27,7 @@ public interface PlayerMapper {
     }
 
     @Named("filteredConditions")
-    default List<ConditionResponse> filteredConditions(List<ConditionEnum> conditions) {
+    default List<ConditionResponse> filteredConditions(Set<ConditionEnum> conditions) {
         return conditions.stream().filter(ConditionEnum::getVisible).map(this::conditionToResponse)
             .collect(Collectors.toList());
     }

@@ -12,9 +12,7 @@ import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Entity
 @Getter
@@ -45,12 +43,12 @@ public class PlayerEntity extends BaseEntity {
     @ElementCollection
     @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))
     @Enumerated(EnumType.STRING)
-    private List<ConditionEnum> conditions = new ArrayList<>();
+    private Set<ConditionEnum> conditions = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "player_used_abilities", joinColumns = @JoinColumn(name = "player_id"))
     @Enumerated(EnumType.STRING)
-    private List<AbilityEnum> usedAbilities = new ArrayList<>();
+    private Set<AbilityEnum> usedAbilities = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "player_unavailable_characters", joinColumns = @JoinColumn(name = "player_id"))
@@ -89,8 +87,13 @@ public class PlayerEntity extends BaseEntity {
     public void giveDistrict(DistrictEntity district) {
         this.districts.add(district);
         this.points += district.getCost();
-        if (this.districts.size() > 6) {
-            game.setIsFinalTurn(true);
+        if (this.districts.size() == 7) {
+            if (game.getIsFinalTurn()) {
+                this.points += 2;
+            } else {
+                game.setIsFinalTurn(true);
+                this.points += 4;
+            }
         }
     }
 

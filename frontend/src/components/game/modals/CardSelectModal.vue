@@ -47,7 +47,7 @@
     <button
       :disabled="
         page === Math.floor(options.cards.length / 8) ||
-        options.cards.length < 8
+        options.cards.length < 9
       "
       class="text-4xl"
       style="width: 48px"
@@ -58,7 +58,7 @@
         :class="{
           'text-transparent':
             page === Math.floor(options.cards.length / 8) ||
-            options.cards.length < 8,
+            options.cards.length < 9,
         }"
       ></i>
     </button>
@@ -131,6 +131,7 @@ function select() {
       .filter((val) => val !== null),
     props.ability
   );
+  toggleValues.value = props.options.cards.map(() => false);
 }
 </script>
 

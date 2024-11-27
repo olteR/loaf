@@ -23,7 +23,6 @@ public enum TargetEnum {
     DISTRICT_AND_PLAYER_HELP("DISTRICT_AND_PLAYER_HELP"),
     WARRANTS("WARRANTS"),
     THREAT_MARKERS("THREAT_MARKERS"),
-    SHUFFLE("SHUFFLE"),
     SELECTOR("SELECTOR");
 
     private final String value;

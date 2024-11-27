@@ -297,7 +297,31 @@ public enum AbilityEnum {
             }
         }
     },
-    SEER("SEER", List.of("users", "hand-sparkles"), TargetEnum.SHUFFLE, "<p>Véletlenszerűen kapsz egy <i class=\"fa fa-sheet-plastic\"></i>-t minden játékos kezéből. Ezután adnod kell minden játékosnak egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből. Ha egy játékosnak nincs <i class=\"fa fa-sheet-plastic\"></i> a kezében, nem veszel tőle <i class=\"fa fa-sheet-plastic\"></i>-t és nem is adsz neki</p>"),
+    SEER("SEER", List.of("users", "hand-sparkles"), "<p>Véletlenszerűen kapsz egy <i class=\"fa fa-sheet-plastic\"></i>-t minden játékos kezéből. Ezután adnod kell minden játékosnak egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből. Ha egy játékosnak nincs <i class=\"fa fa-sheet-plastic\"></i> a kezében, nem veszel tőle <i class=\"fa fa-sheet-plastic\"></i>-t és nem is adsz neki</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            if (game.getCurrentPlayer().getUsingAbility() == null) {
+                game.getCurrentPlayer().setUsingAbility(SEER);
+                for (PlayerEntity player : game.getPlayers()) {
+                    if (!player.getId().equals(game.getCurrentPlayer().getId()) && !player.getHand().isEmpty()) {
+                        game.getCurrentPlayer().getHand().add(player.takeRandomCard());
+                        player.setAbilityTarget(game.getCurrentPlayer().getId());
+                    }
+                }
+            }
+            else if (target.getId() != null && target.getIndex() != null) {
+                PlayerEntity targetPlayer = game.getPlayer(target.getId());
+                targetPlayer.giveCard(game.getCurrentPlayer().takeCard(target.getIndex()));
+                targetPlayer.setAbilityTarget(null);
+            }
+            List<PlayerEntity> playersToGive = game.getPlayers().stream().filter(player -> player.getAbilityTarget() != null && !player.getId().equals(game.getCurrentPlayer().getId())).toList();
+            if (playersToGive.isEmpty()) {
+                game.getCurrentPlayer().setUsingAbility(null);
+                game.getCurrentPlayer().setAbilityTarget(null);
+            } else {
+                game.getCurrentPlayer().setAbilityTarget(playersToGive.get(0).getId());
+            }
+        }
+    },
     BUILD_LIMIT_2("BUILD_LIMIT_2", ActivationEnum.START_OF_TURN, "<p>Ebben a körben az építkezési korlátod 2 <i class=\"fa fa-city\"></i>.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             game.getCurrentPlayer().giveCondition(ConditionEnum.GREAT_BUILDER);

@@ -225,7 +225,7 @@ public class GameService {
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD, playerMapper.entityToPublicResponse(player));
     }
 
-    public void useAbility(AbilityRequest request, UserEntity user) {
+    public void useAbility(AbilityRequest request, UserEntity user) throws IllegalAccessException {
         log.info("User {} using ability {} in game {}", user.getName(), request.getAbility().getValue(),
             request.getCode());
         GameEntity game = findGame(request.getCode());
@@ -233,6 +233,7 @@ public class GameService {
 
         request.getAbility().useAbility(game, request.getTarget());
         game.getCurrentPlayer().getUsedAbilities().add(request.getAbility());
+        logService.logAbilityUse(game, request.getTarget(), request.getAbility());
         gameRepository.save(game);
         broadcastOnWebsocket(request.getCode(), game, GameUpdateTypeEnum.USE_ABILITY);
     }

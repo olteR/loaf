@@ -9,6 +9,7 @@ import MyGamesView from "@/views/lobbies/MyGamesView.vue";
 import LobbiesView from "../views/lobbies/LobbiesView.vue";
 import LobbyView from "@/views/lobbies/LobbyView.vue";
 import GameView from "@/views/game/GameView.vue";
+import GameResultsView from "@/views/game/GameResultsView.vue";
 import StatisticsView from "@/views/statistics/StatisticsView.vue";
 import RulesView from "@/views/rules/RulesView.vue";
 
@@ -50,6 +51,12 @@ const router = createRouter({
       name: "game",
       component: GameView,
       props: { breadcrumbs: [] },
+    },
+    {
+      path: "/game-results/:code?",
+      name: "game-results",
+      component: GameResultsView,
+      props: { breadcrumbs: [BREADCRUMB.GAME_RESULTS] },
     },
     {
       path: "/statistics",

@@ -9,6 +9,11 @@ export const BREADCRUMB = {
     label: "Lobbik",
     icon: "fa fa-people-group",
   },
+  GAME_RESULTS: {
+    name: "game-results",
+    label: "Játék eredménye",
+    icon: "fa fa-trophy",
+  },
   STATISTICS: {
     name: "statistics",
     label: "Statisztikák",
@@ -98,6 +103,7 @@ export const GAME_PHASE = {
   SELECTION: "SELECTION",
   RESOURCE: "RESOURCE",
   TURN: "TURN",
+  ENDED: "ENDED",
 };
 
 export const CHAR_STATUS = {
@@ -159,6 +165,7 @@ export const ABILITY = {
   DIPLOMAT: "DIPLOMAT",
   MAGISTRATE: "MAGISTRATE",
   BLACKMAILER: "BLACKMAILER",
+  SEER: "SEER",
   SCHOLAR: "SCHOLAR",
   MARSHAL: "MARSHAL",
 };
