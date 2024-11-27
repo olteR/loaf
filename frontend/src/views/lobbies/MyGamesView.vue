@@ -1,6 +1,12 @@
 <template>
   <div class="container mx-auto my-4">
-    <Card v-if="lobbyStore.getLobbies.length === 0" class="mb-4">
+    <Card
+      v-if="
+        lobbyStore.getLobbies.filter((l) => l.status !== GAME_PHASE.ENDED)
+          .length === 0
+      "
+      class="mb-4"
+    >
       <template #content>
         <div class="text-center select-none">
           Még nem csatlakoztál egy játékhoz sem! Keress vagy hozz létre egyet a
@@ -8,7 +14,12 @@
         </div>
       </template>
     </Card>
-    <LobbyList :lobbies="lobbyStore.getLobbies" :type="'mine'" />
+    <LobbyList
+      :lobbies="
+        lobbyStore.getLobbies.filter((l) => l.status !== GAME_PHASE.ENDED)
+      "
+      :type="'mine'"
+    />
   </div>
 </template>
 
@@ -18,6 +29,7 @@ import { useLobbyStore } from "@/stores/lobbies";
 import { useStateStore } from "@/stores/state";
 import Card from "primevue/card";
 import LobbyList from "@/components/lobbies/LobbyList.vue";
+import { GAME_PHASE } from "@/utils/const";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();

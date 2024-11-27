@@ -3,6 +3,7 @@ package olter.loaf.game.games;
 import olter.loaf.game.cards.CardMapper;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.games.dto.GameDetailsResponse;
+import olter.loaf.game.games.dto.GameResultResponse;
 import olter.loaf.game.games.dto.GameSettingsResponse;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.players.PlayerMapper;
@@ -22,6 +23,8 @@ public interface GameMapper {
     @Mapping(target = "character", source = "player.characterNumber")
     @Mapping(target = "discardedCharacters", source = "game.upwardDiscard")
     GameDetailsResponse entityToDetailsResponse(GameEntity game, PlayerEntity player, String code);
+
+    GameResultResponse entityToResultResponse(GameEntity game);
 
     @Mapping(target = "crownedPlayer", qualifiedByName = "playerToUserId")
     @Mapping(target = "characters", qualifiedByName = "characterToId")

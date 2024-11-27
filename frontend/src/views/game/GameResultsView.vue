@@ -1,14 +1,73 @@
 <template>
-  <Card class="container mx-auto my-4">
-    <template #title>
-      <h1 class="text-5xl text-center">A játéknak vége!</h1>
-    </template>
-    <template #content>
-      <div v-for="player in sortedPlayers">
-        {{ `${player.name}: ${player.points}` }}
-      </div>
-    </template>
-  </Card>
+  <div>
+    <Card class="container mx-auto my-4">
+      <template #title>
+        <h1 class="text-5xl text-center">A játéknak vége!</h1>
+      </template>
+      <template #content>
+        <div class="text-2xl">
+          {{
+            `A játék ${
+              gameStore.getGameResult?.turn
+            } körig tartott és végül ${sortedPlayers
+              .filter((_, ind) => placements[ind] === 1)
+              .map((player) => player.name)
+              .join(", ")} nyert!`
+          }}
+        </div>
+        <PlayerResult
+          v-for="(player, ind) in sortedPlayers"
+          :key="player.id"
+          :player="player"
+          :placement="placements[ind]"
+        />
+      </template>
+    </Card>
+    <Card class="container mx-auto my-4"
+      ><template #title>
+        <h1 class="text-3xl text-center">A játékban használt beállítások</h1>
+      </template>
+      <template #content>
+        <div class="grid grid-cols-2 gap-x-8">
+          <div>
+            <div class="w-full text-center">
+              <div class="text-2xl mb-4">Karakterek</div>
+            </div>
+            <div class="margin-offset">
+              <div
+                v-for="character in gameStore.getGameResult?.characters"
+                :key="character"
+              >
+                <GameSettingCharacterCard
+                  :character="character"
+                  selected
+                  is-big
+                />
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="w-full text-center">
+              <div class="text-2xl mb-4">Egyedi kerületek</div>
+            </div>
+            <div class="margin-offset">
+              <div
+                v-for="district in gameStore.getGameResult?.uniqueDistricts"
+                :key="district"
+              >
+                <GameSettingDistrictCard
+                  :district="
+                    cardStore.getCards.districts?.find((d) => d.id === district)
+                  "
+                  :selected="true"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </Card>
+  </div>
 </template>
 
 <script setup>
@@ -19,6 +78,9 @@ import { useCardStore } from "@/stores/cards";
 import { useGameStore } from "@/stores/games";
 import { useRouter } from "vue-router";
 import Card from "primevue/card";
+import PlayerResult from "@/components/game/PlayerResult.vue";
+import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
+import GameSettingDistrictCard from "@/components/lobbies/GameSettingDistrictCard.vue";
 
 const stateStore = useStateStore();
 const cardStore = useCardStore();
@@ -27,8 +89,22 @@ const router = useRouter();
 const lobbyCode = router.currentRoute.value.params.code;
 
 const sortedPlayers = computed(() => {
-  let players = gameStore.getGame?.players ?? [];
+  let players = gameStore.getGameResult?.players ?? [];
   return players.sort((a, b) => b.points - a.points) ?? [];
+});
+
+const placements = computed(() => {
+  let n = 0;
+  return sortedPlayers.value.map((player, ind) => {
+    if (
+      sortedPlayers.value[ind - 1] &&
+      sortedPlayers.value[ind - 1].points === player.points
+    ) {
+      return n;
+    } else {
+      return ++n;
+    }
+  });
 });
 
 onMounted(async () => {
@@ -37,11 +113,17 @@ onMounted(async () => {
   await gameStore.fetchGame(lobbyCode);
   if (gameStore.getGame.phase === GAME_PHASE.NOT_STARTED) {
     await router.push(`/lobby/${lobbyCode}`);
-  } else if (gameStore.getGame.phase === GAME_PHASE.ENDED) {
-    await router.push(`/game-results/${lobbyCode}`);
+  } else if (gameStore.getGame.phase !== GAME_PHASE.ENDED) {
+    await router.push(`/game/${lobbyCode}`);
+  } else {
+    await gameStore.fetchGameResult(lobbyCode);
   }
   stateStore.setLoading(false);
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.margin-offset {
+  margin-right: 1.25rem;
+}
+</style>

@@ -16,11 +16,14 @@ export const useGameStore = defineStore("game", () => {
     build: (code) => `game/${code}/build`,
     endTurn: (code) => `game/${code}/end-turn`,
     ability: `game/ability`,
+    result: (code) => `game/${code}/result`,
   };
 
   const game = ref({});
+  const gameResult = ref();
 
   const getGame = computed(() => game.value);
+  const getGameResult = computed(() => gameResult.value);
   const getCurrentPlayer = computed(
     () =>
       game.value.players?.find(
@@ -37,6 +40,14 @@ export const useGameStore = defineStore("game", () => {
       REQ_TYPE.GET
     );
     game.value = response.data;
+  }
+
+  async function fetchGameResult(code) {
+    const response = await requestStore.request(
+      urls.result(code),
+      REQ_TYPE.GET
+    );
+    gameResult.value = response.data;
   }
 
   async function selectCharacter(code, character) {
@@ -134,9 +145,11 @@ export const useGameStore = defineStore("game", () => {
 
   return {
     getGame: getGame,
+    getGameResult: getGameResult,
     getCurrentPlayer: getCurrentPlayer,
     getCharacter: getCharacter,
     fetchGame,
+    fetchGameResult,
     selectCharacter,
     gatherResources,
     drawCards,

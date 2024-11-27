@@ -5,17 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.CardMapper;
 import olter.loaf.game.cards.dto.AbilityRequest;
-import olter.loaf.game.cards.dto.AbilityTargetRequest;
 import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.cards.model.*;
 import olter.loaf.game.config.model.ConfigEntity;
 import olter.loaf.game.config.model.ConfigRepository;
 import olter.loaf.game.config.model.ConfigTypeEnum;
 import olter.loaf.game.games.GameMapper;
-import olter.loaf.game.games.dto.GameDetailsResponse;
-import olter.loaf.game.games.dto.GameUpdateDto;
-import olter.loaf.game.games.dto.GameUpdateTypeEnum;
-import olter.loaf.game.games.dto.ResourceGatherResponse;
+import olter.loaf.game.games.dto.*;
 import olter.loaf.game.games.exception.*;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
@@ -107,6 +103,17 @@ public class GameService {
         PlayerEntity player = playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
             .orElseThrow(() -> new NotInGameException(code, loggedInUser.getId()));
         return gameMapper.entityToDetailsResponse(game, player, code);
+    }
+
+    public GameResultResponse getGameResult(String code, UserEntity loggedInUser) {
+        log.info("Getting game results of {} for {}", code, loggedInUser.getName());
+        GameEntity game = findGame(code);
+        playerRepository.findByUserIdAndGame(loggedInUser.getId(), game)
+            .orElseThrow(() -> new NotInGameException(code, loggedInUser.getId()));
+        if (game.getPhase() != GamePhaseEnum.ENDED) {
+            throw new NotEndedException(code);
+        }
+        return gameMapper.entityToResultResponse(game);
     }
 
     public List<Integer> selectCharacter(String code, Integer selectedCharacter, UserEntity loggedInUser) {
@@ -341,8 +348,7 @@ public class GameService {
         if (game.getThreatenedCharacters().contains(game.getCurrentPlayer().getCharacterNumber())) {
             if (game.getCurrentPlayer().getGold() > 1) {
                 game.getCurrentPlayer().setUsingAbility(AbilityEnum.PAY_OFF);
-            }
-            else {
+            } else {
                 game.getCurrentPlayer().removeCondition(ConditionEnum.THREATENED);
             }
         }

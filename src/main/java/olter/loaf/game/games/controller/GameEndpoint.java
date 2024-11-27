@@ -5,6 +5,7 @@ import olter.loaf.common.security.SecurityAnnotations;
 import olter.loaf.game.cards.dto.AbilityRequest;
 import olter.loaf.game.cards.dto.DistrictResponse;
 import olter.loaf.game.games.dto.GameDetailsResponse;
+import olter.loaf.game.games.dto.GameResultResponse;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,13 @@ public class GameEndpoint {
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
         return ResponseEntity.ok().body(gameService.getGame(code, user));
+    }
+
+    @GetMapping("/game/{code}/result")
+    public ResponseEntity<GameResultResponse> getGameResult(@PathVariable String code,
+        @SecurityAnnotations.GetLoggedInUser UserEntity user
+    ) {
+        return ResponseEntity.ok().body(gameService.getGameResult(code, user));
     }
 
     @GetMapping("game/{code}/select")

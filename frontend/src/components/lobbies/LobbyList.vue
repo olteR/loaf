@@ -88,6 +88,7 @@ import Button from "primevue/button";
 import Chip from "primevue/chip";
 import Dialog from "primevue/dialog";
 import Panel from "primevue/panel";
+import { GAME_PHASE } from "@/utils/const";
 
 const props = defineProps({
   lobbies: Array,
