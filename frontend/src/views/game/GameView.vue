@@ -255,7 +255,8 @@ const visibleAbilities = computed(() => {
           (character) =>
             character.number === gameStore.getGame.bewitchedCharacter
         )
-        .abilities.map((ability) => {
+        .abilities.filter((ability) => ability.type === ABILITY_TYPE.MANUAL)
+        .map((ability) => {
           ability.sourceName = "Megbabonázás";
           return ability;
         })
@@ -302,12 +303,14 @@ watch(
   () => gameStore.getGame.phase,
   (newValue) => {
     if (gameStore.getCurrentPlayer.userId === stateStore.getUser.id) {
+      console.log("bemegy");
       if (newValue === GAME_PHASE.SELECTION) {
         addCharacterSelectModal();
+        openNextModal();
       } else if (newValue === GAME_PHASE.RESOURCE) {
         addResourceSelectModal();
+        openNextModal();
       }
-      openNextModal();
     }
   }
 );
@@ -322,7 +325,8 @@ watch(
           modalChain.value.push({
             header: "Válassz karaktert, akit megbabonázol!",
             type: GAME_MODAL.CHARACTER,
-            submit: (target) => useTargetedAbility({ index: target }),
+            submit: (target) =>
+              useTargetedAbility({ index: target[0] }, newValue),
             options: {
               characters: gameStore.getGame.characters,
               discarded: gameStore.getGame.discardedCharacters,
@@ -628,7 +632,6 @@ async function useAbility(ability) {
   switch (ability) {
     case ABILITY.ASSASSIN:
     case ABILITY.THIEF:
-    case ABILITY.WITCH:
       modalChain.value.push({
         type: GAME_MODAL.CHARACTER,
         submit: (target) =>
@@ -1177,9 +1180,9 @@ async function useAbility(ability) {
     case DISTRICTS.NECROPOLIS:
       modalChain.value.push({
         type: GAME_MODAL.CARDS,
-        submit: (target) => useTargetedAbility({ index: target }),
+        submit: (target) => useTargetedAbility({ index: target[0] }, ability),
         options: {
-          cards: gameStore.getGame.districts,
+          cards: gameStore.getCurrentPlayer.districts,
           minSelect: 1,
           maxSelect: 1,
         },
@@ -1246,7 +1249,9 @@ async function useTargetedAbility(target, ability) {
     code: lobbyCode,
     target,
   });
-  openNextModal();
+  if (!modalSettings.value.visible && modalChain.value.length > 0) {
+    openNextModal();
+  }
 }
 </script>
 

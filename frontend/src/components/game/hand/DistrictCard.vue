@@ -24,7 +24,7 @@
         {{
           card.type === DISTRICT_TYPE.UNIQUE && hasFactory
             ? card.cost - 1
-            : card.cos
+            : card.cost
         }}
       </div>
       <img class="district-img" :src="image.src" />

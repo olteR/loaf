@@ -28,7 +28,7 @@
               {{ userStore.getStatistics?.averagePlacement }}
             </div>
             <div>
-              Legtöbbet választott karakter:
+              Legtöbbet választott rang:
               {{
                 `${mostPickedNumber.maxIndexes.join(", ")} (${
                   mostPickedNumber.max
@@ -36,11 +36,11 @@
               }}
             </div>
             <div>
-              Legtöbbet választott rang:
+              Legtöbbet választott karakter:
               {{
-                `${mostPickedCharacter.maxIndexes.map(
-                  (ind) => cardStore.getCards.characters[ind - 1].name
-                )} (${mostPickedCharacter.max}x)`
+                `${mostPickedCharacter.maxIndexes
+                  .map((ind) => cardStore.getCards.characters[ind - 1].name)
+                  .join(", ")} (${mostPickedCharacter.max}x)`
               }}
             </div>
           </div>

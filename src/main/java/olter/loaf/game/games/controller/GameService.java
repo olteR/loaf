@@ -223,13 +223,13 @@ public class GameService {
         } else {
             player.giveDistrict(district);
             player.takeGold(district.getCost());
+            if (player.getCharacter().hasAbility(AbilityEnum.ALCHEMIST)) {
+                player.setAbilityTarget(Long.valueOf(district.getCost()));
+            }
         }
         if (!(player.hasCondition(ConditionEnum.BLOOMING_TRADE) && district.getType() == DistrictTypeEnum.TRADE) &&
             !district.hasAbility(AbilityEnum.STABLES)) {
             player.setBuildLimit(player.getBuildLimit() - 1);
-        }
-        if (player.hasCondition(ConditionEnum.BLOOMING_TRADE)) {
-            player.setAbilityTarget(Long.valueOf(district.getCost()));
         }
         playerRepository.save(player);
         broadcastOnWebsocket(code, game, GameUpdateTypeEnum.BUILD);

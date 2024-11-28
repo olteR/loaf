@@ -161,7 +161,7 @@ public enum AbilityEnum {
                 int targetAmount =
                     (int) targetPlayer.getHand().stream().filter(district -> district.getType() == target.getType())
                         .count();
-                game.getCurrentPlayer().giveGold(targetPlayer.takeGold(targetAmount));
+                game.getCurrentPlayer().giveGold(Math.min(targetPlayer.takeGold(targetAmount), targetPlayer.getGold()));
                 game.getCurrentPlayer().giveCards(game.drawFromDeck(targetAmount));
                 game.getCurrentPlayer().setUsingAbility(SPY);
                 game.getCurrentPlayer().setAbilityTarget(target.getId());
@@ -207,7 +207,7 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity targetPlayer = game.getPlayer(target.getId());
             game.setCrownedPlayer(targetPlayer);
-            if (target.getResource() == ResourceTypeEnum.GOLD && targetPlayer.getGold() > 1) {
+            if (target.getResource() == ResourceTypeEnum.GOLD && targetPlayer.getGold() > 0) {
                 game.getCurrentPlayer().giveGold(targetPlayer.takeGold(1));
             } else {
                 game.getCurrentPlayer().giveCard(targetPlayer.takeRandomCard());
@@ -261,13 +261,14 @@ public enum AbilityEnum {
             DistrictEntity districtToTake = targetPlayer.removeDistrict(target.getSecondaryIndex());
             int actualCost = targetPlayer.hasDistrictAbility(GREAT_WALL) && !districtToTake.hasAbility(GREAT_WALL) ?
                 districtToTake.getCost() + 1 : districtToTake.getCost();
-            if (districtToTake.hasAbility(KEEP)) {
+            if (districtToTake.hasAbility(KEEP) || targetPlayer.getDistricts().contains(districtToGive) ||
+                game.getCurrentPlayer().getDistricts().contains(districtToTake)) {
                 throw new InvalidTargetException(DIPLOMAT, game.getCurrentPlayer().getId());
             }
             if (actualCost > districtToGive.getCost()) {
                 Integer amount = actualCost - districtToGive.getCost();
                 if (amount > game.getCurrentPlayer().getGold()) {
-                    throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), districtToTake.getId());
+                    throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), DIPLOMAT);
                 }
                 targetPlayer.giveGold(game.getCurrentPlayer().takeGold(amount));
             }
@@ -403,6 +404,7 @@ public enum AbilityEnum {
             DistrictEntity targetDistrict = game.getCurrentPlayer().takeCard(target.getIndex());
             game.getCurrentPlayer().removeDistrict(framework);
             game.getCurrentPlayer().giveDistrict(targetDistrict);
+            game.getCurrentPlayer().setBuildLimit(game.getCurrentPlayer().getBuildLimit() - 1);
         }
     },
     BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
@@ -451,10 +453,10 @@ public enum AbilityEnum {
                     .count());
         }
     },
-    SMITHY("SMITHY", ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"></i>-ért 3 <i class=\"fa fa-sheet-plastic\"></i>-t húzhatsz.</p>") {
+    SMITHY("SMITHY", List.of("coins", "left-right", "sheet-plastic"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán egyszer 2 <i class=\"fa fa-coins\"></i>-ért 3 <i class=\"fa fa-sheet-plastic\"></i>-t húzhatsz.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             if (game.getCurrentPlayer().getGold() < 2) {
-                throw new InvalidActivationException(game.getCurrentPlayer().getId(), SMITHY);
+                throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), SMITHY);
             }
             game.getCurrentPlayer().takeGold(2);
             game.getCurrentPlayer().giveCards(game.drawFromDeck(3));
@@ -494,6 +496,7 @@ public enum AbilityEnum {
             game.getDeck().add(game.getCurrentPlayer().removeDistrict(target.getIndex()));
             game.getCurrentPlayer().takeCard(necropolis);
             game.getCurrentPlayer().giveDistrict(necropolis);
+            game.getCurrentPlayer().setBuildLimit(game.getCurrentPlayer().getBuildLimit() - 1);
         }
     },
     MAP_ROOM("MAP_ROOM", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben maradt <i class=\"fa fa-sheet-plastic\"></i> után.</p>") {
@@ -520,7 +523,7 @@ public enum AbilityEnum {
                 }
             }
             if (targetDistricts.size() + game.getCurrentPlayer().getGold() < 6) {
-                throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), thievesDen.getId());
+                throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), THIEVES_DEN);
             }
             game.getDeck().addAll(targetDistricts);
             game.getCurrentPlayer().setHand(newHand);
@@ -539,7 +542,7 @@ public enum AbilityEnum {
     AbilityEnum(String value, String description) {
         this.value = value;
         this.icons = new ArrayList<>();
-        this.type = ActivationEnum.MANUAL;
+        this.type = ActivationEnum.NONE;
         this.description = description;
     }
 

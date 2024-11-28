@@ -13,7 +13,7 @@
             class="fa fa-lock"
           ></i>
           <i
-            v-if="lobby.status === 'ONGOING'"
+            v-if="lobby.status === LOBBY_STATUS.ONGOING"
             v-tooltip.top="{
               value: 'Folyamatban lévő játék',
               escape: false,
@@ -41,7 +41,9 @@
             @click="joinLobby(lobby)"
           ></Button>
           <Button
-            v-else-if="props.type === 'mine' && lobby.status === 'CREATED'"
+            v-else-if="
+              props.type === 'mine' && lobby.status === LOBBY_STATUS.CREATED
+            "
             label="Lobbi megnyitása"
             icon="pi pi-play"
             class="mr-2"
@@ -55,7 +57,9 @@
             @click="router.push(`game/${lobby.code}`)"
           ></Button>
           <Button
-            v-if="props.type === 'mine' && lobby.status === 'CREATED'"
+            v-if="
+              props.type === 'mine' && lobby.status === LOBBY_STATUS.CREATED
+            "
             label="Kilépés"
             icon="pi pi-sign-out"
             class="p-button-danger"
@@ -88,7 +92,7 @@ import Button from "primevue/button";
 import Chip from "primevue/chip";
 import Dialog from "primevue/dialog";
 import Panel from "primevue/panel";
-import { GAME_PHASE } from "@/utils/const";
+import { LOBBY_STATUS } from "@/utils/const";
 
 const props = defineProps({
   lobbies: Array,

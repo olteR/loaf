@@ -192,7 +192,7 @@ public class GameEntity extends BaseEntity {
                 if (currentPlayer.hasDistrictAbility(AbilityEnum.POOR_HOUSE) && currentPlayer.getGold() == 0) {
                     currentPlayer.giveGold(1);
                 }
-                if (currentPlayer.hasCondition(ConditionEnum.BLOOMING_TRADE) &&
+                if (currentPlayer.getCharacter().hasAbility(AbilityEnum.ALCHEMIST) &&
                     currentPlayer.getAbilityTarget() != null) {
                     currentPlayer.giveGold(currentPlayer.getAbilityTarget().intValue());
                     currentPlayer.setAbilityTarget(null);
@@ -248,7 +248,7 @@ public class GameEntity extends BaseEntity {
                 discardedCharacters.add(chosenCharacter);
             }
         }
-        return discardedCharacters.stream().toList();
+        return new ArrayList<>(discardedCharacters);
     }
 
     // Returns a map that help reorder the players in case the crowned player changes
@@ -290,7 +290,9 @@ public class GameEntity extends BaseEntity {
             if (hasCapitol) {
                 capitolType =
                     districtTypes.stream().filter(type -> districtCountMap.get(type) > 2).findFirst().orElse(null);
-                player.giveBonusPoints(3);
+                if (capitolType != null) {
+                    player.giveBonusPoints(3);
+                }
             }
 
             if (player.hasDistrictAbility(AbilityEnum.HAUNTED_QUARTER)) {
@@ -326,6 +328,7 @@ public class GameEntity extends BaseEntity {
         });
 
         players.sort(Comparator.comparing(PlayerEntity::getPoints));
+        Collections.reverse(players);
         int n = 1;
         players.get(0).getResults().setPlacement(n);
         for (int i = 1; i < players.size(); i++) {

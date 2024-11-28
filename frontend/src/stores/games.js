@@ -119,10 +119,12 @@ export const useGameStore = defineStore("game", () => {
           if (
             getCharacter.value.abilities.find(
               (ability) => ability.enum === ABILITY.WITCH
-            )
+            ) &&
+            game.value.bewitchedCharacter === null
           ) {
             game.value.usingAbility = ABILITY.WITCH;
-          } else if (
+          }
+          if (
             game.value.bewitchedCharacter === getCurrentPlayer.value.character
           ) {
             game.value.currentPlayer = game.value.players.find(
