@@ -376,7 +376,10 @@ public class GameService {
             throw new BuildLimitException(player.getId());
         }
         DistrictEntity district = game.getCurrentPlayer().getHand().get(handIndex);
-        if (district.getCost() > player.getGold()) {
+        int actualCost =
+            player.hasDistrictAbility(AbilityEnum.FACTORY) && district.getType() == DistrictTypeEnum.UNIQUE ?
+                district.getCost() - 1 : district.getCost();
+        if (actualCost > player.getGold()) {
             throw new NotEnoughGoldException(player.getId(), district.getId());
         }
         if (player.getDistricts().stream().map(DistrictEntity::getId).toList().contains(district.getId()) &&

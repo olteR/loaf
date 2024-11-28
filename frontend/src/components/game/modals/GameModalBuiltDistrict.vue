@@ -19,8 +19,24 @@
       }"
     >
       <i v-if="props.protected" class="fa fa-shield-halved"></i>
-      <span v-else>
-        {{ card.cost }}
+      <span
+        :class="{
+          'text-red-500':
+            hasGreatWall &&
+            !card.abilities
+              .map((ability) => ability.enum)
+              .includes(DISTRICTS.GREAT_WALL),
+        }"
+        v-else
+      >
+        {{
+          hasGreatWall &&
+          !card.abilities
+            .map((ability) => ability.enum)
+            .includes(DISTRICTS.GREAT_WALL)
+            ? card.cost + 1
+            : card.cost
+        }}
       </span>
     </div>
     <img class="district-img" :src="image.src" />
@@ -34,6 +50,7 @@ import {
   secondaryColor,
 } from "@/utils/utils";
 import { computed } from "vue";
+import { DISTRICTS } from "../../../utils/const";
 
 const props = defineProps({
   card: Object,
@@ -41,6 +58,7 @@ const props = defineProps({
   selected: Boolean,
   selectable: Boolean,
   protected: Boolean,
+  hasGreatWall: Boolean,
   tooltipPosition: Object,
 });
 

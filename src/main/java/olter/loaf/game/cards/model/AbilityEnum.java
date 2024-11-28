@@ -131,11 +131,15 @@ public enum AbilityEnum {
     },
     WARLORD("WARLORD", List.of("city", "x"), "<p>Elpusztíthatsz egy tetszőleges <i class=\"fa fa-city\"></i>-t: ez eggyel kevesebb <i class=\"fa fa-coins\"></i>-ba kerül, mint amennyi az ára.</p><p>Nem pusztíthatsz el befejezett városban <i class=\"fa fa-city\"></i>-t, de saját <i class=\"fa fa-city\"></i>-eid egyikét igen.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
-            if (district.getCost() - 1 > game.getCurrentPlayer().getGold() || district.hasAbility(KEEP)) {
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            DistrictEntity district = targetPlayer.removeDistrict(target.getIndex());
+            int actualCost =
+                targetPlayer.hasDistrictAbility(GREAT_WALL) && !district.hasAbility(GREAT_WALL) ? district.getCost() :
+                    district.getCost() - 1;
+            if (actualCost > game.getCurrentPlayer().getGold() || district.hasAbility(KEEP)) {
                 throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
             }
-            game.getCurrentPlayer().takeGold(district.getCost() - 1);
+            game.getCurrentPlayer().takeGold(actualCost);
             game.getDeck().add(district);
         }
     },
@@ -255,11 +259,13 @@ public enum AbilityEnum {
             PlayerEntity targetPlayer = game.getPlayer(target.getSecondaryId());
             DistrictEntity districtToGive = game.getCurrentPlayer().removeDistrict(target.getIndex());
             DistrictEntity districtToTake = targetPlayer.removeDistrict(target.getSecondaryIndex());
+            int actualCost = targetPlayer.hasDistrictAbility(GREAT_WALL) && !districtToTake.hasAbility(GREAT_WALL) ?
+                districtToTake.getCost() + 1 : districtToTake.getCost();
             if (districtToTake.hasAbility(KEEP)) {
                 throw new InvalidTargetException(DIPLOMAT, game.getCurrentPlayer().getId());
             }
-            if (districtToTake.getCost() > districtToGive.getCost()) {
-                Integer amount = districtToTake.getCost() - districtToGive.getCost();
+            if (actualCost > districtToGive.getCost()) {
+                Integer amount = actualCost - districtToGive.getCost();
                 if (amount > game.getCurrentPlayer().getGold()) {
                     throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), districtToTake.getId());
                 }
@@ -374,17 +380,31 @@ public enum AbilityEnum {
     },
     MARSHAL("MARSHAL", List.of("city", "hand"), "<p>Elvehetsz egy legfeljebb 3 <i class=\"fa fa-coins\"></i>-ba kerülő <i class=\"fa fa-city\"></i>-et egy másik játékos városából, a tulajdonosnak kifizetve az árát <i class=\"fa fa-coins\"></i>-ban.</p><p>Nem veheted el befejezett város kerületét, sem olyan kerületet amilyen már van a városodban.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            DistrictEntity district = game.getPlayer(target.getId()).removeDistrict(target.getIndex());
-            if (district.getCost() > 3 || game.getCurrentPlayer().getDistricts().contains(district) || district.hasAbility(KEEP)) {
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            DistrictEntity district = targetPlayer.removeDistrict(target.getIndex());
+            int actualCost = targetPlayer.hasDistrictAbility(GREAT_WALL) && !district.hasAbility(GREAT_WALL) ?
+                district.getCost() + 1 : district.getCost();
+            if (actualCost > 3 || game.getCurrentPlayer().getDistricts().contains(district) ||
+                district.hasAbility(KEEP)) {
                 throw new InvalidTargetException(this, game.getCurrentPlayer().getId());
             }
-            game.getCurrentPlayer().takeGold(district.getCost());
+            targetPlayer.giveGold(game.getCurrentPlayer().takeGold(actualCost));
             game.getCurrentPlayer().giveDistrict(district);
         }
     },
     TAX_COLLECTOR("TAX_COLLECTOR",List.of("users", "coins"), ""),
     GOLD_MINE("GOLD_MINE", "<p>Ha aranyat szerzel nyersanyag gyűjtéskor, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p>"),
-    FRAMEWORK("FRAMEWORK", List.of("city", "hammer"), ActivationEnum.AFTER_BUILD, "<p>Megépítesz egy kerületet úgy, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a <i class=\"fa fa-city\"></i> árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített <i class=\"fa fa-city\"></i>-t.</p>"),
+    FRAMEWORK("FRAMEWORK", List.of("city", "hammer"), ActivationEnum.AFTER_BUILD, "<p>Megépítesz egy kerületet úgy, hogy az Állványzatot semmisíted meg, ahelyett, hogy kifizetnéd a <i class=\"fa fa-city\"></i> árát.</p><p>Magisztrátus nem kobozhat el Állványzat álltal épített <i class=\"fa fa-city\"></i>-t.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            DistrictEntity framework =
+                game.getCurrentPlayer().getDistricts().stream().filter(district -> district.hasAbility(FRAMEWORK))
+                    .findFirst()
+                    .orElseThrow(() -> new InvalidActivationException(game.getCurrentPlayer().getId(), FRAMEWORK));
+            DistrictEntity targetDistrict = game.getCurrentPlayer().takeCard(target.getIndex());
+            game.getCurrentPlayer().removeDistrict(framework);
+            game.getCurrentPlayer().giveDistrict(targetDistrict);
+        }
+    },
     BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());

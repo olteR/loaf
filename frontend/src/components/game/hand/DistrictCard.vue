@@ -13,12 +13,19 @@
     <div id="draggable-header">
       <div
         class="district-cost"
+        :class="{
+          'text-lime-500': card.type === DISTRICT_TYPE.UNIQUE && hasFactory,
+        }"
         :style="{
           background: COLORS[card.type].SECONDARY,
           'outline-color': COLORS[card.type].PRIMARY,
         }"
       >
-        {{ card.cost }}
+        {{
+          card.type === DISTRICT_TYPE.UNIQUE && hasFactory
+            ? card.cost - 1
+            : card.cos
+        }}
       </div>
       <img class="district-img" :src="image.src" />
       <div
@@ -39,7 +46,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { COLORS } from "@/utils/const";
+import { COLORS, DISTRICT_TYPE } from "@/utils/const";
 import { composeDistrictDescription } from "@/utils/utils";
 
 const emit = defineEmits(["drag-begin", "drag-end"]);
@@ -48,6 +55,7 @@ const props = defineProps({
   card: Object,
   order: Number,
   image: Object,
+  hasFactory: Boolean,
 });
 
 const districtCard = ref();

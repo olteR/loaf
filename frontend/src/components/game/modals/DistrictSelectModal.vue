@@ -25,6 +25,7 @@
             :selected="selectedPlayer === player.id && selectedDistrict === ind"
             :selectable="isSelectable(player, district)"
             :protected="isProtected(player, district)"
+            :has-great-wall="hasDistrict(player, DISTRICTS.GREAT_WALL)"
             @click="toggle(player, district, ind)"
           ></GameModalBuiltDistrict>
         </div>
@@ -49,7 +50,7 @@ import { computed, ref } from "vue";
 import { ABILITY, CONDITIONS, DISTRICTS } from "@/utils/const";
 import Button from "primevue/button";
 import GameModalBuiltDistrict from "@/components/game/modals/GameModalBuiltDistrict.vue";
-import { hasCondition } from "@/utils/utils";
+import { hasCondition, hasDistrict } from "@/utils/utils";
 
 const emit = defineEmits(["submit"]);
 

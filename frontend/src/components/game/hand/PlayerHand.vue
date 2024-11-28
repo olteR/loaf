@@ -37,6 +37,7 @@
           :card="card"
           :order="i"
           :image="cardImages[card.id - 1]"
+          :has-factory="hasFactory"
           :key="i"
           :hidden="!displayedCards.includes(card)"
           @drag-begin="isDragging = true"
@@ -65,6 +66,7 @@ const props = defineProps({
   cards: Array,
   cardImages: Array,
   canBuild: Boolean,
+  hasFactory: Boolean,
 });
 
 const cardDropper = ref();

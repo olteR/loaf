@@ -19,6 +19,7 @@
       :cards="gameStore.getGame.hand"
       :card-images="cardStore.getDistrictImages"
       :can-build="canBuild"
+      :has-factory="hasDistrict(gameStore.getCurrentPlayer, DISTRICTS.FACTORY)"
       @build="(index) => buildDistrict(index)"
     ></PlayerHand>
     <Button
