@@ -1,5 +1,5 @@
 <template>
-  <Card class="container mx-auto my-4">
+  <Card class="container mx-auto my-4" v-if="cardStore.getCards">
     <template #title>
       <h1 class="text-9xl text-center">loaf.</h1>
     </template>
@@ -22,6 +22,24 @@
             <div>
               <a href="#C5">5. Kiválasztási fázis</a>
             </div>
+            <div>
+              <a href="#C6">6. Kör fázis</a>
+            </div>
+            <div>
+              <a href="#C7">7. Karakterképességek</a>
+            </div>
+            <div>
+              <a href="#C8">8. Kerületek</a>
+            </div>
+            <div>
+              <a href="#C9">9. A játék vége</a>
+            </div>
+            <div>
+              <a href="#C10">10. Karakterek</a>
+            </div>
+            <div>
+              <a href="#C11">11. Egyedi kerületek</a>
+            </div>
           </Fieldset>
         </div>
       </div>
@@ -33,7 +51,7 @@
         emelniük. Hogy ezt megtehessék, ahhoz aranyra van szükségük, valamint
         különféle kasztokba tartozó karakterek szolgálatainak megszerzésére.
       </p>
-      <div class="grid grid-cols-3">
+      <div class="grid grid-cols-3 mt-8">
         <div>
           <h2 class="text-5xl mt-4" id="C2">Az első játék</h2>
           <p>
@@ -86,7 +104,7 @@
         játékos (alapértelmezetten véletlenszerűen) megkapja a koronát, ő fogja
         kezdeni az első kört.
       </p>
-      <h2 class="text-5xl" id="C4">A játék menete</h2>
+      <h2 class="text-5xl mt-8" id="C4">A játék menete</h2>
       <p>
         A játék menete körökre van osztva. Minden kör a kiválasztási fázissal
         kezdődik, aminek során a játékosok sorban választanak karaktert. Egy
@@ -97,7 +115,7 @@
         következik a kör fázis, amiben a játékosok nyersanyagokat gyűjtenek és
         új kerületeket építenek a városaikban.
       </p>
-      <div class="grid grid-cols-2">
+      <div class="grid grid-cols-2 mt-8">
         <div>
           <h2 class="text-5xl" id="C5">Kiválasztási fázis</h2>
           <p>
@@ -144,16 +162,231 @@
         Hét játékos esetén az utolsó játékos választhatja a rejtett eldobott
         karaktert.
       </p>
+      <h2 class="text-5xl mt-8" id="C6">Kör fázis</h2>
+      <p>
+        Eltérően a kiválasztási fázistól, a kör fázis során a játékosok nem a
+        játékban lévő sorrendjük alapján lépnek, hanem választott karaktereik
+        rangjának megfelelően emelkedő számsorrendben. Ez az érték minden
+        karakterkártya bal felső sarkában látható. A játék ez alapján
+        automatikusan indítja a következő körben következő játékost.
+      </p>
+      <p>
+        A kör során a játékosnak nyersanyagokat
+        <span class="font-bold">kell</span> gyűjtenie. Kaphat két aranyat, vagy
+        húzhat két kerületkártyát a pakliból. Ha lapot húz, abból kiválaszt
+        egyet, amit megtarthat, a másik pedig eldobódik.
+      </p>
+      <p>
+        A nyersanyagok gyűjtése után
+        <span class="font-bold">lehetősége van</span> építeni egy kerületet a
+        városában. Ha ezt akarja tenni, akkor a lapot a képernyő közepére kell
+        húznia. Ha megépítheti a kerületet, akkor bekerül a városába és a játék
+        levonja az árát a kincstartalékból. A játékos körönként egy kerületet
+        építhet, és nem építhet két egyforma kerületet (aminek ugyanaz a neve),
+        ha már van egy a városában.
+      </p>
+      <p>
+        Miután a játékos elvégezte a körét, a képernyő jobb alján lévő
+        <span class="font-bold">Kör befejezése</span> gombbal véglegesítheti
+        azt. Ekkor a játék automatikusan felfedi a következő játékban lévő
+        karaktert és átadja a kört annak a játékosnak. Amennyiben minden játékos
+        végzett a körével, egy új kör veszi kezdetét a kiválasztási fázissal
+      </p>
+      <h2 class="text-5xl mt-8" id="C7">Karakterképességek</h2>
+      <p>
+        A játékos a karakterének képességeit a körében bármikor használhatja
+        (kivéve, ha a leírás felülírja a használat idejét). Ezt a képernyő jobb
+        oldalán lévő képességek fülben lévő gombok megnyomásával teheti. Ezután,
+        ha célpontot kell választani a képességhez, akkor azt megteheti a
+        felugró ablakban. Minden képességet egy körben egyszer lehet használni.
+        Bizonyos karaktereknek olyan képességei vannak, amivel nyersanyagokat
+        gyűjtenek városaik bizonyos típusú kerületeinek. Ezek a képességek
+        eredményezhetnek aranyat vagy lapokat, amint azt minden karakter
+        képessége részletesen ismerteti. A karakter keretének a színe megegyezik
+        a hozzá tartozó kerületek kereteinek színével. A karakterek listája az
+        oldal alján található részletes leírásokkal.
+      </p>
+      <h2 class="text-5xl mt-8" id="C8">Kerületek</h2>
+      <p>
+        Öt különböző kerülettípus van, amiket a lenti színek és ikonok jelölnek.
+        A kerülettípusokra bizonyos karakterkártyák hivatkoznak, és egyesek
+        hatással vannak a játék végi pontszámításra.
+      </p>
+      <div class="grid grid-cols-5 gap-x-4 text-center">
+        <div>
+          <Fieldset legend="Nemesi">
+            <i
+              class="fa fa-crown text-9xl"
+              :style="{ color: COLORS[DISTRICT_TYPE.NOBLE].PRIMARY }"
+            />
+          </Fieldset>
+        </div>
+        <div>
+          <Fieldset legend="Egyházi">
+            <i
+              class="fa fa-hands-praying text-9xl"
+              :style="{ color: COLORS[DISTRICT_TYPE.RELIGIOUS].PRIMARY }"
+            />
+          </Fieldset>
+        </div>
+        <div>
+          <Fieldset legend="Kereskedelmi">
+            <i
+              class="fa fa-coins text-9xl"
+              :style="{ color: COLORS[DISTRICT_TYPE.TRADE].PRIMARY }"
+            />
+          </Fieldset>
+        </div>
+        <div>
+          <Fieldset legend="Katonai">
+            <i
+              class="fa fa-person-military-pointing text-9xl"
+              :style="{ color: COLORS[DISTRICT_TYPE.MILITARY].PRIMARY }"
+            />
+          </Fieldset>
+        </div>
+        <div>
+          <Fieldset legend="Egyedi">
+            <i
+              class="fa fa-star text-9xl"
+              :style="{ color: COLORS[DISTRICT_TYPE.UNIQUE].PRIMARY }"
+            />
+          </Fieldset>
+        </div>
+      </div>
+      <p>
+        Minden
+        <span style="font-variant: small-caps">egyedi</span> kerületnek van
+        hatása, ami az egérmutató lap nevére helyezésével látható. Ezen hatások
+        különféle dolgokat tesznek, pl. több, bizonyos típusú nyersanyagot adnak
+        neked vagy pluszpontokat kapsz értük a játék végén.
+      </p>
+      <div class="grid grid-cols-2 gap-x-4">
+        <div>
+          <Fieldset legend="Leírások egyszerűsítései">
+            <div>
+              A lapok leírásának egyszerűsítése érdekében néhány gyakran
+              használt szó ikonokkal van helyettesítve. Ezek magyarázatai:
+            </div>
+            <div>
+              <i class="fa fa-coins" />
+              <span> : Arany</span>
+            </div>
+            <div>
+              <i class="fa fa-sheet-plastic" />
+              <span> : Lap</span>
+            </div>
+            <div>
+              <i class="fa fa-city" />
+              <span> : Kerület</span>
+            </div>
+            <div>
+              <i class="fa fa-star" />
+              <span> : Pont</span>
+            </div>
+          </Fieldset>
+        </div>
+        <div>
+          <Fieldset legend="Ne feledd...">
+            <ul class="list-disc ml-8">
+              <li>
+                A játékos kincstartalékában lévő aranyak és a játékos kezében
+                lévő lapok száma nyílt információ.
+              </li>
+              <li>
+                Nincs korlátozva, hogy egy játékosnak mennyi arany lehet a
+                kincstartalékában.
+              </li>
+              <li>
+                Nincs korlátozva az sem, hogy egy játékosnak hány lap lehet a
+                kezében.
+              </li>
+            </ul>
+          </Fieldset>
+        </div>
+      </div>
+      <h2 class="text-5xl mt-8" id="C9">A játék vége</h2>
+      <p>
+        Amikor egy játékos megépíti a hetedik kerületét, a város elkészült, és a
+        játék véget és, miután az aktuális kör befejeződött. Egy városnak lehet
+        hétnél több kerülete.
+      </p>
+      <p>A játék végén a játékosok a következőkért kaphatnak pontot:</p>
+      <ul class="list-disc ml-8">
+        <li>
+          Mindenki annyi pontot kap, amennyi a városában lévő összes kerület
+          építési költsége.
+        </li>
+        <li>
+          Ha egy játékosnak mindegyik típusból van legalább egy kerülete, akkor
+          3 pontot kap.
+        </li>
+        <li>Az a játékos, aki elsőnek fejezte be a városát, 4 pontot kap.</li>
+        <li>Minden más játékos, aki befejezte a városát, 2 pontot kap.</li>
+        <li>
+          Az <span style="font-variant: small-caps">egyedi</span> kerületekért
+          pluszpontok járnak.
+        </li>
+      </ul>
+      <h2 class="text-5xl my-8" id="C10">Karakterek</h2>
+      <div class="grid grid-cols-3 gap-x-8">
+        <div
+          class="margin-offset"
+          v-for="character in sortedCharacters"
+          :key="character"
+        >
+          <GameSettingCharacterCard :character="character" selected is-big />
+        </div>
+      </div>
+      <h2 class="text-5xl my-8" id="C11">Egyedi kerületek</h2>
+      <div class="grid grid-cols-3 gap-x-8">
+        <div
+          class="margin-offset"
+          v-for="district in cardStore.getCards.districts?.filter(
+            (d) => d.type === DISTRICT_TYPE.UNIQUE
+          )"
+          :key="district"
+        >
+          <GameSettingDistrictCard :district="district" :selected="true" />
+        </div>
+      </div>
     </template>
   </Card>
 </template>
 
 <script setup>
+import { computed, onMounted } from "vue";
+import { COLORS, DISABLED_CHARACTERS, DISTRICT_TYPE } from "@/utils/const";
+import { sortCharacters } from "@/utils/utils";
+import { useStateStore } from "@/stores/state";
+import { useCardStore } from "@/stores/cards";
 import Card from "primevue/card";
 import Fieldset from "primevue/fieldset";
+import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
+import GameSettingDistrictCard from "@/components/lobbies/GameSettingDistrictCard.vue";
+
+const stateStore = useStateStore();
+const cardStore = useCardStore();
+
+const sortedCharacters = computed(() => {
+  let chars =
+    cardStore.getCards.characters?.filter(
+      (char) => !DISABLED_CHARACTERS.includes(char.id)
+    ) ?? [];
+  return chars.sort(sortCharacters);
+});
+
+onMounted(async () => {
+  stateStore.setLoading(true);
+  await cardStore.fetchCards();
+  stateStore.setLoading(false);
+});
 </script>
 <style scoped>
 td {
   border-width: 1px;
+}
+.margin-offset {
+  margin-right: 1.25rem;
 }
 </style>

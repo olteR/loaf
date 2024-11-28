@@ -41,3 +41,19 @@ export function hasDistrict(player, district) {
     .flat(Infinity)
     .includes(district);
 }
+
+export function sortCharacters(a, b) {
+  if (a.number < b.number) {
+    return -1;
+  }
+  if (b.number < a.number) {
+    return 1;
+  }
+  if (a.id < b.id) {
+    return -1;
+  }
+  if (b.id < a.id) {
+    return 1;
+  }
+  return 0;
+}

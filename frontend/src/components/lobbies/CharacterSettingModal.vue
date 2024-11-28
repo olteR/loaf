@@ -19,10 +19,11 @@
 </template>
 
 <script setup>
-import Button from "primevue/button";
 import { computed, onMounted, ref } from "vue";
-import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
 import { DISABLED_CHARACTERS } from "@/utils/const";
+import { sortCharacters } from "@/utils/utils";
+import GameSettingCharacterCard from "@/components/lobbies/GameSettingCharacterCard.vue";
+import Button from "primevue/button";
 
 const toggleValues = ref({});
 
@@ -64,22 +65,6 @@ function saveCharacters() {
     "save",
     props.characters.filter((c) => toggleValues.value[c.id])
   );
-}
-
-function sortCharacters(a, b) {
-  if (a.number < b.number) {
-    return -1;
-  }
-  if (b.number < a.number) {
-    return 1;
-  }
-  if (a.id < b.id) {
-    return -1;
-  }
-  if (b.id < a.id) {
-    return 1;
-  }
-  return 0;
 }
 </script>
 

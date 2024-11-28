@@ -28,12 +28,12 @@ public enum AbilityEnum {
             getTypeCards(game, DistrictTypeEnum.NOBLE);
         }
     },
-    RELIGIOUS_GOLD("RELIGIOUS_GOLD", List.of("city", "coins"), "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>") {
+    RELIGIOUS_GOLD("RELIGIOUS_GOLD", List.of("city", "coins"), "<p>Kapsz egy <b><i class=\"fa fa-coins\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             getTypeGold(game, DistrictTypeEnum.RELIGIOUS);
         }
     },
-    RELIGIOUS_CARDS("RELIGIOUS_CARDS", List.of("city", "sheet-plastic"), "<p>Húzol egy <b><i class=\"fa fa-sheet-plastic\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">vallási</span> <i class=\"fa fa-city\"></i> után.</p>") {
+    RELIGIOUS_CARDS("RELIGIOUS_CARDS", List.of("city", "sheet-plastic"), "<p>Húzol egy <b><i class=\"fa fa-sheet-plastic\"></i></b> a városodban lévő minden egyes <span style=\"font-variant: small-caps\">egyházi</span> <i class=\"fa fa-city\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             getTypeCards(game, DistrictTypeEnum.RELIGIOUS);
         }

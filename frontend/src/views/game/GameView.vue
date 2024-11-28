@@ -722,7 +722,7 @@ async function useAbility(ability) {
             },
             {
               icon: "hands-praying",
-              tooltip: "Vallási",
+              tooltip: "Egyházi",
               severity: "info",
               value: DISTRICT_TYPE.RELIGIOUS,
             },
@@ -883,7 +883,7 @@ async function useAbility(ability) {
           toast.add({
             severity: "error",
             summary: "Nem használhatod ezt a képességet!",
-            detail: "Nincs vallási kerületed!",
+            detail: "Nincs egyházi kerületed!",
             life: 3000,
           });
         }
