@@ -2,10 +2,7 @@ package olter.loaf.game.cards.model;
 
 import lombok.Getter;
 import olter.loaf.game.cards.dto.AbilityTargetRequest;
-import olter.loaf.game.games.exception.CorruptedGameException;
-import olter.loaf.game.games.exception.InvalidActivationException;
-import olter.loaf.game.games.exception.InvalidTargetException;
-import olter.loaf.game.games.exception.NotEnoughGoldException;
+import olter.loaf.game.games.exception.*;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.ResourceTypeEnum;
 import olter.loaf.game.players.model.ConditionEnum;
@@ -304,6 +301,7 @@ public enum AbilityEnum {
             } else if (game.getCurrentPlayer().hasCondition(ConditionEnum.THREATENED)) {
                 blackmailer.giveGold(game.getCurrentPlayer().takeGold(game.getCurrentPlayer().getGold()));
             }
+            game.getCurrentPlayer().setUsingAbility(null);
         }
     },
     SEER("SEER", List.of("users", "hand-sparkles"), "<p>Véletlenszerűen kapsz egy <i class=\"fa fa-sheet-plastic\"></i>-t minden játékos kezéből. Ezután adnod kell minden játékosnak egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből. Ha egy játékosnak nincs <i class=\"fa fa-sheet-plastic\"></i> a kezében, nem veszel tőle <i class=\"fa fa-sheet-plastic\"></i>-t és nem is adsz neki</p>") {
@@ -341,6 +339,9 @@ public enum AbilityEnum {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity targetPlayer = game.getPlayer(target.getId());
             DistrictEntity targetDistrict = game.getCurrentPlayer().takeCard(target.getIndex());
+            if (game.getCurrentPlayer().getBuildLimit() < 1) {
+                throw new AlreadyBuiltException(game.getCurrentPlayer().getId(), targetDistrict.getId());
+            }
             List<DistrictEntity> targetDistricts = new ArrayList<>();
             List<DistrictEntity> newHand = new ArrayList<>();
             for (int i = 0; i < game.getCurrentPlayer().getHand().size(); i++) {

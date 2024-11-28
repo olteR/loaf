@@ -89,6 +89,7 @@ import InputSwitch from "primevue/inputswitch";
 import ProgressSpinner from "primevue/progressspinner";
 import LobbyList from "@/components/lobbies/LobbyList.vue";
 import InputText from "primevue/inputtext";
+import { LOBBY_STATUS } from "@/utils/const";
 
 const stateStore = useStateStore();
 const lobbyStore = useLobbyStore();
@@ -125,7 +126,7 @@ const visibleLobbies = computed(() => {
           ) >= 0
     );
   }
-  return lobbies;
+  return lobbies.filter((lobby) => lobby.status === LOBBY_STATUS.CREATED);
 });
 
 onMounted(async () => {

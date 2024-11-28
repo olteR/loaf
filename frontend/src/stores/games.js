@@ -131,6 +131,14 @@ export const useGameStore = defineStore("game", () => {
               (player) => player.character === 1
             ).id;
           }
+          if (
+            game.value.threatenedCharacters.includes(
+              getCurrentPlayer.value.character
+            ) &&
+            getCurrentPlayer.value.userId === stateStore.getUser.id
+          ) {
+            game.value.usingAbility = ABILITY.PAY_OFF;
+          }
           break;
         }
         case GAME_UPDATE.END_GAME:

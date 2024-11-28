@@ -61,40 +61,70 @@
         v-if="modalSettings.type === GAME_MODAL.CHOICE"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
       <CardSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.CARDS"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
         :district-images="cardStore.getDistrictImages"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
       <CharacterSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.CHARACTER"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
         :character-images="cardStore.getCharacterImages"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
       <PlayerSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.PLAYER"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
       <DistrictSelectModal
         v-else-if="modalSettings.type === GAME_MODAL.DISTRICT"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
         :district-images="cardStore.getDistrictImages"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
       <SliderModal
         v-else-if="modalSettings.type === GAME_MODAL.SLIDER"
         :options="modalSettings.options"
         :ability="modalSettings.ability"
-        @submit="(target, ability) => modalSettings.onSubmit(target, ability)"
+        @submit="
+          (target, ability) => {
+            modalSettings.submitted = true;
+            modalSettings.onSubmit(target, ability);
+          }
+        "
       />
     </Dialog>
   </div>
@@ -153,6 +183,7 @@ const modalSettings = ref({
   onSubmit: null,
   options: {},
   ability: null,
+  submitted: false,
 });
 
 const modalChain = ref([]);
@@ -276,9 +307,7 @@ onMounted(async () => {
   }
   websocketStore.subscribeToGame();
   stateStore.setLoading(false);
-  if (!modalSettings.value.visible && modalChain.value.length > 0) {
-    openNextModal();
-  }
+  openNextModal();
 });
 
 onBeforeRouteLeave(() => {
@@ -306,11 +335,10 @@ watch(
       console.log("bemegy");
       if (newValue === GAME_PHASE.SELECTION) {
         addCharacterSelectModal();
-        openNextModal();
       } else if (newValue === GAME_PHASE.RESOURCE) {
         addResourceSelectModal();
-        openNextModal();
       }
+      openNextModal();
     }
   }
 );
@@ -441,6 +469,7 @@ watch(
           });
           break;
       }
+      openNextModal();
     }
   }
 );
@@ -456,8 +485,8 @@ watch(
             .name
         } melyik lapot kapja!`,
         type: GAME_MODAL.CARDS,
-        submit: (target, ability) => {
-          useTargetedAbility({ id: newValue, index: target[0] }, ability);
+        submit: (target) => {
+          useTargetedAbility({ id: newValue, index: target[0] }, ABILITY.SEER);
         },
         options: {
           cards: gameStore.getGame.hand,
@@ -475,6 +504,7 @@ function openNextModal(target) {
     console.log(targetBuffer.value);
   }
   if (modalChain.value.length > 0) {
+    modalSettings.value.submitted = false;
     const modal = modalChain.value.shift();
     modalSettings.value.visible = true;
     modalSettings.value.header = modal.header;
@@ -506,8 +536,9 @@ function openNextModal(target) {
         )
         .map((character) => character.number);
     }
-  } else {
+  } else if (modalSettings.value.submitted) {
     closeModal();
+    modalSettings.value.submitted = false;
   }
 }
 
@@ -1033,8 +1064,6 @@ async function useAbility(ability) {
         },
       });
       break;
-    case ABILITY.PAY_OFF:
-      break;
     case ABILITY.CARDINAL:
       {
         const currentPlayer = gameStore.getCurrentPlayer;
@@ -1249,9 +1278,7 @@ async function useTargetedAbility(target, ability) {
     code: lobbyCode,
     target,
   });
-  if (!modalSettings.value.visible && modalChain.value.length > 0) {
-    openNextModal();
-  }
+  openNextModal();
 }
 </script>
 

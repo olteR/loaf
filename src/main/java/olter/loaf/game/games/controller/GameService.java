@@ -372,10 +372,10 @@ public class GameService {
         if (player.getHand().size() <= handIndex) {
             throw new InvalidDistricIndexException(player.getId(), handIndex);
         }
-        if (player.getBuildLimit() == 0) {
+        DistrictEntity district = game.getCurrentPlayer().getHand().get(handIndex);
+        if (player.getBuildLimit() == 0 && !district.hasAbility(AbilityEnum.STABLES)) {
             throw new BuildLimitException(player.getId());
         }
-        DistrictEntity district = game.getCurrentPlayer().getHand().get(handIndex);
         int actualCost =
             player.hasDistrictAbility(AbilityEnum.FACTORY) && district.getType() == DistrictTypeEnum.UNIQUE ?
                 district.getCost() - 1 : district.getCost();
@@ -402,17 +402,21 @@ public class GameService {
         switch (ability.getType()) {
             case MANUAL:
             case AFTER_GATHERING:
-                if (game.getCurrentPlayer().getCharacter().hasAbility(AbilityEnum.WITCH)) {
+                if (game.getCurrentPlayer().getUsingAbility() == AbilityEnum.WITCH) {
                     if (game.getBewitchedPlayer() != null &&
                         !Stream.concat(game.getCurrentPlayer().getCharacter().getAbilities().stream(),
                                 game.getCharacters().get(game.getBewitchedCharacter() - 1).getAbilities().stream()).toList()
                             .contains(ability)) {
                         throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
                     }
-                } else if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {
-                    throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                } else if (game.getCurrentPlayer().getUsingAbility() == AbilityEnum.PAY_OFF) {
+                    if (!game.getThreatenedCharacters().contains(game.getCurrentPlayer().getCharacterNumber())) {
+                        throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                    }
                 }
-                break;
+                else if (!game.getCurrentPlayer().getCharacter().hasAbility(ability)) {
+                    throw new InvalidActivationException(game.getCurrentPlayer().getId(), ability);
+                } break;
             case BEFORE_BUILD:
                 if (!game.getCurrentPlayer().getHand().stream().flatMap(district -> district.getAbilities().stream())
                     .toList().contains(ability)) {
