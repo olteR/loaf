@@ -4,14 +4,18 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
 public class UserStatisticsResponse {
     private Integer gamesPlayed;
-    private Integer gamesWon;
+    private Long gamesWon;
     private Double averagePlacement;
-    private Double goldCardsRatio;
-    private Integer mostPickedNumber;
-    private Integer mostPickedCharacter;
+    private Long goldChosen;
+    private Long cardsChosen;
+    private List<CharacterPickResponse> numberPicks;
+    private List<CharacterPickResponse> characterPicks;
+    private List<PreviousGameResponse> previousGames;
 }
