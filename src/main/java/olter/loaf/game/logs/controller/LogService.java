@@ -1,12 +1,16 @@
-package olter.loaf.statistics;
+package olter.loaf.game.logs.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import olter.loaf.game.cards.dto.AbilityTargetRequest;
 import olter.loaf.game.cards.model.AbilityEnum;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.ResourceTypeEnum;
+import olter.loaf.game.logs.dto.UserStatisticsResponse;
+import olter.loaf.game.logs.model.LogEntity;
+import olter.loaf.game.logs.model.LogRepository;
+import olter.loaf.game.logs.model.LogTypeEnum;
+import olter.loaf.users.model.UserEntity;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -72,5 +76,9 @@ public class LogService {
             logs.add(log);
         }
         logRepository.saveAll(logs);
+    }
+
+    public UserStatisticsResponse composeStatistics(UserEntity user) {
+        return new UserStatisticsResponse();
     }
 }

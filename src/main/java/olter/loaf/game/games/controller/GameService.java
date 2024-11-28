@@ -17,12 +17,13 @@ import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GamePhaseEnum;
 import olter.loaf.game.games.model.GameRepository;
 import olter.loaf.game.games.model.ResourceTypeEnum;
+import olter.loaf.game.logs.controller.LogService;
 import olter.loaf.game.players.PlayerMapper;
 import olter.loaf.game.players.model.ConditionEnum;
 import olter.loaf.game.players.model.PlayerEntity;
 import olter.loaf.game.players.model.PlayerRepository;
+import olter.loaf.game.players.model.PlayerResults;
 import olter.loaf.lobbies.model.LobbyEntity;
-import olter.loaf.statistics.LogService;
 import olter.loaf.users.model.UserEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -89,7 +90,7 @@ public class GameService {
         game.setPlayers(game.getPlayers().stream().peek(p -> {
             p.setGold(STARTING_GOLD);
             p.setHand(game.drawFromDeck(STARTING_CARDS));
-            p.setPoints(0);
+            p.setResults(new PlayerResults());
         }).collect(Collectors.toList()));
 
         game.newTurn();
@@ -382,7 +383,8 @@ public class GameService {
             !player.hasCondition(ConditionEnum.DUPLICATES) && !player.hasDistrictAbility(AbilityEnum.QUARRY)) {
             throw new AlreadyBuiltException(player.getId(), district.getId());
         }
-        if (district.hasAbility(AbilityEnum.SECRET_VAULT)) {
+        if (district.hasAbility(AbilityEnum.SECRET_VAULT) ||
+            (district.hasAbility(AbilityEnum.MONUMENT) && player.getDistricts().size() >= 5)) {
             throw new CannotBuildException(player.getId(), district.getId());
         }
     }

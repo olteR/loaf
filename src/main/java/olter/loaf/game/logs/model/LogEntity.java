@@ -1,4 +1,4 @@
-package olter.loaf.statistics;
+package olter.loaf.game.logs.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -14,7 +14,13 @@ public class PlayerResultResponse {
     private Long id;
     private String name;
     private Integer gold;
+    private Integer placement;
     private Integer points;
+    private Integer districtPoints;
+    private Integer bonusPoints;
+    private Boolean finished;
+    private Boolean finishedFirst;
+    private Boolean hasAllTypes;
     private List<DistrictResponse> hand;
     private List<DistrictResponse> districts;
 }

@@ -1,4 +1,4 @@
-package olter.loaf.statistics;
+package olter.loaf.game.logs.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

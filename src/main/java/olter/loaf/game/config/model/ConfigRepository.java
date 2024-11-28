@@ -6,6 +6,4 @@ import java.util.List;
 
 public interface ConfigRepository extends JpaRepository<ConfigEntity, Long> {
     List<ConfigEntity> findAllByType(ConfigTypeEnum type);
-
-    ConfigEntity findByTypeAndConfigId(ConfigTypeEnum type, Long configId);
 }

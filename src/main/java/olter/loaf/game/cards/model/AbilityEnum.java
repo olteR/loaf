@@ -388,14 +388,14 @@ public enum AbilityEnum {
     BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
-            player.givePoints(
+            player.giveBonusPoints(
                 (int) player.getDistricts().stream().filter(district -> district.getCost() % 2 == 1).count());
         }
     },
     IMPERIAL_TREASURY("IMPERIAL_TREASURY", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a kincstartalékodban lévő minden <i class=\"fa fa-coins\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
-            player.givePoints(player.getGold());
+            player.giveBonusPoints(player.getGold());
         }
     },
     CAPITOL("CAPITOL", "<p>A játék végén 3 <i class=\"fa fa-star\"></i> jár, ha  van legalább 3 egyforma típusú <i class=\"fa fa-city\"></i> a városodban.</p><p>A Capitolium csak egyszer adhat <i class=\"fa fa-star\"></i>-t.</p>"),
@@ -406,10 +406,11 @@ public enum AbilityEnum {
             if (player.getDistricts().stream().filter(
                     district -> district.getType() == DistrictTypeEnum.UNIQUE && !district.hasAbility(HAUNTED_QUARTER))
                 .count() > 1) {
-                player.givePoints(5);
+                player.giveBonusPoints(5);
             }
         }
     },
+    MONUMENT("MONUMENT", "<p>Nem építhetsz Emlékművet, ha 5 vagy több <i class=\"fa fa-city\"></i> van a városodban. Az emlékmű két <i class=\"fa fa-city\"></i>-nek számít a város befejezése szempontjából.</p>"),
     KEEP("KEEP", "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
     ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
@@ -425,7 +426,7 @@ public enum AbilityEnum {
     WISHING_WELL("WISHING_WELL", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár a városodban lévő minden <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> után (beleértve a Kívánságkutat is).</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
-            player.givePoints(
+            player.giveBonusPoints(
                 (int) player.getDistricts().stream().filter(district -> district.getType() == DistrictTypeEnum.UNIQUE)
                     .count());
         }
@@ -447,19 +448,21 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveGold(2);
         }
     },
+    MUSEUM("MUSEUM", "<p>Körönként egyszer elhelyezhetsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből a múzeumba. A játék végén minden múzeumban lévő lap után 1 <i class=\"fa fa-star\"></i>-t kapsz.</p><p>Ha a múzeumot elveszik, a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok is vele mennek. Ha elpusztitják, akkor a <i class=\"fa fa-sheet-plastic\"></i>-ok eldobódnak.</p>"),
     GREAT_WALL("GREAT_WALL", "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városodban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>"),
     PARK("PARK", "<p>Ha nincs <i class=\"fa fa-sheet-plastic\"></i> a kezedben a köröd végén, húzol két <i class=\"fa fa-sheet-plastic\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>"),
     DRAGON_GATE("DRAGON_GATE", ActivationEnum.END_OF_GAME, "<p>A játék végén 2 <i class=\"fa fa-star\"></i> jár.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            game.getPlayer(target.getId()).givePoints(2);
+            game.getPlayer(target.getId()).giveBonusPoints(2);
         }
     },
     POOR_HOUSE("POOR_HOUSE", "<p>Ha nincs <i class=\"fa fa-coins\"></i> a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>"),
+    THEATER("THEATER", "<p>Minden választási fázis végén vakon kicserélheted az általad választott karaktert ellenfeled egyik karakterkártyájával.</p>"),
     STATUE("STATUE", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha nálad van a <i class=\"fa fa-crown\"></i>.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
             if (player.hasCondition(ConditionEnum.CROWNED)) {
-                player.givePoints(5);
+                player.giveBonusPoints(5);
             }
         }
     },
@@ -476,7 +479,7 @@ public enum AbilityEnum {
     MAP_ROOM("MAP_ROOM", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár minden kezedben maradt <i class=\"fa fa-sheet-plastic\"></i> után.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
-            player.givePoints(player.getHand().size());
+            player.giveBonusPoints(player.getHand().size());
         }
     },
     SECRET_VAULT("SECRET_VAULT", ActivationEnum.END_OF_GAME, "<p>A titkos kriptát nem lehet építeni. Ha a játék végén a kezedben van, kapsz 3 <i class=\"fa fa-star\"></i>-t."),

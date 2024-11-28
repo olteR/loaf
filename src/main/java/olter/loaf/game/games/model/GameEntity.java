@@ -290,7 +290,7 @@ public class GameEntity extends BaseEntity {
             if (hasCapitol) {
                 capitolType =
                     districtTypes.stream().filter(type -> districtCountMap.get(type) > 2).findFirst().orElse(null);
-                player.givePoints(3);
+                player.giveBonusPoints(3);
             }
 
             if (player.hasDistrictAbility(AbilityEnum.HAUNTED_QUARTER)) {
@@ -303,7 +303,7 @@ public class GameEntity extends BaseEntity {
                     districtCountMap.put(DistrictTypeEnum.UNIQUE, districtCountMap.get(DistrictTypeEnum.UNIQUE) - 1);
                     districtCountMap.put(missingTypes.get(0), 1);
                     if (player.hasDistrictAbility(AbilityEnum.WISHING_WELL)) {
-                        player.setPoints(player.getPoints() - 1);
+                        player.getResults().setBonusPoints(player.getResults().getBonusPoints() - 1);
                     }
                 }
                 // Fill third type if player has unused Capitol
@@ -311,18 +311,29 @@ public class GameEntity extends BaseEntity {
                     !capitolTypes.isEmpty()) {
                     districtCountMap.put(DistrictTypeEnum.UNIQUE, districtCountMap.get(DistrictTypeEnum.UNIQUE) - 1);
                     districtCountMap.put(capitolTypes.get(0), 3);
-                    player.givePoints(player.hasDistrictAbility(AbilityEnum.WISHING_WELL) ? 2 : 3);
+                    player.giveBonusPoints(player.hasDistrictAbility(AbilityEnum.WISHING_WELL) ? 2 : 3);
                 }
             }
 
             if (districtTypes.stream().noneMatch(type -> districtCountMap.get(type) == 0)) {
-                player.givePoints(3);
+                player.getResults().setHasAllTypes(true);
             }
 
             if (player.getHand().stream().flatMap(district -> district.getAbilities().stream()).toList()
                 .contains(AbilityEnum.SECRET_VAULT)) {
-                player.givePoints(3);
+                player.giveBonusPoints(3);
             }
         });
+
+        players.sort(Comparator.comparing(PlayerEntity::getPoints));
+        int n = 1;
+        players.get(0).getResults().setPlacement(n);
+        for (int i = 1; i < players.size(); i++) {
+            if (Objects.equals(players.get(i - 1).getPoints(), players.get(i).getPoints())) {
+                players.get(i).getResults().setPlacement(n);
+            } else {
+                players.get(i).getResults().setPlacement(++n);
+            }
+        }
     }
 }

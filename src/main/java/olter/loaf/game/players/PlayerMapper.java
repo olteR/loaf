@@ -19,8 +19,15 @@ public interface PlayerMapper {
     @Mapping(target = "character", source = "entity", qualifiedByName = "characterIfRevealed")
     @Mapping(target = "conditions", qualifiedByName = "filteredConditions")
     @Mapping(target = "handSize", expression = "java(entity.getHand() != null ? entity.getHand().size() : 0)")
+    @Mapping(target = "isFinished", source = "results.finished")
     PublicPlayerResponse entityToPublicResponse(PlayerEntity entity);
 
+    @Mapping(target = "placement", source = "results.placement")
+    @Mapping(target = "districtPoints", source = "results.districtPoints")
+    @Mapping(target = "bonusPoints", source = "results.bonusPoints")
+    @Mapping(target = "finished", source = "results.finished")
+    @Mapping(target = "finishedFirst", source = "results.finishedFirst")
+    @Mapping(target = "hasAllTypes", source = "results.hasAllTypes")
     PlayerResultResponse entityToResultResponse(PlayerEntity entity);
 
     @Named("characterIfRevealed")

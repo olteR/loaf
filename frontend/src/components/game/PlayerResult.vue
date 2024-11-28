@@ -3,24 +3,24 @@
     class="my-6"
     style="outline: solid thick"
     :class="{
-      'outline-amber-400': placement === 1,
-      'outline-gray-400': placement === 2,
-      'outline-amber-800': placement === 3,
+      'outline-amber-400': player.placement === 1,
+      'outline-gray-400': player.placement === 2,
+      'outline-amber-800': player.placement === 3,
     }"
   >
     <template #header>
-      <div :class="`text-${Math.max(5 - placement, 2)}xl font-bold`">
+      <div :class="`text-${Math.max(5 - player.placement, 2)}xl font-bold`">
         <i
-          v-if="placement < 4"
+          v-if="player.placement < 4"
           class="mr-2 fa fa-trophy"
           :class="{
-            'text-amber-400': placement === 1,
-            'text-gray-400': placement === 2,
-            'text-amber-800': placement === 3,
+            'text-amber-400': player.placement === 1,
+            'text-gray-400': player.placement === 2,
+            'text-amber-800': player.placement === 3,
           }"
         />
         <span>
-          {{ `${placement}. ${player.name}` }}
+          {{ `${player.placement}. ${player.name}` }}
         </span>
       </div>
     </template>
@@ -57,18 +57,29 @@
         <div>
           <span>
             Pontszám kerületek értékéből:
-            {{
-              player.districts.reduce(
-                (partialSum, district) => partialSum + district.cost,
-                0
-              )
-            }}</span
+            {{ player.districtPoints }}</span
+          >
+          <i class="fa fa-star ml-1" />
+        </div>
+        <div>
+          <span>
+            Pontszám egyedi kerületek képességeiből:
+            {{ player.bonusPoints }}</span
           >
           <i class="fa fa-star ml-1" />
         </div>
         <div>
           <span> Van minden típusú kerülete: </span>
-          <i v-if="allDistricts(player)" class="fa fa-check ml-1" />
+          <i v-if="player.hasAllTypes" class="fa fa-check ml-1" />
+          <i v-else class="fa fa-x ml-1" />
+        </div>
+        <div v-if="player.finishedFirst">
+          <span>Először fejeze be a városát: </span>
+          <i class="fa fa-check ml-1" />
+        </div>
+        <div v-else>
+          <span>Befejezte a városát: </span>
+          <i v-if="player.finished" class="fa fa-check ml-1" />
           <i v-else class="fa fa-x ml-1" />
         </div>
         <div>
@@ -90,28 +101,7 @@ const cardStore = useCardStore();
 
 const props = defineProps({
   player: Object,
-  placement: Number,
 });
-
-function allDistricts(player) {
-  const districtTypes = player.districts.map((district) => district.type);
-  if (!districtTypes.includes(DISTRICT_TYPE.NOBLE)) {
-    return false;
-  }
-  if (!districtTypes.includes(DISTRICT_TYPE.RELIGIOUS)) {
-    return false;
-  }
-  if (!districtTypes.includes(DISTRICT_TYPE.TRADE)) {
-    return false;
-  }
-  if (!districtTypes.includes(DISTRICT_TYPE.MILITARY)) {
-    return false;
-  }
-  if (!districtTypes.includes(DISTRICT_TYPE.UNIQUE)) {
-    return false;
-  }
-  return true;
-}
 </script>
 
 <style scoped></style>

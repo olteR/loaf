@@ -73,7 +73,7 @@ const visiblePlayers = computed(() => {
     return props.options.players;
   }
   return props.options.players.filter(
-    (p) => p.districts.length > 0 && p.districts.length < 7
+    (p) => p.districts.length > 0 && !p.isFinished
   );
 });
 

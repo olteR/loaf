@@ -19,6 +19,7 @@ public class PublicPlayerResponse {
     private Integer handSize;
     private Integer character;
     private Integer order;
+    private Boolean isFinished;
     private List<ConditionResponse> conditions;
     private List<DistrictResponse> districts;
 }

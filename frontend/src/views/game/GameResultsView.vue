@@ -9,17 +9,16 @@
           {{
             `A játék ${
               gameStore.getGameResult?.turn
-            } körig tartott és végül ${sortedPlayers
-              .filter((_, ind) => placements[ind] === 1)
+            } körig tartott és végül ${gameStore.getGameResult?.players
+              .filter((player) => player.placement === 1)
               .map((player) => player.name)
               .join(", ")} nyert!`
           }}
         </div>
         <PlayerResult
-          v-for="(player, ind) in sortedPlayers"
+          v-for="player in sortedPlayers"
           :key="player.id"
           :player="player"
-          :placement="placements[ind]"
         />
       </template>
     </Card>
@@ -90,21 +89,7 @@ const lobbyCode = router.currentRoute.value.params.code;
 
 const sortedPlayers = computed(() => {
   let players = gameStore.getGameResult?.players ?? [];
-  return players.sort((a, b) => b.points - a.points) ?? [];
-});
-
-const placements = computed(() => {
-  let n = 0;
-  return sortedPlayers.value.map((player, ind) => {
-    if (
-      sortedPlayers.value[ind - 1] &&
-      sortedPlayers.value[ind - 1].points === player.points
-    ) {
-      return n;
-    } else {
-      return ++n;
-    }
-  });
+  return players.sort((a, b) => a.placement - b.placement) ?? [];
 });
 
 onMounted(async () => {

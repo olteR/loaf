@@ -12,7 +12,10 @@ import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -23,7 +26,6 @@ import java.util.*;
 public class PlayerEntity extends BaseEntity {
     private Long userId;
     private Integer gold;
-    private Integer points;
     private Integer buildLimit;
     private Boolean revealed;
     private Long abilityTarget;
@@ -39,6 +41,9 @@ public class PlayerEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private AbilityEnum usingAbility;
+
+    @Embedded
+    private PlayerResults results;
 
     @ElementCollection
     @CollectionTable(name = "player_conditions", joinColumns = @JoinColumn(name = "player_id"))
@@ -80,31 +85,41 @@ public class PlayerEntity extends BaseEntity {
         this.gold += amount;
     }
 
-    public void givePoints(Integer amount) {
-        this.points += amount;
+    public void giveDistrictPoints(Integer amount) {
+        this.results.giveDistrictPoints(amount);
+    }
+
+    public void giveBonusPoints(Integer amount) {
+        this.results.giveBonusPoints(amount);
+    }
+
+    public Integer getPoints() {
+        if (this.results == null) {
+            return 0;
+        }
+        return this.results.getTotalPoints();
     }
 
     public void giveDistrict(DistrictEntity district) {
         this.districts.add(district);
-        this.points += district.getCost();
-        if (this.districts.size() == 7) {
-            if (game.getIsFinalTurn()) {
-                this.points += 2;
-            } else {
+        this.giveDistrictPoints(district.getCost());
+        if (this.districts.size() == (this.hasDistrictAbility(AbilityEnum.MONUMENT) ? 6 : 7)) {
+            this.results.setFinished(true);
+            if (!game.getIsFinalTurn()) {
+                this.results.setFinishedFirst(true);
                 game.setIsFinalTurn(true);
-                this.points += 4;
             }
         }
     }
 
     public DistrictEntity removeDistrict(int index) {
         DistrictEntity removed = this.districts.remove(index);
-        this.points -= removed.getCost();
+        this.results.takeDistrictPoints(removed.getCost());
         return removed;
     }
 
     public void removeDistrict(DistrictEntity district) {
-        this.points -= district.getCost();
+        this.results.takeDistrictPoints(district.getCost());
         this.districts.remove(district);
     }
 
