@@ -359,6 +359,7 @@ public enum AbilityEnum {
             targetPlayer.getHand().addAll(targetDistricts);
             game.getCurrentPlayer().setGold(0);
             game.getCurrentPlayer().giveDistrict(targetDistrict);
+            game.getCurrentPlayer().setBuildLimit(game.getCurrentPlayer().getBuildLimit() - 1);
             game.getCurrentPlayer().setHand(newHand);
         }
     },
