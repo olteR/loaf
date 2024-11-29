@@ -12,10 +12,7 @@ import olter.loaf.game.cards.model.DistrictEntity;
 import olter.loaf.game.games.model.GameEntity;
 import org.hibernate.annotations.Formula;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -67,6 +64,11 @@ public class PlayerEntity extends BaseEntity {
     @JoinTable(name = "player_districts", joinColumns = @JoinColumn(name = "player_id"),
         inverseJoinColumns = @JoinColumn(name = "district_id"))
     private List<DistrictEntity> districts;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "player_museum_districts", joinColumns = @JoinColumn(name = "player_id"),
+        inverseJoinColumns = @JoinColumn(name = "district_id"))
+    private List<DistrictEntity> museumDistricts = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private GameEntity game;

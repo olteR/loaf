@@ -60,7 +60,7 @@ public class DefaultGameDataGenerator {
                 new DistrictEntity(33L, "Könyvtár", "Könyvtár", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.LIBRARY)),
                 new DistrictEntity(34L, "Kőfejtő", "Kőfejtő", 5, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.QUARRY)),
                 new DistrictEntity(35L, "Laboratórium", "Laboratórium", 5, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.LABORATORY)),
-                new DistrictEntity(36L, "Múzeum", "Múzeum", 4, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.MUSEUM)),
+                new DistrictEntity(36L, "Múzeum", "Múzeum", 4, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.PUT_IN_MUSEUM, AbilityEnum.MUSEUM)),
                 new DistrictEntity(37L, "Nagy Fal", "Nagy Fal", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.GREAT_WALL)),
                 new DistrictEntity(38L, "Park", "Park", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.PARK)),
                 new DistrictEntity(39L, "Sárkánykapu", "Sárkánykapu", 6, DistrictTypeEnum.UNIQUE, List.of(AbilityEnum.DRAGON_GATE)),

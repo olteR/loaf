@@ -61,7 +61,7 @@ public class GameEntity extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "game")
     private LobbyEntity lobby;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OrderBy("order ASC")
     private List<PlayerEntity> players = new ArrayList<>();
 

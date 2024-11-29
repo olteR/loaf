@@ -138,6 +138,10 @@ public enum AbilityEnum {
             }
             game.getCurrentPlayer().takeGold(actualCost);
             game.getDeck().add(district);
+            if (district.hasAbility(MUSEUM)) {
+                game.getDeck().addAll(targetPlayer.getMuseumDistricts());
+                targetPlayer.setMuseumDistricts(new ArrayList<>());
+            }
         }
     },
     QUEEN("QUEEN", List.of("crown", "coins"), "<p>Ha a sorban egy melletted lévő játékos 4-es rangú karaktert választott, kapsz 3 <i class=\"fa fa-coins\"></i>-t. Ha ezt a karaktert megöli az Orgyilkos, az <i class=\"fa fa-coins\"></i>-t a kör legvégén kapod meg.</p>"),
@@ -270,7 +274,15 @@ public enum AbilityEnum {
                 targetPlayer.giveGold(game.getCurrentPlayer().takeGold(amount));
             }
             game.getCurrentPlayer().giveDistrict(districtToTake);
+            if (districtToTake.hasAbility(MUSEUM)) {
+                game.getCurrentPlayer().setMuseumDistricts(targetPlayer.getMuseumDistricts());
+                targetPlayer.setMuseumDistricts(new ArrayList<>());
+            }
             targetPlayer.giveDistrict(districtToGive);
+            if (districtToGive.hasAbility(MUSEUM)) {
+                targetPlayer.setMuseumDistricts(game.getCurrentPlayer().getMuseumDistricts());
+                game.getCurrentPlayer().setMuseumDistricts(new ArrayList<>());
+            }
         }
     },
     ARTIST("ARTIST", List.of("city", "paintbrush"), "<p>Megszépíthetsz legfejlebb 2 <i class=\"fa fa-city\"></i>-et, fejenként 1 <i class=\"fa fa-coins\"></i>-ért cserébe. A megszépített <i class=\"fa fa-city\"></i>-ek értéke egyel nő a játék végéig. Egy <i class=\"fa fa-city\"></i>-et csak egyszer lehet megszépíteni.</p>"),
@@ -439,7 +451,13 @@ public enum AbilityEnum {
     KEEP("KEEP", "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
     ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            game.getDeck().add(game.getPlayer(target.getId()).removeDistrict(target.getIndex()));
+            PlayerEntity targetPlayer = game.getPlayer(target.getId());
+            DistrictEntity targetDistrict = targetPlayer.removeDistrict(target.getIndex());
+            game.getDeck().add(targetDistrict);
+            if (targetDistrict.hasAbility(MUSEUM)) {
+                game.getDeck().addAll(targetPlayer.getMuseumDistricts());
+                targetPlayer.setMuseumDistricts(new ArrayList<>());
+            }
             game.getDeck().add(game.getCurrentPlayer().removeDistrict(
                 game.getCurrentPlayer().getDistricts().stream().filter(district -> district.hasAbility(ARMORY))
                     .findFirst().orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()))));
@@ -473,7 +491,17 @@ public enum AbilityEnum {
             game.getCurrentPlayer().giveGold(2);
         }
     },
-    MUSEUM("MUSEUM", "<p>Körönként egyszer elhelyezhetsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből a múzeumba. A játék végén minden múzeumban lévő lap után 1 <i class=\"fa fa-star\"></i>-t kapsz.</p><p>Ha a múzeumot elveszik, a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok is vele mennek. Ha elpusztitják, akkor a <i class=\"fa fa-sheet-plastic\"></i>-ok eldobódnak.</p>"),
+    MUSEUM("MUSEUM", ActivationEnum.END_OF_GAME, "") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            PlayerEntity player = game.getPlayer(target.getId());
+            player.giveBonusPoints(player.getMuseumDistricts().size());
+        }
+    },
+    PUT_IN_MUSEUM("PUT_IN_MUSEUM", ActivationEnum.MANUAL, "<p>Körönként egyszer elhelyezhetsz egy <i class=\"fa fa-sheet-plastic\"></i>-t a kezedből a múzeumba. A játék végén minden múzeumban lévő lap után 1 <i class=\"fa fa-star\"></i>-t kapsz.</p><p>Ha a múzeumot elveszik, a benne lévő <i class=\"fa fa-sheet-plastic\"></i>-ok is vele mennek. Ha elpusztitják, akkor a <i class=\"fa fa-sheet-plastic\"></i>-ok eldobódnak.</p>") {
+        public void useAbility(GameEntity game, AbilityTargetRequest target) {
+            game.getCurrentPlayer().getMuseumDistricts().add(game.getCurrentPlayer().getHand().get(target.getIndex()));
+        }
+    },
     GREAT_WALL("GREAT_WALL", "<p>A 8-as rangú karakternek eggyel több <i class=\"fa fa-coins\"></i>-t kell fizetnie, hogy használhassa a képességét városodban lévő bármely más <i class=\"fa fa-city\"></i>-en.</p>"),
     PARK("PARK", "<p>Ha nincs <i class=\"fa fa-sheet-plastic\"></i> a kezedben a köröd végén, húzol két <i class=\"fa fa-sheet-plastic\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Park képessége nem lép életbe.</p>"),
     DRAGON_GATE("DRAGON_GATE", ActivationEnum.END_OF_GAME, "<p>A játék végén 2 <i class=\"fa fa-star\"></i> jár.</p>") {
