@@ -2,7 +2,7 @@ package olter.loaf.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import olter.loaf.common.exception.MissingFieldsException;
+import olter.loaf.common.exception.InvalidFieldsException;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.CharacterRepository;
@@ -69,8 +69,9 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse createLobby(LobbyDto request, UserEntity creator) {
-        if (request.getName() == null || request.getMaxMembers() == null) {
-            throw new MissingFieldsException(LobbyDto.class);
+        if (request.getName() == null || request.getMaxMembers() == null || request.getMaxMembers() < 4 ||
+            request.getMaxMembers() > 7) {
+            throw new InvalidFieldsException(LobbyDto.class);
         }
         log.info("{} creating lobby...", request.getName());
         LobbyEntity lobby = new LobbyEntity();
@@ -95,7 +96,7 @@ public class LobbyService {
 
     public LobbyDetailsResponse editLobby(LobbyDto request, String code, UserEntity user) {
         if (request.getName() == null || request.getMaxMembers() == null) {
-            throw new MissingFieldsException(LobbyDto.class);
+            throw new InvalidFieldsException(LobbyDto.class);
         }
         log.info("{} editing lobby {}...", user.getId(), code);
         LobbyEntity lobby = findLobby(code);
@@ -113,7 +114,7 @@ public class LobbyService {
 
     public LobbyDetailsResponse editSecurity(LobbyDto request, String code, UserEntity user) {
         if (request.getSecured() == null) {
-            throw new MissingFieldsException(LobbyDto.class);
+            throw new InvalidFieldsException(LobbyDto.class);
         }
         log.info("{} editing lobby security {}...", user.getId(), code);
         LobbyEntity lobby = findLobby(code);

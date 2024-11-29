@@ -2,7 +2,7 @@ package olter.loaf.users.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import olter.loaf.common.exception.MissingFieldsException;
+import olter.loaf.common.exception.InvalidFieldsException;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.common.security.JwtHandler;
 import olter.loaf.common.security.dto.LoginRequest;
@@ -45,7 +45,7 @@ public class UserService implements UserDetailsService {
 
     public LoginResponse loginUser(LoginRequest loginRequest) {
         if (loginRequest.getName() == null || loginRequest.getPassword() == null) {
-            throw new MissingFieldsException(LoginRequest.class);
+            throw new InvalidFieldsException(LoginRequest.class);
         }
         UserEntity user = userRepository.findByName(loginRequest.getName())
             .orElseThrow(() -> new LoginException(loginRequest.getName()));
