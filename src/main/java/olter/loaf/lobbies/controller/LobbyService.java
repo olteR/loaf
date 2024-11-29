@@ -152,6 +152,9 @@ public class LobbyService {
         log.info("{} leaving lobby {}", user.getName(), lobby.getName());
 
         validateProgress(lobby);
+        if (leavingPlayer.getUserId().equals(lobby.getOwner())) {
+            throw new NoPrivilegeException(code, user.getId());
+        }
 
         members.remove(user);
         lobby.setMembers(members);

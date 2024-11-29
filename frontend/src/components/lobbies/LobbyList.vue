@@ -63,6 +63,7 @@
             label="Kilépés"
             icon="pi pi-sign-out"
             class="p-button-danger"
+            :disabled="lobby.owner === stateStore.getUser.id"
             @click="lobbyStore.leaveLobby(lobby.code)"
           ></Button>
         </div>
