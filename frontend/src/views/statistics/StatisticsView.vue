@@ -25,7 +25,10 @@
             </div>
             <div>
               Átlagos helyezés:
-              {{ userStore.getStatistics?.averagePlacement }}
+              {{
+                Math.round(userStore.getStatistics?.averagePlacement * 100) /
+                100
+              }}
             </div>
             <div>
               Legtöbbet választott rang:
