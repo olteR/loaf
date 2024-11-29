@@ -2,6 +2,7 @@ package olter.loaf.lobbies.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import olter.loaf.common.exception.MissingFieldsException;
 import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.CharacterRepository;
@@ -68,6 +69,9 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse createLobby(LobbyDto request, UserEntity creator) {
+        if (request.getName() == null || request.getMaxMembers() == null) {
+            throw new MissingFieldsException(LobbyDto.class);
+        }
         log.info("{} creating lobby...", request.getName());
         LobbyEntity lobby = new LobbyEntity();
         lobbyMapper.map(request, lobby);
@@ -90,13 +94,15 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse editLobby(LobbyDto request, String code, UserEntity user) {
+        if (request.getName() == null || request.getMaxMembers() == null) {
+            throw new MissingFieldsException(LobbyDto.class);
+        }
         log.info("{} editing lobby {}...", user.getId(), code);
         LobbyEntity lobby = findLobby(code);
         validateOwnerRequest(lobby, user);
         if (lobby.getMembers().size() > request.getMaxMembers()) {
             throw new TooManyMembersException(code);
         }
-
         lobby.setName(request.getName());
         lobby.setMaxMembers(request.getMaxMembers());
         lobbyRepository.save(lobby);
@@ -106,6 +112,9 @@ public class LobbyService {
     }
 
     public LobbyDetailsResponse editSecurity(LobbyDto request, String code, UserEntity user) {
+        if (request.getSecured() == null) {
+            throw new MissingFieldsException(LobbyDto.class);
+        }
         log.info("{} editing lobby security {}...", user.getId(), code);
         LobbyEntity lobby = findLobby(code);
         validateOwnerRequest(lobby, user);
@@ -290,7 +299,7 @@ public class LobbyService {
     // Returns the lobby or throws an exception if it doesn't exist
     private LobbyEntity findLobby(String code) {
         return lobbyRepository.findByCode(code)
-            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class.getName(), code));
+            .orElseThrow(() -> new ResourceNotFoundException(LobbyEntity.class, code));
     }
 
     // Broadcasts the update to all the members of the lobby

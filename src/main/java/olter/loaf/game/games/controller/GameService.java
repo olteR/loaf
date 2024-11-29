@@ -285,7 +285,7 @@ public class GameService {
     // Returns the game or throws an exception if it doesn't exist
     private GameEntity findGame(String code) {
         return gameRepository.findByCode(code)
-            .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class.getName(), code));
+            .orElseThrow(() -> new ResourceNotFoundException(GameEntity.class, code));
     }
 
     // Assembles the starting deck with the given unique districts
