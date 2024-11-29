@@ -428,7 +428,7 @@ public enum AbilityEnum {
             PlayerEntity player = game.getPlayer(target.getId());
             if (player.getDistricts().stream().filter(
                     district -> district.getType() == DistrictTypeEnum.UNIQUE && !district.hasAbility(HAUNTED_QUARTER))
-                .count() > 1) {
+                .count() == 1) {
                 player.giveBonusPoints(5);
             }
         }
