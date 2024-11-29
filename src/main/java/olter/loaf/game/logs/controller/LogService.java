@@ -93,7 +93,7 @@ public class LogService {
     public UserStatisticsResponse composeStatistics(UserEntity user) {
         List<PlayerEntity> players = playerRepository.findAllEndedByUserId(user.getId());
         List<LogEntity> logs =
-            logRepository.findAllByPlayerIdIn(players.stream().map(PlayerEntity::getId).collect(Collectors.toList()));
+            logRepository.findAllByPlayerIdInAndGameEnded(players.stream().map(PlayerEntity::getId).collect(Collectors.toList()));
         UserStatisticsResponse response = new UserStatisticsResponse();
 
         // Generic stats
