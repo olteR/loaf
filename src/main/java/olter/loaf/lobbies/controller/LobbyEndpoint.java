@@ -87,10 +87,10 @@ public class LobbyEndpoint {
     }
 
     @PostMapping("/lobby/{code}/reorder")
-    public ResponseEntity<Void> reorderLobby(@RequestBody List<LobbyMemberDto> request, @PathVariable String code,
+    public ResponseEntity<Void> reorderLobby(@PathVariable String code, @RequestBody List<LobbyMemberDto> members,
         @SecurityAnnotations.GetLoggedInUser UserEntity user
     ) {
-        lobbyService.reorderLobby(request, code, user);
+        lobbyService.reorderLobby(code, members, user);
         return ResponseEntity.ok().build();
     }
 

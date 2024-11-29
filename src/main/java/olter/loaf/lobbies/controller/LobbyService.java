@@ -6,6 +6,7 @@ import olter.loaf.common.exception.ResourceNotFoundException;
 import olter.loaf.game.cards.model.CharacterEntity;
 import olter.loaf.game.cards.model.CharacterRepository;
 import olter.loaf.game.games.controller.GameService;
+import olter.loaf.game.games.exception.CorruptedGameException;
 import olter.loaf.game.games.exception.NotInGameException;
 import olter.loaf.game.games.model.GameEntity;
 import olter.loaf.game.games.model.GameRepository;
@@ -197,9 +198,19 @@ public class LobbyService {
         lobbyRepository.save(lobby);
     }
 
-    public void reorderLobby(List<LobbyMemberDto> request, String code, UserEntity user) {
+    public void reorderLobby(String code, List<LobbyMemberDto> members, UserEntity user) {
         LobbyEntity lobby = findLobby(code);
         log.info("Reordering lobby {}", code);
+        validateOwnerRequest(lobby, user);
+        List<PlayerEntity> players = lobby.getGame().getPlayers();
+
+        players.forEach(player -> player.setOrder(
+            members.stream().filter(member -> member.getId().equals(player.getUserId())).findFirst()
+                .orElseThrow(() -> new CorruptedGameException(code)).getOrder()));
+
+        playerRepository.saveAll(players);
+        broadcastOnWebsocket(code, lobby.getMembers(), LobbyUpdateTypeEnum.REORDER,
+            userRepository.getLobbyMembers(lobby.getCode()));
     }
 
     public void deleteLobby(String code, UserEntity user) {

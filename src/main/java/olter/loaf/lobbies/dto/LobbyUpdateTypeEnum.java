@@ -11,6 +11,7 @@ public enum LobbyUpdateTypeEnum {
     SECURITY("SECURITY"),
     OWNER("OWNER"),
     KICK("KICK"),
+    REORDER("REORDER"),
     CHARACTERS("CHARACTERS"),
     DISTRICTS("DISTRICTS"),
     CROWN("CROWN"),

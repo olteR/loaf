@@ -234,6 +234,15 @@ onBeforeRouteLeave(() => {
   websocketStore.unsubscribe();
 });
 
+async function onRowReorder(reorder) {
+  await lobbyStore.reorderLobby(
+    lobbyCode,
+    reorder.value.map((member, i) => {
+      return { ...member, order: i + 1 };
+    })
+  );
+}
+
 async function openLobby() {
   modalLoading.value = true;
   await lobbyStore.updateSecurity({ secured: false }, lobbyCode);

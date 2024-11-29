@@ -25,6 +25,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     security: (code) => `lobby/${code}/security`,
     promote: `lobby/promote`,
     kick: `lobby/kick`,
+    reorder: (code) => `lobby/${code}/reorder`,
     characters: `lobby/characters`,
     districts: `lobby/districts`,
     crown: `lobby/crown`,
@@ -107,6 +108,10 @@ export const useLobbyStore = defineStore("lobby", () => {
       code: code,
       memberId: id,
     });
+  }
+
+  async function reorderLobby(code, members) {
+    await requestStore.request(`${urls.reorder(code)}`, REQ_TYPE.POST, members);
   }
 
   async function updateCharacters(code, characters) {
@@ -206,6 +211,10 @@ export const useLobbyStore = defineStore("lobby", () => {
           }
           break;
         }
+        case LOBBY_UPDATE.REORDER: {
+          lobby.value.members = update.change;
+          break;
+        }
         case LOBBY_UPDATE.CHARACTERS: {
           lobby.value.gameSettings.characters = update.change;
           break;
@@ -256,6 +265,7 @@ export const useLobbyStore = defineStore("lobby", () => {
     leaveLobby,
     promoteMember,
     kickMember,
+    reorderLobby,
     updateCharacters,
     updateDistricts,
     crownMember,
