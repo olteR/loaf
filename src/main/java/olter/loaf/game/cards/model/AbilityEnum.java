@@ -439,10 +439,10 @@ public enum AbilityEnum {
     KEEP("KEEP", "<p>8-as rangú karakter nem használhatja a képességét az Erődítményen.</p>"),
     ARMORY("ARMORY", List.of("city", "bomb"), ActivationEnum.AFTER_BUILD, "<p>A köröd folyamán elpusztíthatod a Fegyvertárat, hogy elpusztíts egy másik játékos városában lévő <i class=\"fa fa-city\"></i>-t.</p><p>Befejezett városban nem lehet <i class=\"fa fa-city\"></i>-t elpusztítani.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
-            game.getPlayer(target.getId()).removeDistrict(target.getIndex());
-            game.getCurrentPlayer().removeDistrict(game.getCurrentPlayer().getDistricts().stream()
-                .filter(district -> district.hasAbility(ARMORY)).findFirst()
-                .orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode())));
+            game.getDeck().add(game.getPlayer(target.getId()).removeDistrict(target.getIndex()));
+            game.getDeck().add(game.getCurrentPlayer().removeDistrict(
+                game.getCurrentPlayer().getDistricts().stream().filter(district -> district.hasAbility(ARMORY))
+                    .findFirst().orElseThrow(() -> new CorruptedGameException(game.getLobby().getCode()))));
         }
     },
     FACTORY("FACTORY", "<p>Eggyel kevesebbet fizetsz minden más, <span style=\"font-variant: small-caps\">egyedi</span> <i class=\"fa fa-city\"></i> megépítéséért.</p>"),

@@ -118,9 +118,10 @@ public class PlayerEntity extends BaseEntity {
         return removed;
     }
 
-    public void removeDistrict(DistrictEntity district) {
+    public DistrictEntity removeDistrict(DistrictEntity district) {
         this.results.takeDistrictPoints(district.getCost());
         this.districts.remove(district);
+        return district;
     }
 
     public Integer takeGold(Integer gold) {
