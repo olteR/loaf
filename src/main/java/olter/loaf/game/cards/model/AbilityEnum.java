@@ -482,7 +482,7 @@ public enum AbilityEnum {
         }
     },
     POOR_HOUSE("POOR_HOUSE", "<p>Ha nincs <i class=\"fa fa-coins\"></i> a kincstartalékodban a köröd végén, kapsz 1 <i class=\"fa fa-coins\"></i>-t.</p><p>Ha a birtokos a Boszorkány és nincs megbabonázott köre, akkor a Szegényház képessége nem lép életbe.</p><p>Az alkímista képessége a Szegényház hatása után érvényesül.</p>"),
-    THEATER("THEATER", "<p>Minden választási fázis végén vakon kicserélheted az általad választott karaktert ellenfeled egyik karakterkártyájával.</p>"),
+    THEATER("THEATER", "<p>Minden választási fázis végén véletlenszerűen kicserélődik a választott karaktered egy másik játékoséval.</p>"),
     STATUE("STATUE", ActivationEnum.END_OF_GAME, "<p>A játék végén 5 <i class=\"fa fa-star\"></i> jár, ha nálad van a <i class=\"fa fa-crown\"></i>.</p>") {
         public void useAbility(GameEntity game, AbilityTargetRequest target) {
             PlayerEntity player = game.getPlayer(target.getId());
@@ -525,6 +525,9 @@ public enum AbilityEnum {
                     newHand.add(district);
                 }
             }
+            if (game.getCurrentPlayer().getBuildLimit() < 1) {
+                throw new AlreadyBuiltException(game.getCurrentPlayer().getId(), thievesDen.getId());
+            }
             if (targetDistricts.size() + game.getCurrentPlayer().getGold() < 6) {
                 throw new NotEnoughGoldException(game.getCurrentPlayer().getId(), THIEVES_DEN);
             }
@@ -532,6 +535,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().setHand(newHand);
             game.getCurrentPlayer().takeGold(6 - targetDistricts.size());
             game.getCurrentPlayer().giveDistrict(thievesDen);
+            game.getCurrentPlayer().setBuildLimit(game.getCurrentPlayer().getBuildLimit() - 1);
         }
     },
     SCHOOL_OF_MAGIC("SCHOOL_OF_MAGIC", "<p>A kerületekhez nyersanyagokat gyűjtő képességeket tekintve a Varázstanoda a karaktered típusának számít.</p>");
