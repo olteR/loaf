@@ -177,6 +177,17 @@ public class GameEntity extends BaseEntity {
                     }
                     this.currentPlayer.setUnavailableCharacters(unavailableCharacters);
                 } else {
+                    for (PlayerEntity player : this.players) {
+                        if (player.hasDistrictAbility(AbilityEnum.THEATER)) {
+                            Random r = new Random();
+                            PlayerEntity otherPlayer =
+                                this.players.stream().filter(p -> !p.getId().equals(player.getId())).toList()
+                                    .get(r.nextInt(this.players.size() - 1));
+                            Integer temp = player.getCharacterNumber();
+                            player.setCharacter(otherPlayer.getCharacterNumber());
+                            otherPlayer.setCharacter(temp);
+                        }
+                    }
                     Integer firstChar =
                         this.players.stream().map(PlayerEntity::getCharacterNumber).min(Integer::compareTo).get();
                     PlayerEntity nextPlayer =
