@@ -407,6 +407,7 @@ public enum AbilityEnum {
             game.getCurrentPlayer().removeDistrict(framework);
             game.getCurrentPlayer().giveDistrict(targetDistrict);
             game.getCurrentPlayer().setBuildLimit(game.getCurrentPlayer().getBuildLimit() - 1);
+            game.getDeck().add(framework);
         }
     },
     BASILICA("BASILICA", ActivationEnum.END_OF_GAME, "<p>A játék végén 1 <i class=\"fa fa-star\"></i> jár városodban minden olyan <i class=\"fa fa-city\"></i>-ért, aminek ára páratlan szám.</p>") {
