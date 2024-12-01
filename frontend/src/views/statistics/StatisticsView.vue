@@ -5,7 +5,10 @@
         <h1 class="text-5xl text-center">Statisztikák</h1>
       </template>
       <template #content>
-        <div class="grid grid-cols-5 gap-x-8">
+        <div
+          v-if="userStore.getStatistics?.gamesPlayed"
+          class="grid grid-cols-5 gap-x-8"
+        >
           <div>
             <h3 class="text-2xl text-center font-bold mb-4">
               Általános statisztikák
@@ -231,6 +234,7 @@
             ></Chart>
           </div>
         </div>
+        <div v-else>Még nincs lejátszott játékod.</div>
       </template>
     </Card>
     <Card class="container mx-auto my-4"
@@ -238,54 +242,61 @@
         <h1 class="text-5xl text-center">Múltbeli játékok</h1>
       </template>
       <template #content>
-        <Panel
-          v-for="game in userStore.getStatistics?.previousGames"
-          :key="game.code"
-          class="my-6"
-          style="outline: solid thick"
-          :class="{
-            'outline-amber-400': game.placement === 1,
-            'outline-gray-400': game.placement === 2,
-            'outline-amber-800': game.placement === 3,
-          }"
-        >
-          <template #header>
-            <div :class="`text-2xl font-bold`">
-              <span>
-                {{ game.name }}
-              </span>
-              <i
-                v-if="game.placement < 4"
-                class="ml-2 fa fa-trophy"
-                :class="{
-                  'text-amber-400': game.placement === 1,
-                  'text-gray-400': game.placement === 2,
-                  'text-amber-800': game.placement === 3,
-                }"
-              />
-            </div>
-          </template>
-          <div class="inline-flex w-full justify-between">
-            <div>
-              <div>{{ `Helyezés: ${game.placement}.` }}</div>
-              <div>
-                <span>{{ `Pontszám: ${game.points}` }}</span>
-                <i class="ml-1 fa fa-star" />
+        <div v-if="userStore.getStatistics?.previousGames.length > 0">
+          <Panel
+            v-for="game in userStore.getStatistics?.previousGames"
+            :key="game.code"
+            class="my-6"
+            style="outline: solid thick"
+            :class="{
+              'outline-amber-400': game.placement === 1,
+              'outline-gray-400': game.placement === 2,
+              'outline-amber-800': game.placement === 3,
+            }"
+          >
+            <template #header>
+              <div :class="`text-2xl font-bold`">
+                <span>
+                  {{ game.name }}
+                </span>
+                <i
+                  v-if="game.placement < 4"
+                  class="ml-2 fa fa-trophy"
+                  :class="{
+                    'text-amber-400': game.placement === 1,
+                    'text-gray-400': game.placement === 2,
+                    'text-amber-800': game.placement === 3,
+                  }"
+                />
               </div>
+            </template>
+            <div class="inline-flex w-full justify-between">
               <div>
-                Játékosok:
-                <Chip v-for="player in game.players" :key="player" class="mr-1">
-                  {{ player }}
-                </Chip>
+                <div>{{ `Helyezés: ${game.placement}.` }}</div>
+                <div>
+                  <span>{{ `Pontszám: ${game.points}` }}</span>
+                  <i class="ml-1 fa fa-star" />
+                </div>
+                <div>
+                  Játékosok:
+                  <Chip
+                    v-for="player in game.players"
+                    :key="player"
+                    class="mr-1"
+                  >
+                    {{ player }}
+                  </Chip>
+                </div>
+              </div>
+              <div class="self-end">
+                <Button @click="router.push(`/game-results/${game.code}`)"
+                  >Részletek</Button
+                >
               </div>
             </div>
-            <div class="self-end">
-              <Button @click="router.push(`/game-results/${game.code}`)"
-                >Részletek</Button
-              >
-            </div>
-          </div>
-        </Panel>
+          </Panel>
+        </div>
+        <div v-else>Még nincs lejátszott játékod.</div>
       </template>
     </Card>
   </div>

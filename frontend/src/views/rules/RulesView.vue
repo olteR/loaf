@@ -1,7 +1,7 @@
 <template>
   <Card class="container mx-auto my-4" v-if="cardStore.getCards">
     <template #title>
-      <h1 class="text-9xl text-center">loaf.</h1>
+      <h1 class="text-5xl text-center">Játékszabályok</h1>
     </template>
     <template #content>
       <div class="grid grid-cols-3">

@@ -87,10 +87,6 @@ public class PlayerEntity extends BaseEntity {
         this.gold += amount;
     }
 
-    public void giveDistrictPoints(Integer amount) {
-        this.results.giveDistrictPoints(amount);
-    }
-
     public void giveBonusPoints(Integer amount) {
         this.results.giveBonusPoints(amount);
     }
@@ -104,7 +100,7 @@ public class PlayerEntity extends BaseEntity {
 
     public void giveDistrict(DistrictEntity district) {
         this.districts.add(district);
-        this.giveDistrictPoints(district.getCost());
+        this.results.giveDistrictPoints(district.getCost());
         if (this.districts.size() == (this.hasDistrictAbility(AbilityEnum.MONUMENT) ? 6 : 7)) {
             this.results.setFinished(true);
             if (!game.getIsFinalTurn()) {
@@ -154,6 +150,9 @@ public class PlayerEntity extends BaseEntity {
 
     public DistrictEntity takeRandomCard() {
         Random r = new Random();
+        if (this.hand.isEmpty()) {
+            return null;
+        }
         return this.hand.remove(r.nextInt(this.hand.size()));
     }
 
